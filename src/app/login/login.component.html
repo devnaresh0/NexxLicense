@@ -15,11 +15,11 @@
 
     <!-- User Icon -->
     <div class="user-icon">
-      <i class="icon">👥</i>
+      <b class="icon">👥</b>
     </div>
 
     <!-- Step 1: Username -->
-    <div *ngIf="isStep1" class="form-step">
+    <div [formGroup]="loginForm" *ngIf="isStep1" class="form-step">
       <div class="input-group">
         <input
           type="email"
@@ -28,7 +28,7 @@
           formControlName="username"
           [class.error]="showUsernameError">
         <div class="input-icon">
-          <i class="email-icon">✉</i>
+          <b class="email-icon">✉</b>
         </div>
       </div>
       
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Step 2: Password -->
-    <div *ngIf="isStep2" class="form-step">
+    <div  [formGroup]="loginForm"  *ngIf="isStep2" class="form-step">
       <div class="welcome-message">
         Welcome {{ username }}
       </div>
@@ -54,7 +54,7 @@
           formControlName="password"
           [class.error]="showPasswordError">
         <div class="input-icon">
-          <i class="lock-icon">🔒</i>
+          <b class="lock-icon">🔒</b>
         </div>
       </div>
       
