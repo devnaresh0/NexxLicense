@@ -15,6 +15,90 @@
 
     <!-- User Icon -->
     <div class="user-icon">
+      <b class="icon">👥</b>
+    </div>
+
+    <!-- Step 1: Username -->
+    <div [formGroup]="loginForm" *ngIf="isStep1" class="form-step">
+      <div class="input-group">
+        <input
+          type="email"
+          class="form-input"
+          placeholder="Enter Username"
+          formControlName="username"
+          [class.error]="showUsernameError">
+        <div class="input-icon">
+          <b class="email-icon">✉</b>
+        </div>
+      </div>
+      
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="onNext()">
+        Next
+      </button>
+    </div>
+
+    <!-- Step 2: Password -->
+    <div  [formGroup]="loginForm"  *ngIf="isStep2" class="form-step">
+      <div class="welcome-message">
+        Welcome {{ username }}
+      </div>
+      
+      <div class="input-group">
+        <input
+          type="password"
+          class="form-input"
+          placeholder="Password"
+          formControlName="password"
+          [class.error]="showPasswordError">
+        <div class="input-icon">
+          <b class="lock-icon">🔒</b>
+        </div>
+      </div>
+      
+      <div *ngIf="showPasswordError" class="error-message">
+        This field is required
+      </div>
+      
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="onLogin()">
+        Login
+      </button>
+      
+      <div class="forgot-password">
+        <a href="#" (click)="forgotPassword()">Forgot your password?</a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="copyright">©2025 - NexxLicense V1.1.933</div>
+      <div class="description">NexxLicense - Next Generation License</div>
+      <div class="description">Application</div>
+    </div>
+  </div>
+</div>
+<div class="login-container">
+  <div class="login-card">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="brand">NEXX</h1>
+    </div>
+
+    <!-- Back Button (only on step 2) -->
+    <div class="back-button" *ngIf="isStep2" (click)="goBack()">
+      <i class="arrow-left">←</i>
+    </div>
+
+    <!-- Title -->
+    <h2 class="title">Sign in to Continue</h2>
+
+    <!-- User Icon -->
+    <div class="user-icon">
       <i class="icon">👥</i>
     </div>
 

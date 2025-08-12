@@ -1,0 +1,104 @@
+<!-- license-list.component.html -->
+<div class="license-container">
+  <div class="header">
+    <div class="title-section">
+      <h2>License</h2>
+      <p class="subtitle">Allows to Issue/View License</p>
+    </div>
+    <button class="btn-new" (click)="createNewLicense()">New</button>
+  </div>
+
+  <div class="filter-tabs">
+    <button 
+      class="tab" 
+      [class.active]="selectedFilter === 'All'"
+      (click)="onFilterChange('All')">
+      All
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="selectedFilter === 'Active'"
+      (click)="onFilterChange('Active')">
+      Active
+    </button>
+    <button 
+      class="tab" 
+      [class.active]="selectedFilter === 'Inactive'"
+      (click)="onFilterChange('Inactive')">
+      Inactive
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-controls">
+      <div class="search-group">
+        <label>Search For License</label>
+        <div class="search-input-group">
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm"
+            placeholder="Text input"
+            class="search-input"
+            (keyup.enter)="onSearch()">
+          <button class="btn-search" (click)="onSearch()">Search</button>
+        </div>
+      </div>
+      <div class="order-group">
+        <label>Order By</label>
+        <select class="order-select">
+          <option value="">Text input</option>
+          <option value="domain">Domain</option>
+          <option value="customer">Customer</option>
+          <option value="status">Status</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="license-table">
+      <thead>
+        <tr class="table-header">
+          <th>#</th>
+          <th>Domain</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let license of getPaginatedLicenses(); let i = index" class="table-row">
+          <td>{{ license.id }}</td>
+          <td>{{ license.domain }}</td>
+          <td>{{ license.customer }}</td>
+          <td>
+            <span class="status-badge" [class.active]="license.status === 'Active'">
+              {{ license.status }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action edit" (click)="editLicense(license)">Edit</button>
+              <button class="btn-action view" (click)="viewLicense(license)">View</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <div class="pagination-controls">
+      <button 
+        *ngFor="let page of getPageNumbers()" 
+        class="page-btn" 
+        [class.active]="currentPage === page"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    </div>
+    <div class="page-info">
+      Page {{ currentPage }} of {{ totalPages }}
+    </div>
+  </div>
+</div>

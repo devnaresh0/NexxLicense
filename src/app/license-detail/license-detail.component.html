@@ -1,0 +1,149 @@
+<!-- license-detail.component.html -->
+<div class="license-detail-container">
+  <div class="header">
+    <div class="title-section">
+      <h2>License</h2>
+      <p class="subtitle">Allows to Issue/View License</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-list" (click)="onList()">List</button>
+      <button class="btn-reset" (click)="onReset()" *ngIf="canEdit()">Reset</button>
+      <button class="btn-save" (click)="onSave()" [disabled]="!isFormValid()" *ngIf="canEdit()">Save</button>
+    </div>
+  </div>
+
+  <div class="license-header-section">
+    <div class="section-title">License Header</div>
+    <div class="header-form">
+      <div class="form-group">
+        <label>Tenant ID</label>
+        <input 
+          type="text" 
+          [(ngModel)]="licenseHeader.tenantId" 
+          class="form-input" 
+          [readonly]="!canEdit()">
+      </div>
+      <div class="form-group">
+        <label>Domain</label>
+        <input 
+          type="text" 
+          [(ngModel)]="licenseHeader.domain" 
+          class="form-input" 
+          [readonly]="!canEdit()"
+          placeholder="Enter domain name">
+      </div>
+      <div class="form-group">
+        <label>Customer Name</label>
+        <input 
+          type="text" 
+          [(ngModel)]="licenseHeader.customerName" 
+          class="form-input" 
+          [readonly]="!canEdit()"
+          placeholder="Enter customer name">
+      </div>
+      <div class="form-group toggle-group">
+        <label class="toggle-label">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="licenseHeader.isActive" 
+            class="toggle-input"
+            [disabled]="!canEdit()">
+          <span class="toggle-slider"></span>
+          Active
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="license-details-section">
+    <div class="section-title">
+      License Details
+      <button class="btn-add-module" (click)="addModule()" *ngIf="canEdit()">+ Add Module</button>
+    </div>
+    <div class="table-container">
+      <table class="details-table">
+        <thead>
+          <tr class="table-header">
+            <th>#</th>
+            <th>Module</th>
+            <th>Number of Users</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th *ngIf="canEdit()">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let module of licenseModules; let i = index" class="table-row">
+            <td>{{ i + 1 }}</td>
+            <td>
+              <select 
+                *ngIf="canEdit(); else moduleText"
+                [value]="module.module"
+                (change)="onModuleChange(module.id, 'module', $event.target.value)"
+                class="module-select">
+                <option value="">Select Module</option>
+                <option *ngFor="let availableModule of availableModules" [value]="availableModule">
+                  {{ availableModule }}
+                </option>
+              </select>
+              <ng-template #moduleText>
+                {{ module.module }}
+              </ng-template>
+            </td>
+            <td>
+              <input 
+                *ngIf="canEdit(); else usersText"
+                type="number" 
+                [value]="module.numberOfUsers"
+                (input)="onModuleChange(module.id, 'numberOfUsers', +$event.target.value)"
+                class="users-input"
+                min="1">
+              <ng-template #usersText>
+                {{ module.numberOfUsers }}
+              </ng-template>
+            </td>
+            <td>
+              <input 
+                *ngIf="canEdit(); else startDateText"
+                type="text" 
+                [value]="module.startDate"
+                (input)="onModuleChange(module.id, 'startDate', $event.target.value)"
+                class="date-input"
+                placeholder="DD-MMM-YYYY">
+              <ng-template #startDateText>
+                {{ module.startDate }}
+              </ng-template>
+            </td>
+            <td>
+              <input 
+                *ngIf="canEdit(); else endDateText"
+                type="text" 
+                [value]="module.endDate"
+                (input)="onModuleChange(module.id, 'endDate', $event.target.value)"
+                class="date-input"
+                placeholder="DD-MMM-YYYY">
+              <ng-template #endDateText>
+                {{ module.endDate }}
+              </ng-template>
+            </td>
+            <td *ngIf="canEdit()">
+              <div class="action-buttons">
+                <button class="btn-add" (click)="addModule()" title="Add Module">+</button>
+                <button 
+                  class="btn-remove" 
+                  (click)="removeModule(module.id)" 
+                  [disabled]="licenseModules.length <= 1"
+                  title="Remove Module">-</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="licenseModules.length === 0" class="no-data-row">
+            <td [attr.colspan]="canEdit() ? 6 : 5" class="no-data">
+              No modules added. Click "Add Module" to get started.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
