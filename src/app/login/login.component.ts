@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/Auth.service'; // adjust path
+
 
 @Component({
   selector: 'app-login',
@@ -16,8 +18,9 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
-  ) {}
+    private router: Router,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -32,7 +35,7 @@ export class LoginComponent implements OnInit {
 
   onNext(): void {
     const usernameControl = this.loginForm.get('username');
-    
+
     if (usernameControl && usernameControl.valid && usernameControl.value.trim() !== '') {
       this.username = usernameControl.value;
       this.currentStep = 2;
@@ -46,7 +49,7 @@ export class LoginComponent implements OnInit {
 
   onLogin(): void {
     const passwordControl = this.loginForm.get('password');
-    
+
     if (passwordControl && passwordControl.valid) {
       this.showPasswordError = false;
       // Handle login logic here
@@ -54,7 +57,23 @@ export class LoginComponent implements OnInit {
         username: this.username,
         password: passwordControl.value
       });
+      
       // Example: this.authService.login(this.username, passwordControl.value);
+      this.authService.login(this.username, passwordControl.value).subscribe({
+        next: (res) => {
+          if (res.success) {
+            console.log('Login successful:', res);
+            this.router.navigate(['/licenses']); // redirect
+          } else {
+            console.error('Login failed:', res.message || 'Invalid credentials');
+            this.showPasswordError = true;
+          }
+        },
+        error: (err) => {
+          console.error('API error:', err);
+          this.showPasswordError = true;
+        }
+      });
     } else {
       this.showPasswordError = true;
     }
