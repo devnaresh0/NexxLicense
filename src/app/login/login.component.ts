@@ -84,11 +84,7 @@ export class LoginComponent implements OnInit {
     this.showPasswordError = false;
   }
 
-  forgotPassword(): void {
-    // Handle forgot password logic
-    console.log('Forgot password clicked');
-    // Example: this.router.navigate(['/forgot-password']);
-  }
+
 
   get isStep1(): boolean {
     return this.currentStep === 1;

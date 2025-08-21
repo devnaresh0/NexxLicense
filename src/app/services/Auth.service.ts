@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://your-backend.com/api/login'; // replace with your endpoint
+  private apiUrl = 'http://localhost:8080/api/login'; // replace with your endpoint
 
   constructor(private http: HttpClient) {}
 
