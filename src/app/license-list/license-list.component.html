@@ -37,7 +37,7 @@
           <input 
             type="text" 
             [(ngModel)]="searchTerm"
-            placeholder="Text input"
+            placeholder="Search"
             class="search-input"
             (keyup.enter)="onSearch()">
           <button class="btn-search" (click)="onSearch()">Search</button>
@@ -45,11 +45,10 @@
       </div>
       <div class="order-group">
         <label>Order By</label>
-        <select class="order-select">
-          <option value="">Text input</option>
+        <select class="order-select" [ngModel]="sortBy" (ngModelChange)="onSortChange($event)">
+          <option value="text-input">Text Input</option>
           <option value="domain">Domain</option>
           <option value="customer">Customer</option>
-          <option value="status">Status</option>
         </select>
       </div>
     </div>
@@ -90,7 +89,7 @@
   <div class="pagination">
     <div class="pagination-controls">
       <button 
-        *ngFor="let page of getPageNumbers()" 
+        *ngFor="let page of getPageNumbers()"
         class="page-btn" 
         [class.active]="currentPage === page"
         (click)="goToPage(page)">

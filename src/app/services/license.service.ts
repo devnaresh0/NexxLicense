@@ -35,9 +35,9 @@ export interface LicenseDetail {
   providedIn: 'root'
 })
 export class LicenseService {
-  
+
   private apiUrl = 'http://localhost:3000/api'; // Replace with your actual API URL
-  
+
   private httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
@@ -49,7 +49,123 @@ export class LicenseService {
     { id: 1, domain: 'Compulynx', customer: 'Compulynx Limited', status: 'Active' },
     { id: 2, domain: 'Flemingo', customer: 'Kenya Airport Authority', status: 'Active' },
     { id: 3, domain: 'OTW', customer: 'Onn The way', status: 'Active' },
-    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' }
+    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' },
+    { id: 5, domain: 'Way', customer: 'The way', status: 'inactive' },
+    { id: 6, domain: 'SkyNet', customer: 'SkyNet Technologies', status: 'Active' },
+    { id: 7, domain: 'TechWorld', customer: 'TechWorld Solutions', status: 'Inactive' },
+    { id: 8, domain: 'GreenLeaf', customer: 'GreenLeaf Organics', status: 'Active' },
+    { id: 9, domain: 'BlueWave', customer: 'BlueWave Systems', status: 'Inactive' },
+    { id: 10, domain: 'NextGen', customer: 'NextGen Innovations', status: 'Active' },
+    { id: 11, domain: 'PrimeSoft', customer: 'PrimeSoft Global', status: 'Inactive' },
+    { id: 12, domain: 'Sunrise', customer: 'Sunrise Retail Ltd', status: 'Active' },
+    { id: 13, domain: 'IronClad', customer: 'IronClad Security Inc', status: 'Active' },
+    { id: 14, domain: 'AeroLink', customer: 'AeroLink Airlines', status: 'Inactive' },
+    { id: 15, domain: 'MediCore', customer: 'MediCore Healthcare', status: 'Active' },
+    { id: 16, domain: 'EduSmart', customer: 'EduSmart Academy', status: 'Inactive' },
+    { id: 17, domain: 'RoboX', customer: 'RoboX Robotics', status: 'Active' },
+    { id: 18, domain: 'UrbanTech', customer: 'UrbanTech Developers', status: 'Active' },
+    { id: 19, domain: 'EcoFarm', customer: 'EcoFarm Produce', status: 'Inactive' },
+    { id: 20, domain: 'TravelX', customer: 'TravelX Adventures', status: 'Active' },
+    { id: 1, domain: 'Compulynx', customer: 'Compulynx Limited', status: 'Active' },
+    { id: 2, domain: 'Flemingo', customer: 'Kenya Airport Authority', status: 'Active' },
+    { id: 3, domain: 'OTW', customer: 'Onn The way', status: 'Active' },
+    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' },
+    { id: 5, domain: 'Way', customer: 'The way', status: 'inactive' },
+    { id: 6, domain: 'SkyNet', customer: 'SkyNet Technologies', status: 'Active' },
+    { id: 7, domain: 'TechWorld', customer: 'TechWorld Solutions', status: 'Inactive' },
+    { id: 8, domain: 'GreenLeaf', customer: 'GreenLeaf Organics', status: 'Active' },
+    { id: 9, domain: 'BlueWave', customer: 'BlueWave Systems', status: 'Inactive' },
+    { id: 10, domain: 'NextGen', customer: 'NextGen Innovations', status: 'Active' },
+    { id: 11, domain: 'PrimeSoft', customer: 'PrimeSoft Global', status: 'Inactive' },
+    { id: 12, domain: 'Sunrise', customer: 'Sunrise Retail Ltd', status: 'Active' },
+    { id: 13, domain: 'IronClad', customer: 'IronClad Security Inc', status: 'Active' },
+    { id: 14, domain: 'AeroLink', customer: 'AeroLink Airlines', status: 'Inactive' },
+    { id: 15, domain: 'MediCore', customer: 'MediCore Healthcare', status: 'Active' },
+    { id: 16, domain: 'EduSmart', customer: 'EduSmart Academy', status: 'Inactive' },
+    { id: 17, domain: 'RoboX', customer: 'RoboX Robotics', status: 'Active' },
+    { id: 18, domain: 'UrbanTech', customer: 'UrbanTech Developers', status: 'Active' },
+    { id: 19, domain: 'EcoFarm', customer: 'EcoFarm Produce', status: 'Inactive' },
+    { id: 20, domain: 'TravelX', customer: 'TravelX Adventures', status: 'Active' },
+    { id: 1, domain: 'Compulynx', customer: 'Compulynx Limited', status: 'Active' },
+    { id: 2, domain: 'Flemingo', customer: 'Kenya Airport Authority', status: 'Active' },
+    { id: 3, domain: 'OTW', customer: 'Onn The way', status: 'Active' },
+    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' },
+    { id: 5, domain: 'Way', customer: 'The way', status: 'inactive' },
+    { id: 6, domain: 'SkyNet', customer: 'SkyNet Technologies', status: 'Active' },
+    { id: 7, domain: 'TechWorld', customer: 'TechWorld Solutions', status: 'Inactive' },
+    { id: 8, domain: 'GreenLeaf', customer: 'GreenLeaf Organics', status: 'Active' },
+    { id: 9, domain: 'BlueWave', customer: 'BlueWave Systems', status: 'Inactive' },
+    { id: 10, domain: 'NextGen', customer: 'NextGen Innovations', status: 'Active' },
+    { id: 11, domain: 'PrimeSoft', customer: 'PrimeSoft Global', status: 'Inactive' },
+    { id: 12, domain: 'Sunrise', customer: 'Sunrise Retail Ltd', status: 'Active' },
+    { id: 13, domain: 'IronClad', customer: 'IronClad Security Inc', status: 'Active' },
+    { id: 14, domain: 'AeroLink', customer: 'AeroLink Airlines', status: 'Inactive' },
+    { id: 15, domain: 'MediCore', customer: 'MediCore Healthcare', status: 'Active' },
+    { id: 16, domain: 'EduSmart', customer: 'EduSmart Academy', status: 'Inactive' },
+    { id: 17, domain: 'RoboX', customer: 'RoboX Robotics', status: 'Active' },
+    { id: 18, domain: 'UrbanTech', customer: 'UrbanTech Developers', status: 'Active' },
+    { id: 19, domain: 'EcoFarm', customer: 'EcoFarm Produce', status: 'Inactive' },
+    { id: 20, domain: 'TravelX', customer: 'TravelX Adventures', status: 'Active' },
+    { id: 1, domain: 'Compulynx', customer: 'Compulynx Limited', status: 'Active' },
+    { id: 2, domain: 'Flemingo', customer: 'Kenya Airport Authority', status: 'Active' },
+    { id: 3, domain: 'OTW', customer: 'Onn The way', status: 'Active' },
+    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' },
+    { id: 5, domain: 'Way', customer: 'The way', status: 'inactive' },
+    { id: 6, domain: 'SkyNet', customer: 'SkyNet Technologies', status: 'Active' },
+    { id: 7, domain: 'TechWorld', customer: 'TechWorld Solutions', status: 'Inactive' },
+    { id: 8, domain: 'GreenLeaf', customer: 'GreenLeaf Organics', status: 'Active' },
+    { id: 9, domain: 'BlueWave', customer: 'BlueWave Systems', status: 'Inactive' },
+    { id: 10, domain: 'NextGen', customer: 'NextGen Innovations', status: 'Active' },
+    { id: 11, domain: 'PrimeSoft', customer: 'PrimeSoft Global', status: 'Inactive' },
+    { id: 12, domain: 'Sunrise', customer: 'Sunrise Retail Ltd', status: 'Active' },
+    { id: 13, domain: 'IronClad', customer: 'IronClad Security Inc', status: 'Active' },
+    { id: 14, domain: 'AeroLink', customer: 'AeroLink Airlines', status: 'Inactive' },
+    { id: 15, domain: 'MediCore', customer: 'MediCore Healthcare', status: 'Active' },
+    { id: 16, domain: 'EduSmart', customer: 'EduSmart Academy', status: 'Inactive' },
+    { id: 17, domain: 'RoboX', customer: 'RoboX Robotics', status: 'Active' },
+    { id: 18, domain: 'UrbanTech', customer: 'UrbanTech Developers', status: 'Active' },
+    { id: 19, domain: 'EcoFarm', customer: 'EcoFarm Produce', status: 'Inactive' },
+    { id: 20, domain: 'TravelX', customer: 'TravelX Adventures', status: 'Active' },
+    { id: 1, domain: 'Compulynx', customer: 'Compulynx Limited', status: 'Active' },
+    { id: 2, domain: 'Flemingo', customer: 'Kenya Airport Authority', status: 'Active' },
+    { id: 3, domain: 'OTW', customer: 'Onn The way', status: 'Active' },
+    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' },
+    { id: 5, domain: 'Way', customer: 'The way', status: 'inactive' },
+    { id: 6, domain: 'SkyNet', customer: 'SkyNet Technologies', status: 'Active' },
+    { id: 7, domain: 'TechWorld', customer: 'TechWorld Solutions', status: 'Inactive' },
+    { id: 8, domain: 'GreenLeaf', customer: 'GreenLeaf Organics', status: 'Active' },
+    { id: 9, domain: 'BlueWave', customer: 'BlueWave Systems', status: 'Inactive' },
+    { id: 10, domain: 'NextGen', customer: 'NextGen Innovations', status: 'Active' },
+    { id: 11, domain: 'PrimeSoft', customer: 'PrimeSoft Global', status: 'Inactive' },
+    { id: 12, domain: 'Sunrise', customer: 'Sunrise Retail Ltd', status: 'Active' },
+    { id: 13, domain: 'IronClad', customer: 'IronClad Security Inc', status: 'Active' },
+    { id: 14, domain: 'AeroLink', customer: 'AeroLink Airlines', status: 'Inactive' },
+    { id: 15, domain: 'MediCore', customer: 'MediCore Healthcare', status: 'Active' },
+    { id: 16, domain: 'EduSmart', customer: 'EduSmart Academy', status: 'Inactive' },
+    { id: 17, domain: 'RoboX', customer: 'RoboX Robotics', status: 'Active' },
+    { id: 18, domain: 'UrbanTech', customer: 'UrbanTech Developers', status: 'Active' },
+    { id: 19, domain: 'EcoFarm', customer: 'EcoFarm Produce', status: 'Inactive' },
+    { id: 20, domain: 'TravelX', customer: 'TravelX Adventures', status: 'Active' },
+    { id: 1, domain: 'Compulynx', customer: 'Compulynx Limited', status: 'Active' },
+    { id: 2, domain: 'Flemingo', customer: 'Kenya Airport Authority', status: 'Active' },
+    { id: 3, domain: 'OTW', customer: 'Onn The way', status: 'Active' },
+    { id: 4, domain: 'TestDomain', customer: 'Test Customer Inc', status: 'Inactive' },
+    { id: 5, domain: 'Way', customer: 'The way', status: 'inactive' },
+    { id: 6, domain: 'SkyNet', customer: 'SkyNet Technologies', status: 'Active' },
+    { id: 7, domain: 'TechWorld', customer: 'TechWorld Solutions', status: 'Inactive' },
+    { id: 8, domain: 'GreenLeaf', customer: 'GreenLeaf Organics', status: 'Active' },
+    { id: 9, domain: 'BlueWave', customer: 'BlueWave Systems', status: 'Inactive' },
+    { id: 10, domain: 'NextGen', customer: 'NextGen Innovations', status: 'Active' },
+    { id: 11, domain: 'PrimeSoft', customer: 'PrimeSoft Global', status: 'Inactive' },
+    { id: 12, domain: 'Sunrise', customer: 'Sunrise Retail Ltd', status: 'Active' },
+    { id: 13, domain: 'IronClad', customer: 'IronClad Security Inc', status: 'Active' },
+    { id: 14, domain: 'AeroLink', customer: 'AeroLink Airlines', status: 'Inactive' },
+    { id: 15, domain: 'MediCore', customer: 'MediCore Healthcare', status: 'Active' },
+    { id: 16, domain: 'EduSmart', customer: 'EduSmart Academy', status: 'Inactive' },
+    { id: 17, domain: 'RoboX', customer: 'RoboX Robotics', status: 'Active' },
+    { id: 18, domain: 'UrbanTech', customer: 'UrbanTech Developers', status: 'Active' },
+    { id: 19, domain: 'EcoFarm', customer: 'EcoFarm Produce', status: 'Inactive' },
+    { id: 20, domain: 'TravelX', customer: 'TravelX Adventures', status: 'Active' },
   ];
 
   private mockLicenseDetails: { [key: number]: LicenseDetail } = {
@@ -66,7 +182,7 @@ export class LicenseService {
           module: 'Merchandising',
           numberOfUsers: 2,
           startDate: '1-Jan-2025',
-          endDate: '31-Jan-2025'
+          endDate: '31-Jan-2026'
         },
         {
           id: 2,
@@ -132,7 +248,6 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<License[]>('getLicenses', []))
     //   );
-    
     return of(this.mockLicenses);
   }
 
@@ -146,7 +261,7 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<LicenseDetail>('getLicense'))
     //   );
-    
+
     const mockDetail = this.mockLicenseDetails[id];
     if (mockDetail) {
       return of(mockDetail);
@@ -186,7 +301,7 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<any>('createLicense'))
     //   );
-    
+
     console.log('Creating license:', license);
     return of({ success: true, id: Date.now(), message: 'License created successfully' });
   }
@@ -201,7 +316,7 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<any>('updateLicense'))
     //   );
-    
+
     console.log('Updating license:', license);
     return of({ success: true, message: 'License updated successfully' });
   }
@@ -216,7 +331,7 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<any>('deleteLicense'))
     //   );
-    
+
     console.log('Deleting license:', id);
     return of({ success: true, message: 'License deleted successfully' });
   }
@@ -228,7 +343,7 @@ export class LicenseService {
     let filtered = [...this.mockLicenses];
 
     if (status && status !== 'All') {
-      filtered = filtered.filter(license => 
+      filtered = filtered.filter(license =>
         license.status.toLowerCase() === status.toLowerCase()
       );
     }
@@ -307,7 +422,7 @@ export class LicenseService {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.error(`${operation} failed:`, error);
-      
+
       // Let the app keep running by returning an empty result
       return of(result as T);
     };

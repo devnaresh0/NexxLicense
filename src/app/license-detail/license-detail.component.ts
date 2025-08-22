@@ -24,11 +24,11 @@ export interface LicenseHeader {
   styleUrls: ['./license-detail.component.css']
 })
 export class LicenseDetailComponent implements OnInit {
-  
+
   licenseId: number;
   isEditMode: boolean = false;
   isNewLicense: boolean = false;
-  
+
   licenseHeader: LicenseHeader = {
     tenantId: '',
     domain: '',
@@ -36,22 +36,11 @@ export class LicenseDetailComponent implements OnInit {
     isActive: true
   };
 
-  licenseModules: LicenseModule[] = [
-    {
-      id: 1,
-      module: 'Merchandising',
-      numberOfUsers: 2,
-      startDate: '1-Jan-2025',
-      endDate: '31-Jan-2025'
-    },
-    {
-      id: 2,
-      module: 'Inventory',
-      numberOfUsers: 5,
-      startDate: '1-Jan-2025',
-      endDate: '31-Jan-2025'
-    }
-  ];
+
+  licenseModules: LicenseModule[] = [];
+
+  prevHeader: LicenseHeader
+  prevModules: LicenseModule[]
 
   originalLicenseData: any;
   availableModules: string[] = [
@@ -78,15 +67,21 @@ export class LicenseDetailComponent implements OnInit {
         this.initializeNewLicense();
       } else {
         this.licenseId = +params['id'];
-        this.isEditMode = params['action'] === 'edit';
+        // this.isEditMode = params['action'] === 'edit';
+        this.isEditMode = (this.route.snapshot.routeConfig &&
+          this.route.snapshot.routeConfig.path &&
+          this.route.snapshot.routeConfig.path.endsWith('edit'))
+          ? true : false;
         this.loadLicense();
+        this.prevHeader = { ...this.licenseHeader }
+        this.prevModules = this.licenseModules.map(m => ({ ...m }))
       }
     });
   }
 
   initializeNewLicense() {
     this.licenseHeader = {
-      tenantId: 'NEW',
+      tenantId: '',
       domain: '',
       customerName: '',
       isActive: true
@@ -121,6 +116,8 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onSave() {
+    this.licenseHeader = this.prevHeader
+    this.licenseModules = this.prevModules
     const licenseData = {
       id: this.licenseId,
       header: this.licenseHeader,
@@ -131,6 +128,8 @@ export class LicenseDetailComponent implements OnInit {
       response => {
         console.log('License saved successfully:', response);
         // Show success message
+        this.isEditMode = false;
+        console.log(this.isEditMode, "isEditMode")
         this.router.navigate(['/licenses']);
       },
       error => {
@@ -159,9 +158,16 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onModuleChange(moduleId: number, field: string, value: any) {
-    const module = this.licenseModules.find(m => m.id === moduleId);
+    const module = this.prevModules.find(m => m.id === moduleId);
+    console.log(value)
     if (module) {
       (module as any)[field] = value;
+    }
+  }
+
+  onHeaderFieldChange(field: string, value: any) {
+    if (this.prevHeader) {
+      (this.prevHeader as any)[field] = value;
     }
   }
 
@@ -177,10 +183,55 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    return this.licenseHeader.domain.trim() !== '' &&
-           this.licenseHeader.customerName.trim() !== '' &&
-           this.licenseModules.length > 0 &&
-           this.licenseModules.every(m => m.module.trim() !== '' && m.numberOfUsers > 0);
+    console.log("form")
+    // Check header fields
+    const isHeaderValid = this.licenseHeader.tenantId.trim() !== '' &&
+      this.licenseHeader.domain.trim() !== '' &&
+      this.licenseHeader.customerName.trim() !== '';
+
+    // Check if any module is invalid (empty name or invalid user count)
+    const hasInvalidModule = this.licenseModules.some(module =>
+      !module.module ||
+      module.module.trim() === '' ||
+      module.module === 'Select Module' ||
+      module.numberOfUsers <= 0
+    );
+
+    // Check if any modules exist
+    const hasModules = this.licenseModules.length > 0;
+
+    // For edit mode, check if anything changed
+    if (this.isEditMode && !this.isNewLicense) {
+      // Check header changes including active status
+      const headerChanged =
+        this.licenseHeader.tenantId.trim() !== this.prevHeader.tenantId.trim() ||
+        this.licenseHeader.domain.trim() !== this.prevHeader.domain.trim() ||
+        this.licenseHeader.customerName.trim() !== this.prevHeader.customerName.trim() ||
+        this.licenseHeader.isActive !== this.prevHeader.isActive;
+
+      // Check if modules have changed by comparing their JSON representation
+      const currentModules = JSON.stringify(this.licenseModules.map(m => ({
+        module: m.module,
+        numberOfUsers: m.numberOfUsers,
+        startDate: m.startDate,
+        endDate: m.endDate
+      })));
+
+      const previousModules = JSON.stringify(this.prevModules.map(m => ({
+        module: m.module,
+        numberOfUsers: m.numberOfUsers,
+        startDate: m.startDate,
+        endDate: m.endDate
+      })));
+
+      const modulesChanged = currentModules !== previousModules;
+
+      // Return true if either header or modules changed and form is valid
+      return (headerChanged || modulesChanged) && isHeaderValid && !hasInvalidModule && hasModules;
+    }
+
+    // For new license, just check basic validation
+    return isHeaderValid && !hasInvalidModule && hasModules;
   }
 
   canEdit(): boolean {

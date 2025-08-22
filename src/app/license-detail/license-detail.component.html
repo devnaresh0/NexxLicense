@@ -6,9 +6,9 @@
       <p class="subtitle">Allows to Issue/View License</p>
     </div>
     <div class="header-actions">
-      <button class="btn-list" (click)="onList()">List</button>
-      <button class="btn-reset" (click)="onReset()" *ngIf="canEdit()">Reset</button>
-      <button class="btn-save" (click)="onSave()" [disabled]="!isFormValid()" *ngIf="canEdit()">Save</button>
+      <button class="btn-action btn-list" (click)="onList()">List</button>
+      <button class="btn-action btn-reset" (click)="onReset()" *ngIf="canEdit()">Reset</button>
+      <button class="btn-action btn-save" (click)="onSave()" [disabled]="!isFormValid()" *ngIf="canEdit()">Save</button>
     </div>
   </div>
 
@@ -16,10 +16,12 @@
     <div class="section-title">License Header</div>
     <div class="header-form">
       <div class="form-group">
-        <label>Tenant ID</label>
+        <label>Tenant ID</label>  
         <input 
           type="text" 
-          [(ngModel)]="licenseHeader.tenantId" 
+          [value]="licenseHeader.tenantId" 
+          (input)="onHeaderFieldChange('tenantId', $event.target.value)"
+          placeholder="Enter tenant id"
           class="form-input" 
           [readonly]="!canEdit()">
       </div>
@@ -27,7 +29,8 @@
         <label>Domain</label>
         <input 
           type="text" 
-          [(ngModel)]="licenseHeader.domain" 
+          [value]="licenseHeader.domain" 
+          (input)="onHeaderFieldChange('domain', $event.target.value)"
           class="form-input" 
           [readonly]="!canEdit()"
           placeholder="Enter domain name">
@@ -36,7 +39,8 @@
         <label>Customer Name</label>
         <input 
           type="text" 
-          [(ngModel)]="licenseHeader.customerName" 
+          [value]="licenseHeader.customerName" 
+          (input)="onHeaderFieldChange('customerName', $event.target.value)"
           class="form-input" 
           [readonly]="!canEdit()"
           placeholder="Enter customer name">
@@ -45,7 +49,8 @@
         <label class="toggle-label">
           <input 
             type="checkbox" 
-            [(ngModel)]="licenseHeader.isActive" 
+            [checked]="licenseHeader.isActive" 
+            (change)="onHeaderFieldChange('isActive', $event.target.checked)"
             class="toggle-input"
             [disabled]="!canEdit()">
           <span class="toggle-slider"></span>
