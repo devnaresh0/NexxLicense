@@ -248,7 +248,7 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<License[]>('getLicenses', []))
     //   );
-    console.log('getLicenses sent')
+    console.log('getLicenses sentt')
     return of(this.mockLicenses);
   }
 
