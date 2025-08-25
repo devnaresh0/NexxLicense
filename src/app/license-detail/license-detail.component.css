@@ -1,8 +1,8 @@
-/* license-detail.component.css */
 .license-detail-container {
   padding: 20px;
   background-color: #f5f5f5;
-  min-height: 100vh;
+  /* min-height: 100%; */
+  /* height: auto; */
 }
 
 .header {
@@ -30,11 +30,14 @@
   gap: 10px;
 }
 
+.btn-action {
+  padding: 6px 10px;
+}
+
 .btn-list {
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
@@ -45,7 +48,6 @@
   background-color: #fd7e14;
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
@@ -56,7 +58,6 @@
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
@@ -68,23 +69,31 @@
   cursor: not-allowed;
 }
 
-.btn-list:hover { background-color: #218838; }
-.btn-reset:hover { background-color: #e66a00; }
-.btn-save:hover:not(:disabled) { background-color: #218838; }
+.btn-list:hover {
+  background-color: #218838;
+}
 
-.license-header-section, 
+.btn-reset:hover {
+  background-color: #e66a00;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.license-header-section,
 .license-details-section {
   background-color: white;
   border-radius: 4px;
   margin-bottom: 20px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
   background-color: #17a2b8;
   color: white;
-  padding: 12px 20px;
+  padding: 5px;
   font-weight: 500;
   display: flex;
   justify-content: space-between;
@@ -107,7 +116,7 @@
 }
 
 .header-form {
-  padding: 20px;
+  padding: 15px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
@@ -127,10 +136,10 @@
 }
 
 .form-input {
-  padding: 8px 12px;
+  padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .form-input:read-only {
@@ -182,15 +191,15 @@
   transition: transform 0.3s;
 }
 
-.toggle-input:checked + .toggle-slider {
+.toggle-input:checked+.toggle-slider {
   background-color: #28a745;
 }
 
-.toggle-input:checked + .toggle-slider:before {
+.toggle-input:checked+.toggle-slider:before {
   transform: translateX(26px);
 }
 
-.toggle-input:disabled + .toggle-slider {
+.toggle-input:disabled+.toggle-slider {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -210,10 +219,10 @@
 }
 
 .details-table .table-header th {
-  padding: 12px;
+  padding: 8px;
   text-align: left;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .details-table .table-row {
@@ -226,9 +235,9 @@
 }
 
 .details-table .table-row td {
-  padding: 12px;
+  padding: 8px;
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .module-select,
@@ -238,7 +247,7 @@
   padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .module-select:focus,
@@ -256,9 +265,10 @@
 .action-buttons {
   display: flex;
   gap: 8px;
+
 }
 
-.btn-add, 
+.btn-add,
 .btn-remove {
   width: 30px;
   height: 30px;
@@ -307,41 +317,64 @@
   padding: 20px !important;
 }
 
+.my-datepicker-popup {
+  /* override width/height of popup */
+  .mat-calendar {
+    width: 150px;
+    /* default ~250px */
+    height: 150px;
+    /* tweak as needed */
+  }
+
+  /* style the date cells */
+  .mat-calendar-body-cell {
+    font-size: 10px;
+    padding: 2px;
+  }
+
+  /* style the selected date */
+  .mat-calendar-body-selected {
+    background-color: #e89117;
+    /* custom color */
+    color: white;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .header-actions {
     align-self: stretch;
   }
-  
+
   .header-form {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .toggle-group {
     justify-self: start;
   }
-  
+
   .section-title {
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;
   }
-  
+
   .details-table {
     font-size: 12px;
   }
-  
+
   .details-table .table-header th,
   .details-table .table-row td {
     padding: 8px;
   }
-  
+
   .module-select,
   .users-input,
   .date-input {
@@ -354,7 +387,7 @@
   .license-detail-container {
     padding: 10px;
   }
-  
+
   .details-table {
     display: block;
     overflow-x: auto;

@@ -3,11 +3,15 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { LicenseListComponent } from './license-list/license-list.component';
 import { LicenseDetailComponent } from './license-detail/license-detail.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -33,7 +37,12 @@ const routes: Routes = [
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule, // ✅ Added here
-    RouterModule.forRoot(routes, { enableTracing: false })
+    RouterModule.forRoot(routes, { enableTracing: false }),
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatNativeDateModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
