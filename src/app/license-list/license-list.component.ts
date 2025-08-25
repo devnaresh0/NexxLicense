@@ -43,7 +43,9 @@ export class LicenseListComponent implements OnInit {
   loadLicenses() {
     this.licenseService.getLicenses().subscribe(
       data => {
+        console.log('data1')
         this.licenses = data;
+        console.log(data[0])
         this.filteredLicenses = [...this.licenses];
         this.calculateTotalPages();
       },

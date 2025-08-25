@@ -11,3 +11,40 @@ html {
   min-height: 100%;
 
 }
+
+.my-datepicker-popup {
+
+  /* override width/height of popup */
+
+  /* style the date cells */
+  .mat-calendar-body-cell {
+    font-size: 8px;
+    padding: 0px;
+  }
+
+  /* style the selected date */
+  .mat-calendar-body-selected {
+    background-color: #bf14ea;
+    /* custom color */
+    color: white;
+  }
+}
+
+/* .my-datepicker-popup.cdk-overlay-pane {
+  width: 200px !important;
+  height: 200px !important;
+}
+
+.my-datepicker-popup .mat-calendar {
+  width: 100% !important;
+  height: 100% !important;
+} */
+.mat-datepicker-content {
+  width: 200px !important;
+  height: 250px !important;
+}
+.mat-calendar {
+  width: 200px !important;
+  height: 200px !important;
+}
+

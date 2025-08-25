@@ -182,14 +182,14 @@ export class LicenseService {
           module: 'Merchandising',
           numberOfUsers: 2,
           startDate: '1-Jan-2025',
-          endDate: '31-Jan-2026'
+          endDate: '31-Jul-2026'
         },
         {
           id: 2,
           module: 'Inventory',
           numberOfUsers: 5,
-          startDate: '1-Jan-2025',
-          endDate: '31-Jan-2025'
+          startDate: '1-Dec-2025',
+          endDate: '31-Dec-2025'
         }
       ]
     },
@@ -248,21 +248,23 @@ export class LicenseService {
     //   .pipe(
     //     catchError(this.handleError<License[]>('getLicenses', []))
     //   );
+    console.log('getLicenses sent')
     return of(this.mockLicenses);
   }
 
   /**
    * Get license by ID
    */
-  getLicense(id: number): Observable<LicenseDetail> {
+  getLicenseDetails(id: number): Observable<LicenseDetail> {
     // For development, return mock data
     // Replace with actual HTTP call when backend is ready
     // return this.http.get<LicenseDetail>(`${this.apiUrl}/licenses/${id}`)
     //   .pipe(
     //     catchError(this.handleError<LicenseDetail>('getLicense'))
     //   );
-
+    console.log('getLicenseDetails sent')
     const mockDetail = this.mockLicenseDetails[id];
+    console.log(mockDetail)
     if (mockDetail) {
       return of(mockDetail);
     } else {

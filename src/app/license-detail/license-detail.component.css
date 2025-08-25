@@ -116,7 +116,7 @@
 }
 
 .header-form {
-  padding: 20px;
+  padding: 15px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
@@ -136,10 +136,10 @@
 }
 
 .form-input {
-  padding: 8px 12px;
+  padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .form-input:read-only {
@@ -219,10 +219,10 @@
 }
 
 .details-table .table-header th {
-  padding: 12px;
+  padding: 8px;
   text-align: left;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .details-table .table-row {
@@ -235,9 +235,9 @@
 }
 
 .details-table .table-row td {
-  padding: 12px;
+  padding: 8px;
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .module-select,
@@ -247,7 +247,7 @@
   padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .module-select:focus,
@@ -315,6 +315,29 @@
   color: #6c757d;
   font-style: italic;
   padding: 20px !important;
+}
+
+.my-datepicker-popup {
+  /* override width/height of popup */
+  .mat-calendar {
+    width: 150px;
+    /* default ~250px */
+    height: 150px;
+    /* tweak as needed */
+  }
+
+  /* style the date cells */
+  .mat-calendar-body-cell {
+    font-size: 10px;
+    padding: 2px;
+  }
+
+  /* style the selected date */
+  .mat-calendar-body-selected {
+    background-color: #e89117;
+    /* custom color */
+    color: white;
+  }
 }
 
 /* Responsive Design */
