@@ -139,27 +139,27 @@
               </ng-template>
             </td>
             <td>
-              <mat-form-field>
-                <input
-                  *ngIf="canEdit(); else startDateText"
-                  matInput
-                  [matDatepicker]="picker"
-                  [value]="parseDate(module.startDate)"
-                  readonly
-                />
-                <mat-datepicker-toggle
-                  matSuffix
-                  [for]="picker"
-                ></mat-datepicker-toggle>
-                <mat-datepicker
-                  #picker
-                  panelClass="my-datepicker-popup"
-                ></mat-datepicker>
+              <mat-form-field appearance="outline">
+                <ng-container *ngIf="canEdit(); else startDateText">
+                  <input
+                    matInput
+                    [matDatepicker]="picker"
+                    [value]="parseDate(module.startDate)"
+                    readonly
+                  />
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker
+                    #picker
+                    panelClass="my-datepicker-popup"
+                  ></mat-datepicker>
+                </ng-container>
+                <ng-template #startDateText>
+                  <input matInput [value]="module.startDate" readonly />
+                </ng-template>
               </mat-form-field>
-
-              <ng-template #startDateText>
-                {{ module.startDate }}
-              </ng-template>
             </td>
             <td>
               <input

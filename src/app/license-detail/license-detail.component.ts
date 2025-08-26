@@ -56,7 +56,7 @@ export class LicenseDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private licenseService: LicenseService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.route.params.subscribe((params) => {
@@ -69,13 +69,15 @@ export class LicenseDetailComponent implements OnInit {
         // this.isEditMode = params['action'] === 'edit';
         this.isEditMode =
           this.route.snapshot.routeConfig &&
-          this.route.snapshot.routeConfig.path &&
-          this.route.snapshot.routeConfig.path.endsWith("edit")
+            this.route.snapshot.routeConfig.path &&
+            this.route.snapshot.routeConfig.path.endsWith("edit")
             ? true
             : false;
         this.loadLicense();
         this.prevHeader = { ...this.licenseHeader };
         this.prevModules = this.licenseModules.map((m) => ({ ...m }));
+        console.log(this.isEditMode, "isEditMode");
+        console.log(this.isNewLicense, "isNewLicense");
       }
     });
   }
@@ -93,17 +95,20 @@ export class LicenseDetailComponent implements OnInit {
   loadLicense() {
     this.licenseService.getLicenseDetails(this.licenseId).subscribe(
       (data) => {
-        this.licenseHeader = data.header;
+        console.log(data.header)
+        console.log(data.modules)
+        this.licenseHeader = { ...data.header };
+        this.licenseModules = data.modules.map((m) => ({ ...m }))
         // Parse dates for each module
-        this.licenseModules = data.modules.map((module) => {
-          const startDate = this.parseDate(module.startDate);
-          const endDate = this.parseDate(module.endDate);
-          return {
-            ...module,
-            startDate: startDate ? startDate.toISOString() : module.startDate,
-            endDate: endDate ? endDate.toISOString() : module.endDate,
-          };
-        });
+        // this.licenseModules = data.modules.map((module) => {
+        //   const startDate = this.parseDate(module.startDate);
+        //   const endDate = this.parseDate(module.endDate);
+        //   return {
+        //     ...module,
+        //     startDate: startDate ? startDate.toISOString() : module.startDate,
+        //     endDate: endDate ? endDate.toISOString() : module.endDate,
+        //   };
+        // });
         this.originalLicenseData = JSON.parse(JSON.stringify(data));
       },
       (error) => {
@@ -189,7 +194,7 @@ export class LicenseDetailComponent implements OnInit {
 
   parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
-    
+
     // Try parsing as DD-MM-YYYY format
     let parts = dateStr.split('-');
     if (parts.length === 3) {
@@ -213,7 +218,7 @@ export class LicenseDetailComponent implements OnInit {
         }
       }
     }
-    
+
     // If we get here, try parsing with the Date constructor as a fallback
     const parsedDate = new Date(dateStr);
     return isNaN(parsedDate.getTime()) ? null : parsedDate;
@@ -255,10 +260,10 @@ export class LicenseDetailComponent implements OnInit {
       // Check header changes including active status
       const headerChanged =
         this.licenseHeader.tenantId.trim() !==
-          this.prevHeader.tenantId.trim() ||
+        this.prevHeader.tenantId.trim() ||
         this.licenseHeader.domain.trim() !== this.prevHeader.domain.trim() ||
         this.licenseHeader.customerName.trim() !==
-          this.prevHeader.customerName.trim() ||
+        this.prevHeader.customerName.trim() ||
         this.licenseHeader.isActive !== this.prevHeader.isActive;
 
       // Check if modules have changed by comparing their JSON representation

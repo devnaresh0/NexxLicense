@@ -36,7 +36,7 @@ export interface LicenseDetail {
 })
 export class LicenseService {
 
-  private apiUrl = 'http://localhost:3000/api'; // Replace with your actual API URL
+  private apiUrl = 'http://localhost:9090/api'; // Replace with your actual API URL
 
   private httpOptions = {
     headers: new HttpHeaders({
@@ -181,8 +181,8 @@ export class LicenseService {
           id: 1,
           module: 'Merchandising',
           numberOfUsers: 2,
-          startDate: '1-Jan-2025',
-          endDate: '31-Jul-2026'
+          startDate: '31-May-2026',
+          endDate: '31-May-2026'
         },
         {
           id: 2,
@@ -241,17 +241,29 @@ export class LicenseService {
   /**
    * Get all licenses
    */
+  // getLicenses(): Observable<License[]> {
+  //   // For development, return mock data
+  //   // Replace with actual HTTP call when backend is ready
+  //   // return this.http.get<License[]>(`${this.apiUrl}/licenses`)
+  //   //   .pipe(
+  //   //     catchError(this.handleError<License[]>('getLicenses', []))
+  //   //   );
+  //   console.log('getLicenses sentt')
+  //   return of(this.mockLicenses);
+  // }
   getLicenses(): Observable<License[]> {
-    // For development, return mock data
-    // Replace with actual HTTP call when backend is ready
-    // return this.http.get<License[]>(`${this.apiUrl}/licenses`)
-    //   .pipe(
-    //     catchError(this.handleError<License[]>('getLicenses', []))
-    //   );
-    console.log('getLicenses sentt')
-    return of(this.mockLicenses);
+    return this.http.get<any[]>(`${ this.apiUrl }/licenses`).pipe(
+      map((response: any[]) => {
+        return response.map(item => ({
+          id: item.id,
+          domain: item.domain,
+          customer: item.customerName, // 👈 Map customerName to customer
+          status: item.status ? 'Active' : 'Inactive'
+        }));
+      }),
+      catchError(this.handleError<License[]>('getLicenses', []))
+    );
   }
-
   /**
    * Get license by ID
    */
