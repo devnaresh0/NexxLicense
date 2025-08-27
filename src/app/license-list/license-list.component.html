@@ -67,7 +67,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let license of getPaginatedLicenses(); let i = index" class="table-row">
-          <td>{{ license.id }}</td>
+          <td>{{ i+1 }}</td>
           <td>{{ license.domain }}</td>
           <td>{{ license.customer }}</td>
           <td>

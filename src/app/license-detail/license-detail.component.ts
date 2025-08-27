@@ -13,6 +13,7 @@ export interface LicenseModule {
 }
 
 export interface LicenseHeader {
+  id: number;
   tenantId: string;
   domain: string;
   customerName: string;
@@ -30,6 +31,7 @@ export class LicenseDetailComponent implements OnInit {
   isNewLicense: boolean = false;
 
   licenseHeader: LicenseHeader = {
+    id: -1,
     tenantId: "",
     domain: "",
     customerName: "",
@@ -84,6 +86,7 @@ export class LicenseDetailComponent implements OnInit {
 
   initializeNewLicense() {
     this.licenseHeader = {
+      id: -1,
       tenantId: "",
       domain: "",
       customerName: "",
@@ -159,7 +162,7 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   addModule() {
-    const newId = Math.max(...this.licenseModules.map((m) => m.id), 0) + 1;
+    const newId = Math.max(...this.licenseModules.map((m) => +m.id), 0) + 1;
     const newModule: LicenseModule = {
       id: newId,
       module: "",

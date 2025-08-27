@@ -5,7 +5,8 @@ import { LicenseService } from '../services/license.service';
 import { filter } from 'rxjs/operators';
 
 export interface License {
-  id: number;
+  id: string;
+  tenantId: string;
   domain: string;
   customer: string;
   status: string;
