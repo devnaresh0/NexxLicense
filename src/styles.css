@@ -30,7 +30,7 @@ html {
   }
 }
 
-/* .my-datepicker-popup.cdk-overlay-pane {
+.my-datepicker-popup.cdk-overlay-pane {
   width: 200px !important;
   height: 200px !important;
 }
@@ -38,13 +38,33 @@ html {
 .my-datepicker-popup .mat-calendar {
   width: 100% !important;
   height: 100% !important;
-} */
+}
+
 .mat-datepicker-content {
   width: 200px !important;
   height: 250px !important;
 }
+
 .mat-calendar {
   width: 200px !important;
   height: 200px !important;
 }
 
+.mat-form-field-infix {
+  display: flex;
+}
+
+#mat-input-0 {
+  display: inline
+}
+
+.mat-form-field .mat-input-element {
+  width: auto !important;
+  flex: 1;
+  /* allows input to shrink/grow */
+}
+
+.mat-form-field-flex {
+  display: flex;
+  align-items: center;
+}

@@ -25,7 +25,7 @@ export interface LicenseHeader {
   styleUrls: ["./license-detail.component.css"],
 })
 export class LicenseDetailComponent implements OnInit {
-  licenseId: number;
+  licenseId: string;
   isEditMode: boolean = false;
   isNewLicense: boolean = false;
 
@@ -65,7 +65,7 @@ export class LicenseDetailComponent implements OnInit {
         this.isEditMode = true;
         this.initializeNewLicense();
       } else {
-        this.licenseId = +params["id"];
+        this.licenseId = params["id"];
         // this.isEditMode = params['action'] === 'edit';
         this.isEditMode =
           this.route.snapshot.routeConfig &&

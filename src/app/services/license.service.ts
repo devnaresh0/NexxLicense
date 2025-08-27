@@ -169,71 +169,71 @@ export class LicenseService {
   ];
 
   private mockLicenseDetails: { [key: number]: LicenseDetail } = {
-    1: {
-      header: {
-        tenantId: 'TN001',
-        domain: 'Compulynx',
-        customerName: 'Compulynx Limited',
-        isActive: true
-      },
-      modules: [
-        {
-          id: 1,
-          module: 'Merchandising',
-          numberOfUsers: 2,
-          startDate: '31-May-2026',
-          endDate: '31-May-2026'
-        },
-        {
-          id: 2,
-          module: 'Inventory',
-          numberOfUsers: 5,
-          startDate: '1-Dec-2025',
-          endDate: '31-Dec-2025'
-        }
-      ]
-    },
-    2: {
-      header: {
-        tenantId: 'TN002',
-        domain: 'Flemingo',
-        customerName: 'Kenya Airport Authority',
-        isActive: true
-      },
-      modules: [
-        {
-          id: 1,
-          module: 'Sales',
-          numberOfUsers: 10,
-          startDate: '1-Jan-2025',
-          endDate: '31-Dec-2025'
-        },
-        {
-          id: 2,
-          module: 'Customer Management',
-          numberOfUsers: 3,
-          startDate: '1-Jan-2025',
-          endDate: '31-Dec-2025'
-        }
-      ]
-    },
-    3: {
-      header: {
-        tenantId: 'TN003',
-        domain: 'OTW',
-        customerName: 'Onn The way',
-        isActive: true
-      },
-      modules: [
-        {
-          id: 1,
-          module: 'Inventory',
-          numberOfUsers: 1,
-          startDate: '1-Jan-2025',
-          endDate: '30-Jun-2025'
-        }
-      ]
-    }
+    //   1: {
+    //     header: {
+    //       tenantId: 'TN001',
+    //       domain: 'Compulynx',
+    //       customerName: 'Compulynx Limited',
+    //       isActive: true
+    //     },
+    //     modules: [
+    //       {
+    //         id: 1,
+    //         module: 'Merchandising',
+    //         numberOfUsers: 2,
+    //         startDate: '31-May-2026',
+    //         endDate: '31-May-2026'
+    //       },
+    //       {
+    //         id: 2,
+    //         module: 'Inventory',
+    //         numberOfUsers: 5,
+    //         startDate: '1-Dec-2025',
+    //         endDate: '31-Dec-2025'
+    //       }
+    //     ]
+    //   },
+    //   2: {
+    //     header: {
+    //       tenantId: 'TN002',
+    //       domain: 'Flemingo',
+    //       customerName: 'Kenya Airport Authority',
+    //       isActive: true
+    //     },
+    //     modules: [
+    //       {
+    //         id: 1,
+    //         module: 'Sales',
+    //         numberOfUsers: 10,
+    //         startDate: '1-Jan-2025',
+    //         endDate: '31-Dec-2025'
+    //       },
+    //       {
+    //         id: 2,
+    //         module: 'Customer Management',
+    //         numberOfUsers: 3,
+    //         startDate: '1-Jan-2025',
+    //         endDate: '31-Dec-2025'
+    //       }
+    //     ]
+    //   },
+    //   3: {
+    //     header: {
+    //       tenantId: 'TN003',
+    //       domain: 'OTW',
+    //       customerName: 'Onn The way',
+    //       isActive: true
+    //     },
+    //     modules: [
+    //       {
+    //         id: 1,
+    //         module: 'Inventory',
+    //         numberOfUsers: 1,
+    //         startDate: '1-Jan-2025',
+    //         endDate: '30-Jun-2025'
+    //       }
+    //     ]
+    //   }
   };
 
   constructor(private http: HttpClient) { }
@@ -252,28 +252,27 @@ export class LicenseService {
   //   return of(this.mockLicenses);
   // }
   getLicenses(): Observable<License[]> {
-    return this.http.get<any[]>(`${ this.apiUrl }/licenses`).pipe(
+    return this.http.get<any[]>(`${this.apiUrl}/licenses`).pipe(
       map((response: any[]) => {
+        console.log(response[0].header.tenantId)
         return response.map(item => ({
-          id: item.id,
-          domain: item.domain,
-          customer: item.customerName, // 👈 Map customerName to customer
-          status: item.status ? 'Active' : 'Inactive'
+          id: item.header.tenantId,
+          domain: item.header.domain,
+          customer: item.header.customerName, // 👈 Map customerName to customer
+          status: item.header.active ? 'Active' : 'Inactive'
         }));
       }),
       catchError(this.handleError<License[]>('getLicenses', []))
     );
   }
-  /**
-   * Get license by ID
-   */
-  getLicenseDetails(id: number): Observable<LicenseDetail> {
+  // Get license by ID
+  getLicenseDetails(id: string): Observable<LicenseDetail> {
     // For development, return mock data
     // Replace with actual HTTP call when backend is ready
-    // return this.http.get<LicenseDetail>(`${this.apiUrl}/licenses/${id}`)
-    //   .pipe(
-    //     catchError(this.handleError<LicenseDetail>('getLicense'))
-    //   );
+    return this.http.get<LicenseDetail>(`${this.apiUrl}/licenses/${id}`)
+      .pipe(
+        catchError(this.handleError<LicenseDetail>('getLicense'))
+      );
     console.log('getLicenseDetails sent')
     const mockDetail = this.mockLicenseDetails[id];
     console.log(mockDetail)

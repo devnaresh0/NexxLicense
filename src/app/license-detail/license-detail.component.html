@@ -139,8 +139,8 @@
               </ng-template>
             </td>
             <td>
-              <mat-form-field appearance="outline">
-                <ng-container *ngIf="canEdit(); else startDateText">
+              <ng-container *ngIf="canEdit(); else readonlyView">
+                <mat-form-field appearance="outline">
                   <input
                     matInput
                     [matDatepicker]="picker"
@@ -155,11 +155,13 @@
                     #picker
                     panelClass="my-datepicker-popup"
                   ></mat-datepicker>
-                </ng-container>
-                <ng-template #startDateText>
+                </mat-form-field>
+              </ng-container>
+              <ng-template #readonlyView>
+                <mat-form-field appearance="outline">
                   <input matInput [value]="module.startDate" readonly />
-                </ng-template>
-              </mat-form-field>
+                </mat-form-field>
+              </ng-template>
             </td>
             <td>
               <input
