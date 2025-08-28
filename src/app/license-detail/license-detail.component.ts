@@ -13,7 +13,7 @@ export interface LicenseModule {
 }
 
 export interface LicenseHeader {
-  id: number;
+  id?: number;
   tenantId: string;
   domain: string;
   customerName: string;
@@ -31,7 +31,6 @@ export class LicenseDetailComponent implements OnInit {
   isNewLicense: boolean = false;
 
   licenseHeader: LicenseHeader = {
-    id: -1,
     tenantId: "",
     domain: "",
     customerName: "",
@@ -68,6 +67,7 @@ export class LicenseDetailComponent implements OnInit {
         this.initializeNewLicense();
       } else {
         this.licenseId = params["id"];
+        console.log("we are in id \n")
         // this.isEditMode = params['action'] === 'edit';
         this.isEditMode =
           this.route.snapshot.routeConfig &&
@@ -76,17 +76,13 @@ export class LicenseDetailComponent implements OnInit {
             ? true
             : false;
         this.loadLicense();
-        this.prevHeader = { ...this.licenseHeader };
-        this.prevModules = this.licenseModules.map((m) => ({ ...m }));
-        console.log(this.isEditMode, "isEditMode");
-        console.log(this.isNewLicense, "isNewLicense");
+
       }
     });
   }
 
   initializeNewLicense() {
     this.licenseHeader = {
-      id: -1,
       tenantId: "",
       domain: "",
       customerName: "",
@@ -96,23 +92,18 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   loadLicense() {
+    console.log('we are in loadlicense')
     this.licenseService.getLicenseDetails(this.licenseId).subscribe(
       (data) => {
-        console.log(data.header)
-        console.log(data.modules)
+        console.log(data)
         this.licenseHeader = { ...data.header };
         this.licenseModules = data.modules.map((m) => ({ ...m }))
-        // Parse dates for each module
-        // this.licenseModules = data.modules.map((module) => {
-        //   const startDate = this.parseDate(module.startDate);
-        //   const endDate = this.parseDate(module.endDate);
-        //   return {
-        //     ...module,
-        //     startDate: startDate ? startDate.toISOString() : module.startDate,
-        //     endDate: endDate ? endDate.toISOString() : module.endDate,
-        //   };
-        // });
         this.originalLicenseData = JSON.parse(JSON.stringify(data));
+
+        this.prevHeader = { ...this.licenseHeader };
+        this.prevModules = this.licenseModules.map((m) => ({ ...m }));
+        console.log(this.prevHeader, "prevHeader")
+        console.log(this.prevModules, "prevModules")
       },
       (error) => {
         console.error("Error loading license:", error);
@@ -128,30 +119,30 @@ export class LicenseDetailComponent implements OnInit {
     if (this.isNewLicense) {
       this.initializeNewLicense();
     } else if (this.originalLicenseData) {
-      this.licenseHeader = JSON.parse(
-        JSON.stringify(this.originalLicenseData.header)
-      );
-      this.licenseModules = JSON.parse(
-        JSON.stringify(this.originalLicenseData.modules)
-      );
+      this.licenseHeader = { ...this.prevHeader };
+
+      this.licenseModules = this.prevModules.map((m) => ({ ...m })) 
     }
   }
 
   onSave() {
-    this.licenseHeader = this.prevHeader;
-    this.licenseModules = this.prevModules;
     const licenseData = {
       id: this.licenseId,
-      header: this.licenseHeader,
-      modules: this.licenseModules,
+      header: {
+        id: this.licenseId,
+        tenantId: this.licenseHeader.tenantId,
+        domain: this.licenseHeader.domain,
+        customerName: this.licenseHeader.customerName,
+        active: this.licenseHeader.isActive,
+      },
+      modules: this.licenseModules.map(m => ({ ...m })),  // Create a new array with current modules
     };
-
+    console.log(licenseData, 'Data Sent')
     this.licenseService.saveLicense(licenseData).subscribe(
       (response) => {
-        console.log("License saved successfully:", response);
+        console.log("License response received:", response);
         // Show success message
         this.isEditMode = false;
-        console.log(this.isEditMode, "isEditMode");
         this.router.navigate(["/licenses"]);
       },
       (error) => {
@@ -182,7 +173,10 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onModuleChange(moduleId: number, field: string, value: any) {
-    const module = this.prevModules.find((m) => m.id === moduleId);
+    if (field == 'startDate' || field == 'endDate') {
+      value = this.formatDate(value);
+    }
+    const module = this.licenseModules.find((m) => m.id === moduleId);
     console.log(value);
     if (module) {
       (module as any)[field] = value;
@@ -190,48 +184,47 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onHeaderFieldChange(field: string, value: any) {
-    if (this.prevHeader) {
-      (this.prevHeader as any)[field] = value;
+    if (this.licenseHeader) {
+      (this.licenseHeader as any)[field] = value;
     }
   }
 
-  parseDate(dateStr: string): Date | null {
-    if (!dateStr) return null;
+  // parseDate(dateStr: string): Date | null {
+  //   if (!dateStr) return null;
 
-    // Try parsing as DD-MM-YYYY format
-    let parts = dateStr.split('-');
-    if (parts.length === 3) {
-      // Check if it's in DD-MM-YYYY format
-      if (parts[0].length === 2 && parts[1].length === 2) {
-        const [d, m, y] = parts.map(Number);
-        if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
-          return new Date(y, m - 1, d);
-        }
-      }
-      // Try parsing as D-MMM-YYYY format (e.g., 1-Jan-2025)
-      else if (parts[1].length === 3) {
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[1].toLowerCase().substring(0, 3));
-        if (monthIndex !== -1) {
-          const day = parseInt(parts[0], 10);
-          const year = parseInt(parts[2], 10);
-          if (!isNaN(day) && !isNaN(year)) {
-            return new Date(year, monthIndex, day);
-          }
-        }
-      }
-    }
+  //   // Try parsing as DD-MM-YYYY format
+  //   let parts = dateStr.split('-');
+  //   if (parts.length === 3) {
+  //     // Check if it's in DD-MM-YYYY format
+  //     if (parts[0].length === 2 && parts[1].length === 2) {
+  //       const [d, m, y] = parts.map(Number);
+  //       if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
+  //         return new Date(y, m - 1, d);
+  //       }
+  //     }
+  //     // Try parsing as D-MMM-YYYY format (e.g., 1-Jan-2025)
+  //     else if (parts[1].length === 3) {
+  //       const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  //       const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[1].toLowerCase().substring(0, 3));
+  //       if (monthIndex !== -1) {
+  //         const day = parseInt(parts[0], 10);
+  //         const year = parseInt(parts[2], 10);
+  //         if (!isNaN(day) && !isNaN(year)) {
+  //           return new Date(year, monthIndex, day);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // If we get here, try parsing with the Date constructor as a fallback
-    const parsedDate = new Date(dateStr);
-    return isNaN(parsedDate.getTime()) ? null : parsedDate;
-  }
+  //   // If we get here, try parsing with the Date constructor as a fallback
+  //   const parsedDate = new Date(dateStr);
+  //   return isNaN(parsedDate.getTime()) ? null : parsedDate;
+  // }
 
   private formatDate(date: Date): string {
-    const day = date.getDate();
-    const month = date.toLocaleDateString("en-US", { month: "short" });
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    const formatted = date.toISOString().split('T')[0];
+    console.log(formatted)
+    return formatted;
   }
 
   toggleActiveStatus() {
@@ -239,8 +232,13 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    console.log("form");
+
+    // If licenseHeader or licenseModules aren't ready yet, block save
+    // if (!this.licenseHeader.tenantId || !this.licenseModules.length) {
+    //   return false;
+    // }
     // Check header fields
+
     const isHeaderValid =
       this.licenseHeader.tenantId.trim() !== "" &&
       this.licenseHeader.domain.trim() !== "" &&
@@ -260,10 +258,12 @@ export class LicenseDetailComponent implements OnInit {
 
     // For edit mode, check if anything changed
     if (this.isEditMode && !this.isNewLicense) {
+
       // Check header changes including active status
+      // If licenseHeader or licenseModules aren't ready yet, block save
+
       const headerChanged =
-        this.licenseHeader.tenantId.trim() !==
-        this.prevHeader.tenantId.trim() ||
+        this.licenseHeader.tenantId.trim() !== this.prevHeader.tenantId.trim() ||
         this.licenseHeader.domain.trim() !== this.prevHeader.domain.trim() ||
         this.licenseHeader.customerName.trim() !==
         this.prevHeader.customerName.trim() ||
@@ -287,6 +287,10 @@ export class LicenseDetailComponent implements OnInit {
           endDate: m.endDate,
         }))
       );
+      // console.log(this.licenseHeader,"licenseHeader")
+      // console.log(this.prevHeader,"prevHeader")
+      // console.log(currentModules,"currentModules")
+      // console.log(previousModules,"previousModules")
 
       const modulesChanged = currentModules !== previousModules;
 

@@ -44,11 +44,10 @@ export class LicenseListComponent implements OnInit {
   loadLicenses() {
     this.licenseService.getLicenses().subscribe(
       data => {
-        console.log(data)
         this.licenses = data;
-        console.log(data[0])
         this.filteredLicenses = [...this.licenses];
         this.calculateTotalPages();
+        console.log(this.licenses,"licenses 1st Page")
       },
       error => {
         console.error('Error loading licenses:', error);

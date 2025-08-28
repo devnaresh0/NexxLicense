@@ -18,7 +18,7 @@
         class="btn-action btn-save"
         (click)="onSave()"
         [disabled]="!isFormValid()"
-        *ngIf="canEdit()"
+        *ngIf="canEdit() && licenseHeader.tenantId && licenseModules.length"
       >
         Save
       </button>
@@ -144,7 +144,8 @@
                   <input
                     matInput
                     [matDatepicker]="picker"
-                    [value]="parseDate(module.startDate)"
+                    [value]="module.startDate"
+                    (dateChange)="onModuleChange(module.id, 'startDate', $event.value)"
                     readonly
                   />
                   <mat-datepicker-toggle
@@ -164,29 +165,40 @@
               </ng-template>
             </td>
             <td>
-              <input
-                *ngIf="canEdit(); else endDateText"
-                type="text"
-                [value]="module.endDate"
-                (input)="
-                  onModuleChange(module.id, 'endDate', $event.target.value)
-                "
-                class="date-input"
-                placeholder="DD-MMM-YYYY"
-              />
-              <ng-template #endDateText>
-                {{ module.endDate }}
+              <ng-container *ngIf="canEdit(); else readonlyView">
+                <mat-form-field appearance="outline">
+                  <input
+                    matInput
+                    [matDatepicker]="picker"
+                    [value]="module.endDate"
+                    (dateInput)="onModuleChange(module.id, 'endDate', $event.value)"
+                    readonly
+                  />
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker
+                    #picker
+                    panelClass="my-datepicker-popup"
+                  ></mat-datepicker>
+                </mat-form-field>
+              </ng-container>
+              <ng-template #readonlyView>
+                <mat-form-field appearance="outline">
+                  <input matInput [value]="module.endDate" readonly />
+                </mat-form-field>
               </ng-template>
             </td>
             <td *ngIf="canEdit()">
               <div class="action-buttons">
-                <button
+                <!-- <button
                   class="btn-add"
                   (click)="addModule()"
                   title="Add Module"
                 >
                   +
-                </button>
+                </button> -->
                 <button
                   class="btn-remove"
                   (click)="removeModule(module.id)"
