@@ -1,0 +1,8 @@
+<div *ngIf="show" class="error-container" [ngClass]="'error-' + error?.type">
+  <div class="error-content">
+    <div class="error-message">
+      {{ error?.message }}
+    </div>
+    <button class="close-button" (click)="close()">&times;</button>
+  </div>
+</div>

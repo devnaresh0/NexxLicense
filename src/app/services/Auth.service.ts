@@ -7,7 +7,7 @@ import { HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:9090/api/login'; // replace with your endpoint
+  private apiUrl = 'http://localhost:9090/api/login'; 
 
   constructor(private http: HttpClient) { }
 

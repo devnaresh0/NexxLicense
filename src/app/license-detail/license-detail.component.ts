@@ -135,21 +135,24 @@ export class LicenseDetailComponent implements OnInit {
         customerName: this.licenseHeader.customerName,
         active: this.licenseHeader.active,
       },
-      modules: this.licenseModules.map(m => ({ ...m })),  // Create a new array with current modules
+      modules: this.licenseModules.map(m => ({ ...m })),
     };
-    console.log(licenseData, 'Data Sent')
-    this.licenseService.saveLicense(licenseData).subscribe(
-      (response) => {
-        console.log("License response received:", response);
-        // Show success message
-        this.isEditMode = false;
-        this.router.navigate(["/licenses"]);
+
+    console.log('Saving license data:', licenseData);
+
+    this.licenseService.saveLicense(licenseData).subscribe({
+      next: (response) => {
+        console.log("License saved successfully:", response);
+        // Show success message from response or default
+        const message = response.message || 'License saved successfully';
+        this.router.navigate(['/licenses'])
+        // Only navigate on successful save
       },
-      (error) => {
+      error: (error) => {
         console.error("Error saving license:", error);
-        // Show error message
+        // Error message is handled by the error interceptor
       }
-    );
+    });
   }
 
   addModule() {
@@ -197,11 +200,8 @@ export class LicenseDetailComponent implements OnInit {
 
   toggleActiveStatus() {
     this.licenseHeader.active = !this.licenseHeader.active;
-    console.log(this.licenseHeader.active, "toggle check")
   }
-  justLog() {
-    console.log(this.licenseHeader.active, 'active via the change')
-  }
+
   isFormValid(): boolean {
 
     // Check header fields

@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -12,6 +13,7 @@ import { LoginComponent } from './login/login.component';
 import { LicenseListComponent } from './license-list/license-list.component';
 import { LicenseDetailComponent } from './license-detail/license-detail.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ErrorComponent } from './shared/error/error.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -28,6 +30,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
+    ErrorComponent,
     LoginComponent,
     LicenseListComponent,
     LicenseDetailComponent

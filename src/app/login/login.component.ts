@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/Auth.service'; // adjust path
-
+import { AuthService } from '../services/Auth.service';
+import { ErrorService } from '../services/error.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +19,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private errorService: ErrorService
   ) { }
 
   ngOnInit(): void {
@@ -42,6 +43,7 @@ export class LoginComponent implements OnInit {
       this.showUsernameError = false;
       console.log('Moving to step 2, username:', this.username); // Debug log
     } else {
+      this.errorService.showError('Please enter a valid username', 'error');
       this.showUsernameError = true;
       console.log('Username validation failed:', usernameControl ? usernameControl.errors : 'No control'); // Debug log
     }
@@ -52,29 +54,25 @@ export class LoginComponent implements OnInit {
 
     if (passwordControl && passwordControl.valid) {
       this.showPasswordError = false;
-      // Handle login logic here
-      console.log('Login attempt:', {
-        username: this.username,
-        password: passwordControl.value
-      });
       
-      // Example: this.authService.login(this.username, passwordControl.value);
       this.authService.login(this.username, passwordControl.value).subscribe({
         next: (res) => {
           if (res.success) {
-            console.log('Login successful:', res);
-            this.router.navigate(['/licenses']); // redirect
+            this.router.navigate(['/licenses']);
           } else {
-            console.error('Login failed:', res.message || 'Invalid credentials');
+            const errorMessage = res.message || 'Invalid Credentials';
+            this.errorService.showError(errorMessage, 'error');
             this.showPasswordError = true;
           }
         },
         error: (err) => {
-          console.error('API error:', err);
+          const errorMessage = (err.error && err.error.message) || 'An error occurred during login';
+          this.errorService.showError(errorMessage, 'error');
           this.showPasswordError = true;
         }
       });
     } else {
+      this.errorService.showError('Please enter a valid password', 'error');
       this.showPasswordError = true;
     }
   }

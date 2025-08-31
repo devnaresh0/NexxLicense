@@ -1,8 +1,10 @@
 // license-list.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LicenseService } from '../services/license.service';
-import { filter } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { LicenseState } from '../state/license.state';
 
 export interface License {
   id: string;
@@ -18,34 +20,64 @@ export interface License {
   styleUrls: ['./license-list.component.css']
 })
 
-export class LicenseListComponent implements OnInit {
+export class LicenseListComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   licenses: License[] = [];
-
   filteredLicenses: License[] = [];
+
+  // State properties with default values
   searchTerm: string = '';
   selectedFilter: string = 'All';
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 1;
+  sortOrder: 'asc' = 'asc';
   sortBy: string = 'search';
 
   constructor(
     private router: Router,
-    private licenseService: LicenseService
-  ) {
-
-  }
+    private licenseService: LicenseService,
+    private licenseState: LicenseState
+  ) { }
 
   ngOnInit() {
+    // Subscribe to state changes
+    this.licenseState.getState$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        this.searchTerm = state.searchTerm;
+        this.selectedFilter = state.selectedFilter;
+        this.currentPage = state.currentPage;
+        this.itemsPerPage = state.itemsPerPage;
+        this.sortBy = state.sortBy;
+        this.sortOrder = state.sortOrder;
+      });
+
     this.loadLicenses();
   }
-  // call to api for licenses
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private updateState() {
+    this.licenseState.updateState({
+      searchTerm: this.searchTerm,
+      selectedFilter: this.selectedFilter,
+      currentPage: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      sortBy: this.sortBy,
+      sortOrder: this.sortOrder
+    });
+  }
+
   loadLicenses() {
     this.licenseService.getLicenses().subscribe(
       data => {
         this.licenses = data;
-        this.filteredLicenses = [...this.licenses];
+        this.applyFilters();
         this.calculateTotalPages();
       },
       error => {
@@ -53,19 +85,26 @@ export class LicenseListComponent implements OnInit {
       }
     );
   }
+
   // Filter 
   onFilterChange(filter: string) {
     this.selectedFilter = filter;
+    this.currentPage = 1; // Reset to first page when filter changes
     this.applyFilters();
+    this.updateState();
   }
 
   //search via input 
   onSearch() {
+    this.currentPage = 1; // Reset to first page when searching
     this.applyFilters();
+    this.updateState();
   }
 
   // Filter the license based on status and search term
   private applyFilters() {
+    if (!this.licenses || this.licenses.length === 0) return;
+
     let filtered = [...this.licenses];
     // Apply status filter
     if (this.selectedFilter !== 'All') {
@@ -82,12 +121,18 @@ export class LicenseListComponent implements OnInit {
       );
     }
 
-    // Apply sorting (always ascending)
-    filtered = this.sortLicenses(filtered, this.sortBy, 'asc');
+    // Apply sorting with current sort order
+    filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
 
     this.filteredLicenses = filtered;
     this.calculateTotalPages();
-    this.currentPage = 1;
+
+    // Ensure current page is within bounds
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    } else if (this.currentPage < 1 && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
   }
 
   //Calculate total pages for Pagination
@@ -104,8 +149,15 @@ export class LicenseListComponent implements OnInit {
 
   //Sort licenses based on selected field
   onSortChange(sortBy: string) {
-    this.sortBy = sortBy;
+    // Toggle sort order if clicking the same field, otherwise default to ascending
+    if (this.sortBy === sortBy) {
+      this.sortOrder = this.sortOrder;
+    } else {
+      this.sortBy = sortBy;
+      this.sortOrder = 'asc';
+    }
     this.applyFilters();
+    this.updateState();
   }
 
   //Sort licenses based on selected field
@@ -140,6 +192,7 @@ export class LicenseListComponent implements OnInit {
       this.currentPage = pageNum;
       // Force change detection by creating a new array reference
       this.filteredLicenses = [...this.filteredLicenses];
+      this.updateState();
     }
   }
 
