@@ -17,7 +17,7 @@ export interface LicenseHeader {
   tenantId: string;
   domain: string;
   customerName: string;
-  isActive: boolean;
+  active: boolean;
 }
 
 @Component({
@@ -34,7 +34,7 @@ export class LicenseDetailComponent implements OnInit {
     tenantId: "",
     domain: "",
     customerName: "",
-    isActive: true,
+    active: true,
   };
 
   licenseModules: LicenseModule[] = [];
@@ -43,15 +43,7 @@ export class LicenseDetailComponent implements OnInit {
   prevModules: LicenseModule[];
 
   originalLicenseData: any;
-  availableModules: string[] = [
-    "Merchandising",
-    "Inventory",
-    "Sales",
-    "Purchasing",
-    "Accounting",
-    "HR Management",
-    "Customer Management",
-  ];
+  availableModules: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -67,8 +59,6 @@ export class LicenseDetailComponent implements OnInit {
         this.initializeNewLicense();
       } else {
         this.licenseId = params["id"];
-        console.log("we are in id \n")
-        // this.isEditMode = params['action'] === 'edit';
         this.isEditMode =
           this.route.snapshot.routeConfig &&
             this.route.snapshot.routeConfig.path &&
@@ -76,9 +66,11 @@ export class LicenseDetailComponent implements OnInit {
             ? true
             : false;
         this.loadLicense();
-
       }
+      this.loadModules();
     });
+
+
   }
 
   initializeNewLicense() {
@@ -86,24 +78,32 @@ export class LicenseDetailComponent implements OnInit {
       tenantId: "",
       domain: "",
       customerName: "",
-      isActive: true,
+      active: true,
     };
+    this.loadModules();
     this.licenseModules = [];
   }
 
+  loadModules() {
+    this.licenseService.getModules().subscribe(
+      (data) => {
+        this.availableModules = data;
+      },
+      (error) => {
+        console.error("Error loading modules:", error);
+      }
+    );
+  }
+
   loadLicense() {
-    console.log('we are in loadlicense')
     this.licenseService.getLicenseDetails(this.licenseId).subscribe(
       (data) => {
         console.log(data)
         this.licenseHeader = { ...data.header };
         this.licenseModules = data.modules.map((m) => ({ ...m }))
         this.originalLicenseData = JSON.parse(JSON.stringify(data));
-
         this.prevHeader = { ...this.licenseHeader };
         this.prevModules = this.licenseModules.map((m) => ({ ...m }));
-        console.log(this.prevHeader, "prevHeader")
-        console.log(this.prevModules, "prevModules")
       },
       (error) => {
         console.error("Error loading license:", error);
@@ -121,7 +121,7 @@ export class LicenseDetailComponent implements OnInit {
     } else if (this.originalLicenseData) {
       this.licenseHeader = { ...this.prevHeader };
 
-      this.licenseModules = this.prevModules.map((m) => ({ ...m })) 
+      this.licenseModules = this.prevModules.map((m) => ({ ...m }))
     }
   }
 
@@ -133,7 +133,7 @@ export class LicenseDetailComponent implements OnInit {
         tenantId: this.licenseHeader.tenantId,
         domain: this.licenseHeader.domain,
         customerName: this.licenseHeader.customerName,
-        active: this.licenseHeader.isActive,
+        active: this.licenseHeader.active,
       },
       modules: this.licenseModules.map(m => ({ ...m })),  // Create a new array with current modules
     };
@@ -189,38 +189,6 @@ export class LicenseDetailComponent implements OnInit {
     }
   }
 
-  // parseDate(dateStr: string): Date | null {
-  //   if (!dateStr) return null;
-
-  //   // Try parsing as DD-MM-YYYY format
-  //   let parts = dateStr.split('-');
-  //   if (parts.length === 3) {
-  //     // Check if it's in DD-MM-YYYY format
-  //     if (parts[0].length === 2 && parts[1].length === 2) {
-  //       const [d, m, y] = parts.map(Number);
-  //       if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
-  //         return new Date(y, m - 1, d);
-  //       }
-  //     }
-  //     // Try parsing as D-MMM-YYYY format (e.g., 1-Jan-2025)
-  //     else if (parts[1].length === 3) {
-  //       const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  //       const monthIndex = monthNames.findIndex(m => m.toLowerCase() === parts[1].toLowerCase().substring(0, 3));
-  //       if (monthIndex !== -1) {
-  //         const day = parseInt(parts[0], 10);
-  //         const year = parseInt(parts[2], 10);
-  //         if (!isNaN(day) && !isNaN(year)) {
-  //           return new Date(year, monthIndex, day);
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   // If we get here, try parsing with the Date constructor as a fallback
-  //   const parsedDate = new Date(dateStr);
-  //   return isNaN(parsedDate.getTime()) ? null : parsedDate;
-  // }
-
   private formatDate(date: Date): string {
     const formatted = date.toISOString().split('T')[0];
     console.log(formatted)
@@ -228,17 +196,15 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   toggleActiveStatus() {
-    this.licenseHeader.isActive = !this.licenseHeader.isActive;
+    this.licenseHeader.active = !this.licenseHeader.active;
+    console.log(this.licenseHeader.active, "toggle check")
   }
-
+  justLog() {
+    console.log(this.licenseHeader.active, 'active via the change')
+  }
   isFormValid(): boolean {
 
-    // If licenseHeader or licenseModules aren't ready yet, block save
-    // if (!this.licenseHeader.tenantId || !this.licenseModules.length) {
-    //   return false;
-    // }
     // Check header fields
-
     const isHeaderValid =
       this.licenseHeader.tenantId.trim() !== "" &&
       this.licenseHeader.domain.trim() !== "" &&
@@ -259,15 +225,13 @@ export class LicenseDetailComponent implements OnInit {
     // For edit mode, check if anything changed
     if (this.isEditMode && !this.isNewLicense) {
 
-      // Check header changes including active status
-      // If licenseHeader or licenseModules aren't ready yet, block save
 
+      // Check header changes including active status
       const headerChanged =
         this.licenseHeader.tenantId.trim() !== this.prevHeader.tenantId.trim() ||
         this.licenseHeader.domain.trim() !== this.prevHeader.domain.trim() ||
-        this.licenseHeader.customerName.trim() !==
-        this.prevHeader.customerName.trim() ||
-        this.licenseHeader.isActive !== this.prevHeader.isActive;
+        this.licenseHeader.customerName.trim() !== this.prevHeader.customerName.trim() ||
+        this.licenseHeader.active !== this.prevHeader.active;
 
       // Check if modules have changed by comparing their JSON representation
       const currentModules = JSON.stringify(
@@ -287,11 +251,6 @@ export class LicenseDetailComponent implements OnInit {
           endDate: m.endDate,
         }))
       );
-      // console.log(this.licenseHeader,"licenseHeader")
-      // console.log(this.prevHeader,"prevHeader")
-      // console.log(currentModules,"currentModules")
-      // console.log(previousModules,"previousModules")
-
       const modulesChanged = currentModules !== previousModules;
 
       // Return true if either header or modules changed and form is valid

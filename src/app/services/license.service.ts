@@ -8,8 +8,8 @@ export interface License {
   id: string;
   tenantId: string;
   domain: string;
-  customer: string;
-  status: string;
+  customerName: string;
+  active: boolean;
 }
 
 export interface LicenseModule {
@@ -25,7 +25,7 @@ export interface LicenseHeader {
   tenantId: string;
   domain: string;
   customerName: string;
-  isActive: boolean;
+  active: boolean;
 }
 
 export interface LicenseDetail {
@@ -54,18 +54,27 @@ export class LicenseService {
 
   getLicenses(): Observable<License[]> {
     return this.http.get<any[]>(`${this.apiUrl}/licenses`).pipe(
-      map((response: any[]) => {
+      map(response => {
+        // Transform the nested response into a flat array
         return response.map(item => ({
           id: item.header.id,
           tenantId: item.header.tenantId,
           domain: item.header.domain,
-          customer: item.header.customerName, // 👈 Map customerName to customer
-          status: item.header.active ? 'Active' : 'Inactive'
+          customerName: item.header.customerName,
+          active: item.header.active
         }));
       }),
       catchError(this.handleError<License[]>('getLicenses', []))
     );
   }
+
+  getModules(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/modules`)
+      .pipe(
+        catchError(this.handleError<string[]>('getModule', []))
+      );
+  }
+
   // Get license by ID
   getLicenseDetails(id: string): Observable<LicenseDetail> {
     return this.http.get<LicenseDetail>(`${this.apiUrl}/licenses/${id}`)
@@ -77,6 +86,7 @@ export class LicenseService {
   /**
    * Save license (create or update)
    */
+  
   saveLicense(license: any): Observable<any> {
     console.log(license.id)
     if (+license.id && +license.id > 0) {

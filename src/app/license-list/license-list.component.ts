@@ -8,8 +8,8 @@ export interface License {
   id: string;
   tenantId: string;
   domain: string;
-  customer: string;
-  status: string;
+  customerName: string;
+  active: boolean;
 }
 
 @Component({
@@ -28,7 +28,7 @@ export class LicenseListComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 1;
-  sortBy: string = 'text-input';
+  sortBy: string = 'search';
 
   constructor(
     private router: Router,
@@ -47,7 +47,6 @@ export class LicenseListComponent implements OnInit {
         this.licenses = data;
         this.filteredLicenses = [...this.licenses];
         this.calculateTotalPages();
-        console.log(this.licenses,"licenses 1st Page")
       },
       error => {
         console.error('Error loading licenses:', error);
@@ -71,7 +70,7 @@ export class LicenseListComponent implements OnInit {
     // Apply status filter
     if (this.selectedFilter !== 'All') {
       filtered = filtered.filter(license =>
-        license.status.toLowerCase() === this.selectedFilter.toLowerCase()
+        license.active === (this.selectedFilter === 'Active')
       );
     }
 
@@ -79,7 +78,7 @@ export class LicenseListComponent implements OnInit {
     if (this.searchTerm) {
       filtered = filtered.filter(license =>
         license.domain.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        license.customer.toLowerCase().includes(this.searchTerm.toLowerCase())
+        license.customerName.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
     }
 
@@ -111,7 +110,7 @@ export class LicenseListComponent implements OnInit {
 
   //Sort licenses based on selected field
   private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
-    if (sortBy === 'text-input') {
+    if (sortBy === 'search') {
       return [...licenses];
     }
     return [...licenses].sort((a, b) => {

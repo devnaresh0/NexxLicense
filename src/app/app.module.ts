@@ -18,11 +18,11 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'licenses', component: LicenseListComponent },
   { path: 'license/:id', component: LicenseDetailComponent },
-  { path: 'license/new', component: LicenseDetailComponent }, // Creating new license
+  // { path: 'license/new', component: LicenseDetailComponent }, // Creating new license
   { path: 'license/:id/edit', component: LicenseDetailComponent }, // Editing existing license
   { path: 'license/:id/view', component: LicenseDetailComponent }, // Viewing license details
-  { path: 'license/:id/delete', component: LicenseDetailComponent }, // Deleting license
-  { path: 'license/:id/modules', component: LicenseDetailComponent }, // Managing license modules
+  // { path: 'license/:id/delete', component: LicenseDetailComponent }, // Deleting license
+  // { path: 'license/:id/modules', component: LicenseDetailComponent }, // Managing license modules
 ];
 
 @NgModule({

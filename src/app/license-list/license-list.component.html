@@ -9,22 +9,25 @@
   </div>
 
   <div class="filter-tabs">
-    <button 
-      class="tab" 
+    <button
+      class="tab"
       [class.active]="selectedFilter === 'All'"
-      (click)="onFilterChange('All')">
+      (click)="onFilterChange('All')"
+    >
       All
     </button>
-    <button 
-      class="tab" 
+    <button
+      class="tab"
       [class.active]="selectedFilter === 'Active'"
-      (click)="onFilterChange('Active')">
+      (click)="onFilterChange('Active')"
+    >
       Active
     </button>
-    <button 
-      class="tab" 
+    <button
+      class="tab"
       [class.active]="selectedFilter === 'Inactive'"
-      (click)="onFilterChange('Inactive')">
+      (click)="onFilterChange('Inactive')"
+    >
       Inactive
     </button>
   </div>
@@ -34,19 +37,24 @@
       <div class="search-group">
         <label>Search For License</label>
         <div class="search-input-group">
-          <input 
-            type="text" 
+          <input
+            type="text"
             [(ngModel)]="searchTerm"
             placeholder="Search"
             class="search-input"
-            (keyup.enter)="onSearch()">
+            (keyup.enter)="onSearch()"
+          />
           <button class="btn-search" (click)="onSearch()">Search</button>
         </div>
       </div>
       <div class="order-group">
         <label>Order By</label>
-        <select class="order-select" [ngModel]="sortBy" (ngModelChange)="onSortChange($event)">
-          <option value="text-input">Search</option>
+        <select
+          class="order-select"
+          [ngModel]="sortBy"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option value="search">Search</option>
           <option value="domain">Domain</option>
           <option value="customer">Customer</option>
         </select>
@@ -66,19 +74,26 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let license of getPaginatedLicenses(); let i = index" class="table-row">
-          <td>{{ i+1 }}</td>
+        <tr
+          *ngFor="let license of getPaginatedLicenses(); let i = index"
+          class="table-row"
+        >
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
           <td>{{ license.domain }}</td>
-          <td>{{ license.customer }}</td>
+          <td>{{ license.customerName }}</td>
           <td>
-            <span class="status-badge" [class.active]="license.status === 'Active'">
-              {{ license.status }}
+            <span class="status-badge" [class.active]="license.active === true">
+              {{ license.active ? "Active" : "Inactive" }}
             </span>
           </td>
           <td>
             <div class="action-buttons">
-              <button class="btn-action edit" (click)="editLicense(license)">Edit</button>
-              <button class="btn-action view" (click)="viewLicense(license)">View</button>
+              <button class="btn-action edit" (click)="editLicense(license)">
+                Edit
+              </button>
+              <button class="btn-action view" (click)="viewLicense(license)">
+                View
+              </button>
             </div>
           </td>
         </tr>
@@ -88,16 +103,15 @@
 
   <div class="pagination">
     <div class="pagination-controls">
-      <button 
+      <button
         *ngFor="let page of getPageNumbers()"
-        class="page-btn" 
+        class="page-btn"
         [class.active]="currentPage === page"
-        (click)="goToPage(page)">
+        (click)="goToPage(page)"
+      >
         {{ page }}
       </button>
     </div>
-    <div class="page-info">
-      Page {{ currentPage }} of {{ totalPages }}
-    </div>
+    <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
   </div>
 </div>
