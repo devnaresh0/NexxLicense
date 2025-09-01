@@ -142,15 +142,11 @@ export class LicenseDetailComponent implements OnInit {
 
     this.licenseService.saveLicense(licenseData).subscribe({
       next: (response) => {
-        console.log("License saved successfully:", response);
-        // Show success message from response or default
         const message = response.message || 'License saved successfully';
         this.router.navigate(['/licenses'])
-        // Only navigate on successful save
       },
       error: (error) => {
         console.error("Error saving license:", error);
-        // Error message is handled by the error interceptor
       }
     });
   }
