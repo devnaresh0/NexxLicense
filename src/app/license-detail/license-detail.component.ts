@@ -229,7 +229,7 @@ export class LicenseDetailComponent implements OnInit {
         this.licenseHeader.customerName.trim() !== this.prevHeader.customerName.trim() ||
         this.licenseHeader.active !== this.prevHeader.active;
 
-      // Check if modules have changed by comparing their JSON representation
+      // Check if modules have changed by comparing their stringify version
       const currentModules = JSON.stringify(
         this.licenseModules.map((m) => ({
           module: m.module,
