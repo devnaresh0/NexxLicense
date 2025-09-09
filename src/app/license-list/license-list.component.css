@@ -1,6 +1,6 @@
 /* license-list.component.css */
 .license-container {
-  padding: 20px;
+  padding: 10px;
   background-color: #f5f5f5;
   min-height: 100%;
   /* border: 5px solid gray; */
@@ -15,7 +15,7 @@
 
 .title-section h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
   color: #333;
   font-weight: 500;
 }
@@ -23,18 +23,16 @@
 .subtitle {
   margin: 5px 0 0 0;
   color: #666;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .btn-new {
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 5px 13px;
+  padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
 }
 
 .btn-new:hover {
@@ -43,28 +41,17 @@
 
 .filter-tabs {
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .tab {
   background-color: #17a2b8;
   color: white;
   border: none;
-  padding: 5px 12px;
+  font-size: 12px;
+  padding: 4px 8px;
   cursor: pointer;
-  border-right: 1px solid #138496;
   transition: background-color 0.3s ease;
-}
-
-.tab:first-child {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-.tab:last-child {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  border-right: none;
 }
 
 .tab.active {
@@ -76,7 +63,7 @@
 }
 
 .search-section {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .search-controls {
@@ -94,7 +81,7 @@
   flex: 1;
 }
 
-.search-group label, 
+.search-group label,
 .order-group label {
   display: block;
   margin-bottom: 5px;
@@ -109,10 +96,9 @@
 
 .search-input {
   flex: 1;
-  padding: 6px 10px;
+  /* padding: 3px; */
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .search-input:focus {
@@ -128,8 +114,7 @@
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  font-size: 11px;
 }
 
 .btn-search:hover {
@@ -138,7 +123,7 @@
 
 .order-select {
   width: 100%;
-  padding: 6px 10px;
+  padding: 3px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: white;
@@ -155,7 +140,7 @@
   background-color: white;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
@@ -186,7 +171,7 @@
 }
 
 .table-row td {
-  padding: 9px; 
+  padding: 6px;
   color: #333;
   font-size: 13px;
 }
@@ -275,11 +260,12 @@
     align-items: center;
     gap: 15px;
   }
-  
-  .search-group, .order-group {
+
+  .search-group,
+  .order-group {
     flex: none;
   }
-  
+
   .table-container {
     overflow-x: auto;
   }
@@ -287,14 +273,13 @@
   .license-table {
     font-size: 12px;
   }
-  
+
   .table-header th,
   .table-row td {
     padding: 5px;
     font-size: 12px;
-
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 4px;

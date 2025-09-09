@@ -7,7 +7,7 @@ import { ErrorService } from './error.service';
 
 export interface License {
   id: string;
-  tenantId: string;
+  serialNumber: number;
   domain: string;
   customerName: string;
   active: boolean;
@@ -23,7 +23,7 @@ export interface LicenseModule {
 
 export interface LicenseHeader {
   id: number,
-  tenantId: string;
+  serialNumber: number;
   domain: string;
   customerName: string;
   active: boolean;
@@ -52,17 +52,14 @@ export class LicenseService {
     private errorService: ErrorService
   ) { }
 
-  /**
-   * Get all licenses
-   */
-
+  // Get all licenses
   getLicenses(): Observable<License[]> {
     return this.http.get<any[]>(`${this.apiUrl}/licenses`).pipe(
       map(response => {
         // Transform the nested response into a flat array
         return response.map(item => ({
           id: item.header.id,
-          tenantId: item.header.tenantId,
+          serialNumber: item.header.serialNumber,
           domain: item.header.domain,
           customerName: item.header.customerName,
           active: item.header.active
@@ -87,10 +84,7 @@ export class LicenseService {
       );
   }
 
-  /**
-   * Save license (create or update)
-   */
-
+  // Save license (create or update)
   saveLicense(license: any): Observable<any> {
     console.log(license.id)
     if (+license.id && +license.id > 0) {
@@ -102,32 +96,22 @@ export class LicenseService {
     }
   }
 
-  /**
-   * Create new license
-   */
+  // Create new license
   createLicense(license: any): Observable<any> {
     console.log("creating license", license)
     return this.http.post<any>(`${this.apiUrl}/licenses`, license, this.httpOptions)
       .pipe(
         catchError(this.handleError<any>('createLicense'))
       );
-
-    console.log('Creating license:', license);
-    return of({ success: true, id: Date.now(), message: 'License created successfully' });
   }
 
-  /**
-   * Update existing license
-   */
+  //  Update existing license
   updateLicense(license: any): Observable<any> {
     console.log("updating license", license)
     return this.http.put<any>(`${this.apiUrl}/licenses/${license.id}`, license, this.httpOptions)
       .pipe(
         catchError(this.handleError<any>('updateLicense'))
       );
-
-    console.log('Updating license:', license);
-    return of({ success: true, message: 'License updated successfully' });
   }
 
   // Get available modules
@@ -147,9 +131,8 @@ export class LicenseService {
     return of(modules);
   }
 
-  /**
-   * Validate license data
-   */
+  
+  // Validate license data
   validateLicense(license: any): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
@@ -201,7 +184,7 @@ export class LicenseService {
         if (typeof error.error === 'string') {
           try {
             const parsedError = JSON.parse(error.error);
-            // Handle object with specific error properties (like tenantId)
+            // Handle object with specific error properties (like serialNumber)
             if (typeof parsedError === 'object' && !Array.isArray(parsedError)) {
               // Extract the first error message from the object
               const errorKey = Object.keys(parsedError)[0];
@@ -216,11 +199,11 @@ export class LicenseService {
         }
         // Handle case where error is already an object
         else if (typeof error.error === 'object') {
-          // Handle object with specific error properties (like tenantId)
+          // Handle object with specific error properties (like serialNumber)
           const errorObj = error.error;
           const errorKeys = Object.keys(errorObj);
 
-          // If it has properties like { tenantId: 'error message' }
+          // If it has properties like { serialNumber: 'error message' }
           if (errorKeys.length > 0 && typeof errorObj[errorKeys[0]] === 'string') {
             errorMessage = errorObj[errorKeys[0]];
           }

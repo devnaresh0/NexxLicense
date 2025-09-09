@@ -8,7 +8,7 @@ import { LicenseState } from '../state/license.state';
 
 export interface License {
   id: string;
-  tenantId: string;
+  serialNumber: number;
   domain: string;
   customerName: string;
   active: boolean;

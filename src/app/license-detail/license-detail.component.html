@@ -18,7 +18,7 @@
         class="btn-action btn-save"
         (click)="onSave()"
         [disabled]="!isFormValid()"
-        *ngIf="canEdit() && licenseHeader.tenantId && licenseModules.length"
+        *ngIf="canEdit() && licenseHeader.serialNumber > 0 && licenseModules.length"
       >
         Save
       </button>
@@ -29,11 +29,13 @@
     <div class="section-title">License Header</div>
     <div class="header-form">
       <div class="form-group">
-        <label>Tenant ID</label>
+        <label>Serial No.</label>
         <input
           type="text"
-          [(ngModel)]="licenseHeader.tenantId"
-          placeholder="Enter tenant id"
+          [(ngModel)]="licenseHeader.serialNumber"
+          type="number"
+          min="1"
+          placeholder="Enter Serial No."
           class="form-input"
           [readonly]="!canEdit()"
         />
@@ -100,12 +102,11 @@
             <td>{{ i + 1 }}</td>
             <td>
               <select
-                *ngIf="canEdit(); else moduleText"
                 [value]="module.module"
-                (change)="
-                  onModuleChange(module.id, 'module', $event.target.value)
-                "
+                (change)="onModuleChange(module.id, 'module', $event.target.value)"
                 class="module-select"
+                [disabled]="!canEdit()"
+                [class.readonly]="!canEdit()"
               >
                 <option value="">Select Module</option>
                 <option
@@ -115,80 +116,37 @@
                   {{ availableModule }}
                 </option>
               </select>
-              <ng-template #moduleText>
-                {{ module.module }}
-              </ng-template>
             </td>
             <td>
               <input
-                *ngIf="canEdit(); else usersText"
                 type="number"
                 [value]="module.numberOfUsers"
-                (input)="
-                  onModuleChange(
-                    module.id,
-                    'numberOfUsers',
-                    +$event.target.value
-                  )
-                "
-                class="users-input"
+                (input)="onModuleChange(module.id, 'numberOfUsers', +$event.target.value)"
+                class="users-input form-input"
                 min="1"
+                [readonly]="!canEdit()"
+                [class.readonly]="!canEdit()"
               />
-              <ng-template #usersText>
-                {{ module.numberOfUsers }}
-              </ng-template>
             </td>
             <td>
-              <ng-container *ngIf="canEdit(); else readonlyView">
-                <mat-form-field appearance="outline">
-                  <input
-                    matInput
-                    [matDatepicker]="picker"
-                    [value]="module.startDate"
-                    (dateChange)="onModuleChange(module.id, 'startDate', $event.value)"
-                    readonly
-                  />
-                  <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker
-                    #picker
-                    panelClass="my-datepicker-popup"
-                  ></mat-datepicker>
-                </mat-form-field>
-              </ng-container>
-              <ng-template #readonlyView>
-                <mat-form-field appearance="outline">
-                  <input matInput [value]="module.startDate" readonly />
-                </mat-form-field>
-              </ng-template>
+              <input
+                type="date"
+                [value]="module.startDate | date: 'yyyy-MM-dd'"
+                (input)="onDateChange(module.id, 'startDate', $event.target.value)"
+                class="form-input date-input"
+                [readonly]="!canEdit()"
+                [class.readonly]="!canEdit()"
+              />
             </td>
             <td>
-              <ng-container *ngIf="canEdit(); else readonlyView">
-                <mat-form-field appearance="outline">
-                  <input
-                    matInput
-                    [matDatepicker]="picker"
-                    [value]="module.endDate"
-                    (dateInput)="onModuleChange(module.id, 'endDate', $event.value)"
-                    readonly
-                  />
-                  <mat-datepicker-toggle
-                    matSuffix
-                    [for]="picker"
-                  ></mat-datepicker-toggle>
-                  <mat-datepicker
-                    #picker
-                    panelClass="my-datepicker-popup"
-                  ></mat-datepicker>
-                </mat-form-field>
-              </ng-container>
-              <ng-template #readonlyView>
-                <mat-form-field appearance="outline">
-                  <input matInput [value]="module.endDate" readonly />
-                </mat-form-field>
-              </ng-template>
+              <input
+                type="date"
+                [value]="module.endDate | date: 'yyyy-MM-dd'"
+                (input)="onDateChange(module.id, 'endDate', $event.target.value)"
+                class="form-input date-input"
+                [readonly]="!canEdit()"
+                [class.readonly]="!canEdit()"
+              />
             </td>
             <td *ngIf="canEdit()">
               <div class="action-buttons">

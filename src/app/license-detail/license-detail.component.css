@@ -1,5 +1,5 @@
 .license-detail-container {
-  padding: 20px;
+  padding: 10px;
   background-color: #f5f5f5;
   /* min-height: 100%; */
   /* height: auto; */
@@ -9,12 +9,12 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .title-section h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 18px;
   color: #333;
   font-weight: 500;
 }
@@ -31,7 +31,8 @@
 }
 
 .btn-action {
-  padding: 6px 10px;
+  padding: 5px 10px;
+  font-size: 12px;
 }
 
 .btn-list {
@@ -85,7 +86,7 @@
 .license-details-section {
   background-color: white;
   border-radius: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -94,17 +95,17 @@
   background-color: #17a2b8;
   color: white;
   padding: 5px;
-  font-weight: 500;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 14px;
 }
 
 .btn-add-module {
   background-color: #28a745;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 3px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
@@ -116,7 +117,7 @@
 }
 
 .header-form {
-  padding: 15px;
+  padding: 7px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
@@ -129,17 +130,17 @@
 }
 
 .form-group label {
-  margin-bottom: 5px;
+  margin-bottom: 3px;
   font-weight: 500;
   color: #333;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .form-input {
-  padding: 8px 10px;
+  padding: 3px;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 2px;
+  font-size: 12px;
 }
 
 .form-input:read-only {
@@ -150,6 +151,48 @@
   outline: none;
   border-color: #17a2b8;
   box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+}
+
+/* Date input specific styles */
+input[type="date"] {
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-size: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 30px;
+  background-color: white;
+  cursor: pointer;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+}
+
+/* Hide calendar icon in readonly state */
+input[type="date"][readonly]::-webkit-calendar-picker-indicator,
+input[type="date"].readonly::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+/* Hide the default calendar icon in WebKit browsers */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 0;
+  margin: 0;
+}
+
+/* Make the date input consistent across browsers */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  padding: 0 2px;
 }
 
 .toggle-group {
@@ -205,7 +248,7 @@
 }
 
 .table-container {
-  padding: 0 20px 20px 20px;
+  padding: 0 5px 5px 5px;
 }
 
 .details-table {
@@ -235,7 +278,7 @@
 }
 
 .details-table .table-row td {
-  padding: 8px;
+  padding: 5px 0px 15px 0px;
   color: #333;
   font-size: 13px;
 }
@@ -244,7 +287,7 @@
 .users-input,
 .date-input {
   width: 100%;
-  padding: 6px 10px;
+  padding: 3px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 13px;
@@ -270,8 +313,8 @@
 
 .btn-add,
 .btn-remove {
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -279,7 +322,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 15px;
   transition: background-color 0.3s ease;
 }
 
@@ -318,6 +361,7 @@
 }
 
 .my-datepicker-popup {
+
   /* override width/height of popup */
   .mat-calendar {
     width: 150px;
@@ -361,8 +405,9 @@
   }
 
   .section-title {
+    /* font-size: 12px !important; */
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     align-items: flex-start;
   }
 
@@ -383,7 +428,7 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .license-detail-container {
     padding: 10px;
   }
@@ -393,4 +438,8 @@
     overflow-x: auto;
     white-space: nowrap;
   }
+}
+table {
+  border-collapse: collapse; /* clean, no double borders */
+  width: 100%;
 }

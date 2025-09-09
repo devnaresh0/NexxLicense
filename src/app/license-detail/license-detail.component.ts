@@ -14,7 +14,7 @@ export interface LicenseModule {
 
 export interface LicenseHeader {
   id?: number;
-  tenantId: string;
+  serialNumber: number;
   domain: string;
   customerName: string;
   active: boolean;
@@ -25,25 +25,24 @@ export interface LicenseHeader {
   templateUrl: "./license-detail.component.html",
   styleUrls: ["./license-detail.component.css"],
 })
+
 export class LicenseDetailComponent implements OnInit {
+
   licenseId: string;
   isEditMode: boolean = false;
   isNewLicense: boolean = false;
-
+  licenseModules: LicenseModule[] = [];
+  prevHeader: LicenseHeader;
+  prevModules: LicenseModule[];
+  originalLicenseData: any;
+  availableModules: string[] = [];
+  
   licenseHeader: LicenseHeader = {
-    tenantId: "",
+    serialNumber: 0,
     domain: "",
     customerName: "",
     active: true,
   };
-
-  licenseModules: LicenseModule[] = [];
-
-  prevHeader: LicenseHeader;
-  prevModules: LicenseModule[];
-
-  originalLicenseData: any;
-  availableModules: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -69,13 +68,11 @@ export class LicenseDetailComponent implements OnInit {
       }
       this.loadModules();
     });
-
-
   }
 
   initializeNewLicense() {
     this.licenseHeader = {
-      tenantId: "",
+      serialNumber: null,
       domain: "",
       customerName: "",
       active: true,
@@ -130,7 +127,7 @@ export class LicenseDetailComponent implements OnInit {
       id: this.licenseId,
       header: {
         id: this.licenseId,
-        tenantId: this.licenseHeader.tenantId,
+        serialNumber: this.licenseHeader.serialNumber,
         domain: this.licenseHeader.domain,
         customerName: this.licenseHeader.customerName,
         active: this.licenseHeader.active,
@@ -145,7 +142,7 @@ export class LicenseDetailComponent implements OnInit {
         const message = response.message || 'License saved successfully';
         this.router.navigate(['/licenses'])
       },
-      error: (error) => {
+      error: (error) =>   {
         console.error("Error saving license:", error);
       }
     });
@@ -172,14 +169,19 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onModuleChange(moduleId: number, field: string, value: any) {
-    if (field == 'startDate' || field == 'endDate') {
-      value = this.formatDate(value);
+    const moduleIndex = this.licenseModules.findIndex(m => m.id === moduleId);
+    if (moduleIndex > -1) {
+      this.licenseModules[moduleIndex] = {
+        ...this.licenseModules[moduleIndex],
+        [field]: value
+      };
     }
-    const module = this.licenseModules.find((m) => m.id === moduleId);
-    console.log(value);
-    if (module) {
-      (module as any)[field] = value;
-    }
+  }
+
+  onDateChange(moduleId: number, field: 'startDate' | 'endDate', dateString: string) {
+    // Convert the date string to ISO format
+    const date = dateString ? new Date(dateString).toISOString() : '';
+    this.onModuleChange(moduleId, field, date);
   }
 
   onHeaderFieldChange(field: string, value: any) {
@@ -202,7 +204,7 @@ export class LicenseDetailComponent implements OnInit {
 
     // Check header fields
     const isHeaderValid =
-      this.licenseHeader.tenantId.trim() !== "" &&
+      this.licenseHeader.serialNumber > 0 &&
       this.licenseHeader.domain.trim() !== "" &&
       this.licenseHeader.customerName.trim() !== "";
 
@@ -221,10 +223,9 @@ export class LicenseDetailComponent implements OnInit {
     // For edit mode, check if anything changed
     if (this.isEditMode && !this.isNewLicense) {
 
-
       // Check header changes including active status
       const headerChanged =
-        this.licenseHeader.tenantId.trim() !== this.prevHeader.tenantId.trim() ||
+        this.licenseHeader.serialNumber !== this.prevHeader.serialNumber ||
         this.licenseHeader.domain.trim() !== this.prevHeader.domain.trim() ||
         this.licenseHeader.customerName.trim() !== this.prevHeader.customerName.trim() ||
         this.licenseHeader.active !== this.prevHeader.active;
