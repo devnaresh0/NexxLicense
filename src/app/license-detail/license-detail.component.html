@@ -18,7 +18,7 @@
         class="btn-action btn-save"
         (click)="onSave()"
         [disabled]="!isFormValid()"
-        *ngIf="canEdit() && licenseHeader.serialNumber > 0 && licenseModules.length"
+        *ngIf="canEdit()"
       >
         Save
       </button>
@@ -33,8 +33,6 @@
         <input
           type="text"
           [(ngModel)]="licenseHeader.serialNumber"
-          type="number"
-          min="1"
           placeholder="Enter Serial No."
           class="form-input"
           [readonly]="!canEdit()"
@@ -89,8 +87,8 @@
             <th>#</th>
             <th>Module</th>
             <th>Number of Users</th>
-            <th>Start Date</th>
-            <th>End Date</th>
+            <th>Start Date (dd-mm-yyyy)</th>
+            <th>End Date (dd-mm-yyyy)</th>
             <th *ngIf="canEdit()">Actions</th>
           </tr>
         </thead>

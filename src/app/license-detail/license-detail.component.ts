@@ -14,7 +14,7 @@ export interface LicenseModule {
 
 export interface LicenseHeader {
   id?: number;
-  serialNumber: number;
+  serialNumber: number | null;
   domain: string;
   customerName: string;
   active: boolean;
@@ -38,7 +38,7 @@ export class LicenseDetailComponent implements OnInit {
   availableModules: ModuleResponse[] = [];
   
   licenseHeader: LicenseHeader = {
-    serialNumber: 0,
+    serialNumber: null,
     domain: "",
     customerName: "",
     active: true,
@@ -123,6 +123,12 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onSave() {
+    // Convert empty string to null for serialNumber
+    const header = {
+      ...this.licenseHeader,
+      serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
+    };
+
     // Create a map of module names to their IDs for quick lookup
     const moduleNameToIdMap = new Map<string, number>();
     this.availableModules.forEach(module => {
@@ -131,23 +137,19 @@ export class LicenseDetailComponent implements OnInit {
 
     // Map the license modules to include moduleId
     const modulesWithIds = this.licenseModules.map(module => {
-      // Find the module in availableModules to get its ID
-      const moduleId = moduleNameToIdMap.get(module.module) || 0; // Default to 0 if not found
+      const moduleId = moduleNameToIdMap.get(module.module) || 0;
       return {
         ...module,
-        moduleId: moduleId,  // Add the moduleId
-        moduleName: module.module  // Keep the module name as moduleName for backward compatibility if needed
+        moduleId: moduleId,
+        moduleName: module.module
       };
     });
 
     const licenseData = {
       id: this.licenseId,
       header: {
+        ...header,
         id: this.licenseId,
-        serialNumber: this.licenseHeader.serialNumber,
-        domain: this.licenseHeader.domain,
-        customerName: this.licenseHeader.customerName,
-        active: this.licenseHeader.active,
       },
       modules: modulesWithIds,
     };
@@ -157,9 +159,9 @@ export class LicenseDetailComponent implements OnInit {
     this.licenseService.saveLicense(licenseData).subscribe({
       next: (response) => {
         const message = response.message || 'License saved successfully';
-        this.router.navigate(['/licenses'])
+        this.router.navigate(['/licenses']);
       },
-      error: (error) =>   {
+      error: (error) => {
         console.error("Error saving license:", error);
       }
     });
@@ -221,10 +223,8 @@ export class LicenseDetailComponent implements OnInit {
 
     // Check header fields
     const isHeaderValid =
-      this.licenseHeader.serialNumber > 0 &&
       this.licenseHeader.domain.trim() !== "" &&
       this.licenseHeader.customerName.trim() !== "";
-
     // Check if any module is invalid (empty name or invalid user count)
     const hasInvalidModule = this.licenseModules.some(
       (module) =>
@@ -235,7 +235,7 @@ export class LicenseDetailComponent implements OnInit {
     );
 
     // Check if any modules exist
-    const hasModules = this.licenseModules.length > 0;
+    const hasModules = this.licenseModules.length > -1;
 
     // For edit mode, check if anything changed
     if (this.isEditMode && !this.isNewLicense) {
@@ -275,7 +275,6 @@ export class LicenseDetailComponent implements OnInit {
         hasModules
       );
     }
-
     // For new license, just check basic validation
     return isHeaderValid && !hasInvalidModule && hasModules;
   }
