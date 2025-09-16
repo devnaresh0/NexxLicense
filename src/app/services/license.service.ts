@@ -34,6 +34,11 @@ export interface LicenseDetail {
   modules: LicenseModule[];
 }
 
+export interface ModuleResponse {
+  id: number;
+  moduleName: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -69,10 +74,10 @@ export class LicenseService {
     );
   }
 
-  getModules(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/modules`)
+  getModules(): Observable<ModuleResponse[]> {
+    return this.http.get<ModuleResponse[]>(`${this.apiUrl}/modules`)
       .pipe(
-        catchError(this.handleError<string[]>('getModule', []))
+        catchError(this.handleError<ModuleResponse[]>('getModules', []))
       );
   }
 

@@ -111,9 +111,9 @@
                 <option value="">Select Module</option>
                 <option
                   *ngFor="let availableModule of availableModules"
-                  [value]="availableModule"
+                  [value]="availableModule.moduleName"
                 >
-                  {{ availableModule }}
+                  {{ availableModule.moduleName }}
                 </option>
               </select>
             </td>

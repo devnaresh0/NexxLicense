@@ -1,7 +1,7 @@
 // license-detail.component.ts
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { LicenseService } from "../services/license.service";
+import { LicenseService, ModuleResponse } from "../services/license.service";
 import { from } from "rxjs";
 
 export interface LicenseModule {
@@ -35,7 +35,7 @@ export class LicenseDetailComponent implements OnInit {
   prevHeader: LicenseHeader;
   prevModules: LicenseModule[];
   originalLicenseData: any;
-  availableModules: string[] = [];
+  availableModules: ModuleResponse[] = [];
   
   licenseHeader: LicenseHeader = {
     serialNumber: 0,
@@ -123,6 +123,23 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   onSave() {
+    // Create a map of module names to their IDs for quick lookup
+    const moduleNameToIdMap = new Map<string, number>();
+    this.availableModules.forEach(module => {
+      moduleNameToIdMap.set(module.moduleName, module.id);
+    });
+
+    // Map the license modules to include moduleId
+    const modulesWithIds = this.licenseModules.map(module => {
+      // Find the module in availableModules to get its ID
+      const moduleId = moduleNameToIdMap.get(module.module) || 0; // Default to 0 if not found
+      return {
+        ...module,
+        moduleId: moduleId,  // Add the moduleId
+        moduleName: module.module  // Keep the module name as moduleName for backward compatibility if needed
+      };
+    });
+
     const licenseData = {
       id: this.licenseId,
       header: {
@@ -132,7 +149,7 @@ export class LicenseDetailComponent implements OnInit {
         customerName: this.licenseHeader.customerName,
         active: this.licenseHeader.active,
       },
-      modules: this.licenseModules.map(m => ({ ...m })),
+      modules: modulesWithIds,
     };
 
     console.log('Saving license data:', licenseData);
