@@ -14,7 +14,7 @@ export interface LicenseModule {
 
 export interface LicenseHeader {
   id?: number;
-  serialNumber: number | null;
+  serialNumber: number | null | string;
   domain: string;
   customerName: string;
   active: boolean;
@@ -180,7 +180,7 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   removeModule(moduleId: number) {
-    if (this.licenseModules.length > 1) {
+    if (this.licenseModules.length > 0) {
       this.licenseModules = this.licenseModules.filter(
         (m) => m.id !== moduleId
       );

@@ -6,9 +6,9 @@
     </div>
 
     <!-- Back Button (only on step 2) -->
-    <div class="back-button" *ngIf="isStep2" (click)="goBack()">
+    <button class="back-button" *ngIf="isStep2" (click)="goBack()">
       <i class="arrow-left">←</i>
-    </div>
+    </button>
 
     <!-- Title -->
     <h2 class="title">Sign in to Continue</h2>
@@ -19,29 +19,29 @@
     </div>
 
     <!-- Step 1: Username -->
-    <div [formGroup]="loginForm" *ngIf="isStep1" class="form-step">
+    <form [formGroup]="loginForm" (ngSubmit)="onNext()" *ngIf="isStep1" class="form-step">
       <div class="input-group">
         <input
           type="email"
           class="form-input"
           placeholder="Enter Username"
           formControlName="username"
-          [class.error]="showUsernameError">
+          [class.error]="showUsernameError"
+          (keydown.enter)="$event.preventDefault(); onNext()">
         <div class="input-icon">
           <b class="email-icon">✉</b>
         </div>
       </div>
       
       <button
-        type="button"
-        class="btn-primary"
-        (click)="onNext()">
+        type="submit"
+        class="btn-primary">
         Next
       </button>
-    </div>
+    </form>
 
     <!-- Step 2: Password -->
-    <div  [formGroup]="loginForm"  *ngIf="isStep2" class="form-step">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" *ngIf="isStep2" class="form-step">
       <div class="welcome-message">
         Welcome {{ username }}
       </div>
@@ -50,9 +50,10 @@
         <input
           type="password"
           class="form-input"
-          placeholder="Password"
+          placeholder="Enter Password"
           formControlName="password"
-          [class.error]="showPasswordError">
+          [class.error]="showPasswordError"
+          (keydown.enter)="$event.preventDefault(); onLogin()">
         <div class="input-icon">
           <b class="lock-icon">🔒</b>
         </div>
@@ -63,20 +64,16 @@
       </div>
       
       <button
-        type="button"
-        class="btn-primary"
-        (click)="onLogin()">
-        Login
+        type="submit"
+        class="btn-primary">
+        Sign In
       </button>
       
-      <div class="forgot-password">
-        <a href="#" (click)="forgotPassword()">Forgot your password?</a>
-      </div>
-    </div>
+    </form>
 
     <!-- Footer -->
     <div class="footer">
-      <div class="copyright">©2025 - NexxLicense V1.1.933</div>
+      <div class="copyright">2025 - NexxLicense V1.1.933</div>
       <div class="description">NexxLicense - Next Generation License</div>
       <div class="description">Application</div>
     </div>

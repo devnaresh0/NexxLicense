@@ -293,6 +293,13 @@ input[type="date"]::-webkit-datetime-edit-text {
   font-size: 13px;
 }
 
+.module-select:disabled {
+  background-color: white;
+  cursor: not-allowed;
+  opacity: 1; /* Override default opacity to prevent fading */
+  color: black; /* Darker text color */
+}
+
 .module-select:focus,
 .users-input:focus,
 .date-input:focus {
@@ -358,30 +365,6 @@ input[type="date"]::-webkit-datetime-edit-text {
   color: #6c757d;
   font-style: italic;
   padding: 20px !important;
-}
-
-.my-datepicker-popup {
-
-  /* override width/height of popup */
-  .mat-calendar {
-    width: 150px;
-    /* default ~250px */
-    height: 150px;
-    /* tweak as needed */
-  }
-
-  /* style the date cells */
-  .mat-calendar-body-cell {
-    font-size: 10px;
-    padding: 2px;
-  }
-
-  /* style the selected date */
-  .mat-calendar-body-selected {
-    background-color: #e89117;
-    /* custom color */
-    color: white;
-  }
 }
 
 /* Responsive Design */
