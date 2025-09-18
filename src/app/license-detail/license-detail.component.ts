@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { LicenseService, ModuleResponse } from "../services/license.service";
 import { from } from "rxjs";
+import { ErrorService } from "../services/error.service";
 
 export interface LicenseModule {
   id: number;
@@ -36,7 +37,7 @@ export class LicenseDetailComponent implements OnInit {
   prevModules: LicenseModule[];
   originalLicenseData: any;
   availableModules: ModuleResponse[] = [];
-  
+
   licenseHeader: LicenseHeader = {
     serialNumber: null,
     domain: "",
@@ -47,7 +48,8 @@ export class LicenseDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private licenseService: LicenseService
+    private licenseService: LicenseService,
+    private errorService: ErrorService
   ) { }
 
   ngOnInit() {
@@ -153,6 +155,14 @@ export class LicenseDetailComponent implements OnInit {
       },
       modules: modulesWithIds,
     };
+
+    const validation = this.licenseService.validateLicense(licenseData);
+    if (!validation.isValid) {
+      // Show validation errors in a popup
+      const errorMessage = validation.errors.join('\n');
+      this.errorService.showError(errorMessage, 'error');
+      return;
+    }
 
     console.log('Saving license data:', licenseData);
 

@@ -119,54 +119,48 @@ export class LicenseService {
       );
   }
 
-  // Get available modules
-  getAvailableModules(): Observable<string[]> {
-    const modules = [
-      'Merchandising',
-      'Inventory',
-      'Sales',
-      'Purchasing',
-      'Accounting',
-      'HR Management',
-      'Customer Management',
-      'Reporting',
-      'Analytics',
-      'Security Management'
-    ];
-    return of(modules);
-  }
-
-  
   // Validate license data
   validateLicense(license: any): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
+    const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$/;
 
     if (!license.header.domain || license.header.domain.trim() === '') {
       errors.push('Domain is required');
+    } else if (!domainRegex.test(license.header.domain)) {
+      errors.push('Domain can only contain letters, numbers, dots, and hyphens, and cannot start or end with a dot or hyphen');
     }
 
     if (!license.header.customerName || license.header.customerName.trim() === '') {
       errors.push('Customer name is required');
     }
 
-    if (!license.modules || license.modules.length === 0) {
-      errors.push('At least one module is required');
-    } else {
-      license.modules.forEach((module: LicenseModule, index: number) => {
-        if (!module.module || module.module.trim() === '') {
-          errors.push(`Module name is required for row ${index + 1}`);
+    license.modules.forEach((module: LicenseModule, index: number) => {
+      if (!module.module || module.module.trim() === '') {
+        errors.push(`Module name is required for row ${index + 1}`);
+      }
+      if (!module.numberOfUsers || module.numberOfUsers < 1) {
+        errors.push(`Number of users must be at least 1 for row ${index + 1}`);
+      }
+      if (!module.startDate || module.startDate.trim() === '') {
+        errors.push(`Start date is required for row ${index + 1}`);
+      }
+      if (!module.endDate || module.endDate.trim() === '') {
+        errors.push(`End date is required for row ${index + 1}`);
+      }
+      // Add date validation
+      if (module.startDate && module.endDate) {
+        const startDate = new Date(module.startDate);
+        const endDate = new Date(module.endDate);
+
+        // Check if dates are valid
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+          errors.push(`Invalid date format in row ${index + 1}`);
+        } else if (startDate > endDate) {
+          errors.push(`Start date cannot be after end date in row ${index + 1}`);
         }
-        if (!module.numberOfUsers || module.numberOfUsers < 1) {
-          errors.push(`Number of users must be at least 1 for row ${index + 1}`);
-        }
-        if (!module.startDate || module.startDate.trim() === '') {
-          errors.push(`Start date is required for row ${index + 1}`);
-        }
-        if (!module.endDate || module.endDate.trim() === '') {
-          errors.push(`End date is required for row ${index + 1}`);
-        }
-      });
-    }
+      }
+    });
+
 
     return {
       isValid: errors.length === 0,
