@@ -44,7 +44,7 @@ export interface ModuleResponse {
 })
 export class LicenseService {
 
-  private apiUrl = 'http://localhost:9090/api';
+  private apiUrl = 'http://localhost:9650/api';
 
   private httpOptions = {
     headers: new HttpHeaders({
