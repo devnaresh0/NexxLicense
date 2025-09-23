@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ErrorService } from './error.service';
+import { apiUrl } from 'src/environments/global';
 
 export interface License {
   id: string;
@@ -44,7 +45,7 @@ export interface ModuleResponse {
 })
 export class LicenseService {
 
-  private apiUrl = 'http://localhost:9650/api';
+  private apiUrl = 'http://localhost:9090/api';
 
   private httpOptions = {
     headers: new HttpHeaders({
@@ -59,7 +60,7 @@ export class LicenseService {
 
   // Get all licenses
   getLicenses(): Observable<License[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/licenses`).pipe(
+    return this.http.get<any[]>(`${apiUrl}/licenses`).pipe(
       map(response => {
         // Transform the nested response into a flat array
         return response.map(item => ({
@@ -75,7 +76,7 @@ export class LicenseService {
   }
 
   getModules(): Observable<ModuleResponse[]> {
-    return this.http.get<ModuleResponse[]>(`${this.apiUrl}/modules`)
+    return this.http.get<ModuleResponse[]>(`${apiUrl}/modules`)
       .pipe(
         catchError(this.handleError<ModuleResponse[]>('getModules', []))
       );
@@ -83,7 +84,7 @@ export class LicenseService {
 
   // Get license by ID
   getLicenseDetails(id: string): Observable<LicenseDetail> {
-    return this.http.get<LicenseDetail>(`${this.apiUrl}/licenses/${id}`)
+    return this.http.get<LicenseDetail>(`${apiUrl}/licenses/${id}`)
       .pipe(
         catchError(this.handleError<LicenseDetail>('getLicense'))
       );
@@ -104,7 +105,7 @@ export class LicenseService {
   // Create new license
   createLicense(license: any): Observable<any> {
     console.log("creating license", license)
-    return this.http.post<any>(`${this.apiUrl}/licenses`, license, this.httpOptions)
+    return this.http.post<any>(`${apiUrl}/licenses`, license, this.httpOptions)
       .pipe(
         catchError(this.handleError<any>('createLicense'))
       );
@@ -113,7 +114,7 @@ export class LicenseService {
   //  Update existing license
   updateLicense(license: any): Observable<any> {
     console.log("updating license", license)
-    return this.http.put<any>(`${this.apiUrl}/licenses/${license.id}`, license, this.httpOptions)
+    return this.http.put<any>(`${apiUrl}/licenses/${license.id}`, license, this.httpOptions)
       .pipe(
         catchError(this.handleError<any>('updateLicense'))
       );
