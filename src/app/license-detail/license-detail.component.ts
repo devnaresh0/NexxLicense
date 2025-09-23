@@ -230,7 +230,7 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-
+    // Check if the data from api is fetched or not
     // Check header fields
     const isHeaderValid =
       this.licenseHeader.domain.trim() !== "" &&
@@ -249,7 +249,9 @@ export class LicenseDetailComponent implements OnInit {
 
     // For edit mode, check if anything changed
     if (this.isEditMode && !this.isNewLicense) {
-
+      if (this.prevHeader === undefined) {
+        return false;
+      }
       // Check header changes including active status
       const headerChanged =
         this.licenseHeader.serialNumber !== this.prevHeader.serialNumber ||

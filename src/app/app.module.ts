@@ -20,11 +20,9 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'licenses', component: LicenseListComponent },
   { path: 'license/:id', component: LicenseDetailComponent },
-  // { path: 'license/new', component: LicenseDetailComponent }, // Creating new license
-  { path: 'license/:id/edit', component: LicenseDetailComponent }, // Editing existing license
-  { path: 'license/:id/view', component: LicenseDetailComponent }, // Viewing license details
-  // { path: 'license/:id/delete', component: LicenseDetailComponent }, // Deleting license
-  // { path: 'license/:id/modules', component: LicenseDetailComponent }, // Managing license modules
+  // { path: 'license/new', component: LicenseDetailComponent },
+  { path: 'license/:id/edit', component: LicenseDetailComponent },
+  { path: 'license/:id/view', component: LicenseDetailComponent }, 
 ];
 
 @NgModule({
@@ -39,8 +37,8 @@ const routes: Routes = [
     BrowserModule,
     ReactiveFormsModule,
     FormsModule,
-    HttpClientModule, // ✅ Added here
-    RouterModule.forRoot(routes, { enableTracing: false }),
+    HttpClientModule, 
+    RouterModule.forRoot(routes, { useHash: true }),
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
