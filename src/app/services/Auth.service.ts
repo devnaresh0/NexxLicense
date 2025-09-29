@@ -8,10 +8,6 @@ import { apiUrl } from 'src/environments/global';
   providedIn: 'root'
 })
 export class AuthService {
-<<<<<<< HEAD
-  private apiUrl = 'http://localhost:9650/api/login'; 
-=======
->>>>>>> a89362caf044a5ae14be160aaaf52b331a87048b
 
   constructor(private http: HttpClient) { }
 

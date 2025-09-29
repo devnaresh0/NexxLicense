@@ -17,6 +17,7 @@ import { ErrorComponent } from './shared/error/error.component';
 import { LogoutConfirmationComponent } from './shared/logout-confirmation/logout-confirmation.component';
 import { AuthGuard } from './guards/auth.guard';
 import { ErrorService } from './services/error.service';
+import { AuditComponent } from './audit/audit.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -36,6 +37,8 @@ const routes: Routes = [
     component: LicenseDetailComponent,
     canActivate: [AuthGuard]
   },
+   { path: 'audit/:domain', component: AuditComponent, canActivate: [AuthGuard] },
+
   { 
     path: 'license/:id/view', 
     component: LicenseDetailComponent,
@@ -51,7 +54,8 @@ const routes: Routes = [
     LoginComponent,
     LicenseListComponent,
     LicenseDetailComponent,
-    LogoutConfirmationComponent
+    LogoutConfirmationComponent,
+    AuditComponent
   ],
   imports: [
     BrowserModule,

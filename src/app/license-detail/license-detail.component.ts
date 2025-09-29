@@ -115,6 +115,14 @@ export class LicenseDetailComponent implements OnInit {
   onList() {
     this.router.navigate(["/licenses"]);
   }
+  
+    onAudit() {
+    if (this.licenseHeader && this.licenseHeader.domain) {
+      this.router.navigate(['/audit', this.licenseHeader.domain]);
+    } else {
+      console.error('No domain available for audit navigation');
+    }
+  }
 
   onReset() {
     if (this.isNewLicense) {
