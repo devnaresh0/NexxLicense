@@ -19,7 +19,12 @@
     </div>
 
     <!-- Step 1: Username -->
-    <form [formGroup]="loginForm" (ngSubmit)="onNext()" *ngIf="isStep1" class="form-step">
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onNext()"
+      *ngIf="isStep1"
+      class="form-step"
+    >
       <div class="input-group">
         <input
           type="email"
@@ -27,25 +32,23 @@
           placeholder="Enter Username"
           formControlName="username"
           [class.error]="showUsernameError"
-          (keydown.enter)="$event.preventDefault(); onNext()">
-        <div class="input-icon">
-          <b class="email-icon">✉</b>
-        </div>
+          (keydown.enter)="$event.preventDefault(); onNext()"
+        />
+        <div class="input-icon"></div>
       </div>
-      
-      <button
-        type="submit"
-        class="btn-primary">
-        Next
-      </button>
+
+      <button type="submit" class="btn-primary">Next</button>
     </form>
 
     <!-- Step 2: Password -->
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" *ngIf="isStep2" class="form-step">
-      <div class="welcome-message">
-        Welcome {{ username }}
-      </div>
-      
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onLogin()"
+      *ngIf="isStep2"
+      class="form-step"
+    >
+      <div class="welcome-message">Welcome {{ username }}</div>
+
       <div class="input-group">
         <input
           type="password"
@@ -53,27 +56,23 @@
           placeholder="Enter Password"
           formControlName="password"
           [class.error]="showPasswordError"
-          (keydown.enter)="$event.preventDefault(); onLogin()">
+          (keydown.enter)="$event.preventDefault(); onLogin()"
+        />
         <div class="input-icon">
           <b class="lock-icon">🔒</b>
         </div>
       </div>
-      
+
       <div *ngIf="showPasswordError" class="error-message">
         This field is problematic
       </div>
-      
-      <button
-        type="submit"
-        class="btn-primary">
-        Sign In
-      </button>
-      
+
+      <button type="submit" class="btn-primary">Sign In</button>
     </form>
 
     <!-- Footer -->
     <div class="footer">
-      <div class="copyright">2025 - NexxLicense V1.1.933</div>
+      <div class="copyright">2025 - NexxLicense V1.0.0</div>
       <div class="description">NexxLicense - Next Generation License</div>
       <div class="description">Application</div>
     </div>

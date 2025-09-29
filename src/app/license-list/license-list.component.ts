@@ -2,6 +2,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LicenseService } from '../services/license.service';
+import { LogoutService } from '../services/logout.service';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LicenseState } from '../state/license.state';
@@ -38,7 +39,8 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private licenseService: LicenseService,
-    private licenseState: LicenseState
+    private licenseState: LicenseState,
+    private logoutService: LogoutService
   ) { }
 
   ngOnInit() {
@@ -209,6 +211,18 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   //Create new license
   createNewLicense() {
     this.router.navigate(['/license/new']);
+  }
+
+
+  // Logout method
+  async onLogout() {
+    const confirmed = await this.logoutService.showConfirmation();
+    if (confirmed) {
+      console.log('logut click');
+      localStorage.removeItem('adminId');
+      localStorage.removeItem('username');
+      this.router.navigate(['/login']);
+    }
   }
 
   getPageNumbers(): (number | string)[] {

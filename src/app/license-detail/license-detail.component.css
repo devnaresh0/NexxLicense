@@ -30,6 +30,20 @@
   gap: 10px;
 }
 
+.btn-logout {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-logout:hover {
+  background-color: #c82333;
+}
+
 .btn-action {
   padding: 5px 10px;
   font-size: 12px;

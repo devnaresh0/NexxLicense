@@ -1,0 +1,20 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirm Logout</h3>
+    </div>
+    <div class="modal-body">
+      <p>Do you want to log out from user
+        <strong>{{ username || 'Unknown User' }}</strong>
+        <span *ngIf="adminId">
+          (ID: {{ adminId }})
+        </span>
+        ?
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button class="btn-confirm" (click)="onConfirm()">Logout</button>
+    </div>
+  </div>
+</div>

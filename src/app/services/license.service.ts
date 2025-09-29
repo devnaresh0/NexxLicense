@@ -8,7 +8,7 @@ import { apiUrl } from 'src/environments/global';
 
 export interface License {
   id: string;
-  serialNumber: number;
+  serialNumber: number | null;
   domain: string;
   customerName: string;
   active: boolean;
@@ -92,7 +92,6 @@ export class LicenseService {
 
   // Save license (create or update)
   saveLicense(license: any): Observable<any> {
-    console.log(license.id)
     if (+license.id && +license.id > 0) {
       // Update existing license
       return this.updateLicense(license);
