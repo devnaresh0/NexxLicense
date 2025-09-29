@@ -14,15 +14,34 @@ import { LicenseListComponent } from './license-list/license-list.component';
 import { LicenseDetailComponent } from './license-detail/license-detail.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ErrorComponent } from './shared/error/error.component';
+import { LogoutConfirmationComponent } from './shared/logout-confirmation/logout-confirmation.component';
+import { AuthGuard } from './guards/auth.guard';
+import { ErrorService } from './services/error.service';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'licenses', component: LicenseListComponent },
-  { path: 'license/:id', component: LicenseDetailComponent },
-  // { path: 'license/new', component: LicenseDetailComponent },
-  { path: 'license/:id/edit', component: LicenseDetailComponent },
-  { path: 'license/:id/view', component: LicenseDetailComponent }, 
+  { 
+    path: 'licenses', 
+    component: LicenseListComponent,
+    canActivate: [AuthGuard] 
+  },
+  { 
+    path: 'license/:id', 
+    component: LicenseDetailComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'license/:id/edit', 
+    component: LicenseDetailComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'license/:id/view', 
+    component: LicenseDetailComponent,
+    canActivate: [AuthGuard]
+  },
+  { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({
@@ -31,7 +50,8 @@ const routes: Routes = [
     ErrorComponent,
     LoginComponent,
     LicenseListComponent,
-    LicenseDetailComponent
+    LicenseDetailComponent,
+    LogoutConfirmationComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +65,10 @@ const routes: Routes = [
     MatNativeDateModule,
     BrowserAnimationsModule
   ],
-  providers: [],
+  providers: [
+    ErrorService,
+    AuthGuard
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

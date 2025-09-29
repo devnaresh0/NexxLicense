@@ -25,6 +25,17 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
+    this.checkExistingAuth();
+  }
+
+  private checkExistingAuth(): void {
+    const adminId = localStorage.getItem('adminId');
+    const username = localStorage.getItem('username');
+    
+    if (adminId && username) {
+      this.errorService.showError(`Logging in as existing user ${username}`, 'success');
+      this.router.navigate(['/licenses']);
+    }
   }
 
   initializeForm(): void {
@@ -58,6 +69,8 @@ export class LoginComponent implements OnInit {
       this.authService.login(this.username, passwordControl.value).subscribe({
         next: (res) => {
           if (res.success) {
+            localStorage.setItem('adminId', res.adminId);
+            localStorage.setItem('username', res.username);
             this.router.navigate(['/licenses']);
           } else {
             const errorMessage = res.message || 'Invalid Credentials';

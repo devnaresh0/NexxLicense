@@ -2,6 +2,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { LicenseService, ModuleResponse } from "../services/license.service";
+import { LogoutService } from "../services/logout.service";
 import { from } from "rxjs";
 import { ErrorService } from "../services/error.service";
 
@@ -49,7 +50,8 @@ export class LicenseDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private licenseService: LicenseService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private logoutService: LogoutService
   ) { }
 
   ngOnInit() {
@@ -147,8 +149,8 @@ export class LicenseDetailComponent implements OnInit {
       };
     });
 
-    const licenseData = {
-      id: this.licenseId,
+    // Create the base license data
+    const baseLicenseData = {
       header: {
         ...header,
         id: this.licenseId,
@@ -156,13 +158,29 @@ export class LicenseDetailComponent implements OnInit {
       modules: modulesWithIds,
     };
 
+    // Get adminId from localStorage or use a default value
+    const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
+    
+    // Create the final payload with additional fields
+    const licenseData = {
+      adminId: adminId,
+      id: this.licenseId ? parseInt(this.licenseId, 10) : null,
+      oldData: null,
+      newData: JSON.stringify({
+        ...baseLicenseData.header,
+        modules: baseLicenseData.modules
+      }),
+      ...baseLicenseData // Keep the original structure for backward compatibility
+    };
+
     const validation = this.licenseService.validateLicense(licenseData);
+    console.log(JSON.stringify(licenseData));
     if (!validation.isValid) {
       // Show validation errors in a popup
       const errorMessage = validation.errors.join('\n');
       this.errorService.showError(errorMessage, 'error');
       return;
-    }
+      }
 
     console.log('Saving license data:', licenseData);
 
@@ -293,5 +311,15 @@ export class LicenseDetailComponent implements OnInit {
 
   canEdit(): boolean {
     return this.isEditMode || this.isNewLicense;
+  }
+
+  // Logout method
+  async onLogout() {
+    const confirmed = await this.logoutService.showConfirmation();
+    if (confirmed) {
+      localStorage.removeItem('adminId');
+      localStorage.removeItem('username');
+      this.router.navigate(['/login']);
+    }
   }
 }
