@@ -1,5 +1,7 @@
 // license-detail.component.ts
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from "@angular/router";
 import { LicenseService, ModuleResponse } from "../services/license.service";
 import { LogoutService } from "../services/logout.service";
@@ -28,7 +30,7 @@ export interface LicenseHeader {
   styleUrls: ["./license-detail.component.css"],
 })
 
-export class LicenseDetailComponent implements OnInit {
+export class LicenseDetailComponent implements OnInit, OnDestroy {
 
   licenseId: string;
   isEditMode: boolean = false;
@@ -39,6 +41,8 @@ export class LicenseDetailComponent implements OnInit {
   originalLicenseData: any;
   availableModules: ModuleResponse[] = [];
 
+  private destroy$ = new Subject<void>();
+  
   licenseHeader: LicenseHeader = {
     serialNumber: null,
     domain: "",
@@ -55,7 +59,9 @@ export class LicenseDetailComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.params.subscribe((params) => {
+    this.route.params
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
       if (params["id"] === "new") {
         this.isNewLicense = true;
         this.isEditMode = true;
@@ -86,18 +92,27 @@ export class LicenseDetailComponent implements OnInit {
   }
 
   loadModules() {
-    this.licenseService.getModules().subscribe(
-      (data) => {
-        this.availableModules = data;
-      },
-      (error) => {
-        console.error("Error loading modules:", error);
-      }
-    );
+    this.licenseService.getModules()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (data) => {
+          this.availableModules = data;
+        },
+        (error) => {
+          console.error("Error loading modules:", error);
+        }
+      );
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadLicense() {
-    this.licenseService.getLicenseDetails(this.licenseId).subscribe(
+    this.licenseService.getLicenseDetails(this.licenseId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
       (data) => {
         console.log(data)
         this.licenseHeader = { ...data.header };

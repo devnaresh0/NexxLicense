@@ -1,14 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { apiUrl } from '../../environments/global';
 
 // Define the shape of an audit entry
 export interface LicenseAudit {
   id: number;
-  action: 'CREATE' | 'UPDATE';   // matches your backend enum
-  oldData: string | null;        // JSON string from DB
-  newData: string | null;        // JSON string from DB
-  timestamp: string;             // ISO date string
+  adminId: number;
+  adminName: string;
+  licenseId: number;
+  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  oldData: string | null;
+  newData: string | null;
+  timestamp: string;
 }
 
 @Injectable({
@@ -16,7 +20,7 @@ export interface LicenseAudit {
 })
 export class AuditService {
   // Adjust this to match your backend endpoint
-  private baseUrl = 'http://localhost:9090/NexxLicense/licenses/audit';
+  private baseUrl = `${apiUrl}/licenses/audit`;
 
   constructor(private http: HttpClient) {}
 

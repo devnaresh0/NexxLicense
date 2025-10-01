@@ -246,22 +246,12 @@ export class LicenseListComponent implements OnInit, OnDestroy {
       startPage = Math.max(this.totalPages - 3, 2);
     }
 
-    // Add ellipsis if needed after first page
-    // if (startPage > 2) {
-    //   pages.push('...');
-    // }
-
     // Add middle pages
     for (let i = startPage; i <= endPage; i++) {
       if (i > 1 && i < this.totalPages) {
         pages.push(i);
       }
     }
-
-    // Add ellipsis before last page if needed
-    // if (endPage < this.totalPages - 1) {
-    //   pages.push('...');
-    // }
 
     // Always show last page if there is more than one page
     if (this.totalPages > 1) {

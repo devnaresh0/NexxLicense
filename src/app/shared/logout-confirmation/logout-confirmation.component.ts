@@ -14,11 +14,14 @@ export class LogoutConfirmationComponent implements OnDestroy {
   private subscription: Subscription | null = null;
 
   constructor(private logoutService: LogoutService) {
-    this.username = localStorage.getItem('username');
-    this.adminId = localStorage.getItem('adminId');
     this.subscription = this.logoutService.showConfirm$.subscribe({
       next: (show) => {
         this.isOpen = show;
+        // Read user info from localStorage every time the dialog is shown
+        if (show) {
+          this.username = localStorage.getItem('username');
+          this.adminId = localStorage.getItem('adminId');
+        }
       },
       error: (error) => {
         console.error('Error in logout confirmation:', error);

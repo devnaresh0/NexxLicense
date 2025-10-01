@@ -27,6 +27,7 @@
     >
       <div class="input-group">
         <input
+          #usernameInput
           type="email"
           class="form-input"
           placeholder="Enter Username"
@@ -34,7 +35,6 @@
           [class.error]="showUsernameError"
           (keydown.enter)="$event.preventDefault(); onNext()"
         />
-        <div class="input-icon"></div>
       </div>
 
       <button type="submit" class="btn-primary">Next</button>
@@ -47,10 +47,11 @@
       *ngIf="isStep2"
       class="form-step"
     >
-      <div class="welcome-message">Welcome {{ username }}</div>
+      <div class="welcome-message">Enter Password for {{ username }}</div>
 
       <div class="input-group">
         <input
+          #passwordInput
           type="password"
           class="form-input"
           placeholder="Enter Password"
@@ -73,8 +74,7 @@
     <!-- Footer -->
     <div class="footer">
       <div class="copyright">2025 - NexxLicense V1.0.0</div>
-      <div class="description">NexxLicense - Next Generation License</div>
-      <div class="description">Application</div>
+      <div class="description">NexxLicense - License Application</div>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/Auth.service';
@@ -9,7 +9,10 @@ import { ErrorService } from '../services/error.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
+  @ViewChild('passwordInput') passwordInput: ElementRef;
+  @ViewChild('usernameInput') usernameInput: ElementRef;
+  private previousStep: number = 1;
   loginForm: FormGroup;
   currentStep: number = 1;
   username: string = '';
@@ -25,18 +28,27 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
-    this.checkExistingAuth();
+    // this.checkExistingAuth();
   }
 
-  private checkExistingAuth(): void {
-    const adminId = localStorage.getItem('adminId');
-    const username = localStorage.getItem('username');
-    
-    if (adminId && username) {
-      this.errorService.showError(`Logging in as existing user ${username}`, 'success');
-      this.router.navigate(['/licenses']);
-    }
+  ngAfterViewInit(): void {
+    // Set initial focus on username field when component first loads
+    setTimeout(() => {
+      if (this.usernameInput && this.usernameInput.nativeElement) {
+        this.usernameInput.nativeElement.focus();
+      }
+    });
   }
+
+  // private checkExistingAuth(): void {
+  //   const adminId = localStorage.getItem('adminId');
+  //   const username = localStorage.getItem('username');
+    
+  //   if (adminId && username) {
+  //     this.errorService.showError(`Logging in as existing user ${username}`, 'success');
+  //     this.router.navigate(['/licenses']);
+  //   }
+  // }
 
   initializeForm(): void {
     this.loginForm = this.formBuilder.group({
@@ -50,6 +62,7 @@ export class LoginComponent implements OnInit {
 
     if (usernameControl && usernameControl.valid && usernameControl.value.trim() !== '') {
       this.username = usernameControl.value;
+      this.previousStep = this.currentStep;
       this.currentStep = 2;
       this.showUsernameError = false;
       console.log('Moving to step 2, username:', this.username); // Debug log
@@ -90,15 +103,31 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  goBack(): void {
-    this.currentStep = 1;
-    this.showPasswordError = false;
+  ngAfterViewChecked(): void {
+    // Handle focus when moving to step 2 (password)
+    if (this.currentStep === 2 && this.previousStep === 1) {
+      setTimeout(() => {
+        if (this.passwordInput && this.passwordInput.nativeElement) {
+          this.passwordInput.nativeElement.focus();
+        }
+      });
+      this.previousStep = 2;
+    }
+    // Handle focus when moving back to step 1 (username)
+    else if (this.currentStep === 1 && this.previousStep === 2) {
+      setTimeout(() => {
+        if (this.usernameInput && this.usernameInput.nativeElement) {
+          this.usernameInput.nativeElement.focus();
+        }
+      });
+      this.previousStep = 1;
+    }
   }
 
-  forgotPassword(): void {
-    // Handle forgot password logic
-    console.log('Forgot password clicked');
-    // Example: this.router.navigate(['/forgot-password']);
+  goBack(): void {
+    this.previousStep = this.currentStep;
+    this.currentStep = 1;
+    this.showPasswordError = false;
   }
 
   get isStep1(): boolean {

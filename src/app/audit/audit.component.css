@@ -1,63 +1,202 @@
 .audit-container {
+  padding: 10px;
+  background-color: #f5f5f5;
+  min-height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
   background-color: white;
   border-radius: 4px;
-  margin-bottom: 10px;
+  padding: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding-bottom: 10px;
+}
+
+.title-section h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.btn-logout {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #c82333;
+}
+
+.btn-action {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.subtitle {
+  margin: 5px 0px 0px 0px;
+  font-size: 13px;
+}
+
+.btn-back {
+  background-color: blue;
+  color: white;
+  margin-right: 10px;
+}
+
+.btn-list {
+  background-color: #28a745;
+  color: white;
+  margin-left: 10px;
+}
+
+.btn-list:hover {
+  background-color: #218838;
 }
 
 .audit-header {
-  background-color: #343a40;
-  padding: 10px;
+  background-color: #17a2b8;
+  color: white;
   border-radius: 4px 4px 0 0;
-  margin-bottom: 5px;
-}
-
-.audit-title {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 600;
+  padding-left: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
   color: white;
 }
 
 .table-container {
-  padding: 0 5px 5px 5px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.details-table {
+table.details-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
+  background-color: white;
 }
 
 .table-header {
   background-color: #6c757d;
   color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .table-header th {
-  padding: 8px;
+  padding: 10px 12px;
   text-align: left;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.table-header th:last-child {
+  border-right: none;
 }
 
 .table-row {
-  border-bottom: 1px solid #eee;
   transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.table-row:last-child {
+  border-bottom: none;
 }
 
 .table-row:hover {
-  background-color: #f8f9fa;
+  background-color: #f5f9ff;
 }
 
 .table-row td {
-  padding: 5px 0px 15px 0px;
+  padding: 10px 12px;
   color: #333;
-  font-size: 13px;
+  font-size: 12px;
+  border-bottom: 1.5px solid #f0f0f0;
+  border-right: 1.5px solid #f0f0f0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.module-list {
+/* Remove right border from last cell in each row */
+.table-row td:last-child {
+  border-right: none;
+}
+
+/* Style the first row to have a top border */
+.table-row:first-child td {
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Set specific column widths */
+th:nth-child(1),
+td:nth-child(1) {
+  width: 2%;
+}
+
+/* # */
+th:nth-child(2),
+td:nth-child(2) {
+  width: 5%;
+}
+
+/* Action */
+th:nth-child(3),
+td:nth-child(3) {
+  width: 12%;
+}
+
+/* User */
+th:nth-child(4),
+td:nth-child(4) {
+  width: 15%;
+}
+
+/* Customer */
+th:nth-child(5),
+td:nth-child(5) {
+  width: 6%;
+}
+
+/* Status */
+th:nth-child(6),
+td:nth-child(6) {
+  width: 32%;
+}
+
+/* Modules */
+th:nth-child(7),
+td:nth-child(7) {
+  width: 10%;
+}
+
+Timestamp .module-list {
   padding-left: 20px;
   margin: 0;
   list-style-type: disc;
@@ -79,4 +218,142 @@
   padding: 10px;
   font-size: 14px;
   color: #555;
+}
+
+/* Tablet Styles (max-width: 1024px) */
+@media screen and (max-width: 1024px) {
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -10px 20px;
+    width: calc(100% + 20px);
+    border-radius: 0;
+  }
+  
+  table.details-table {
+    min-width: 900px;
+  }
+  
+  .header {
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  
+  .btn-action {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .title-section h2 {
+    font-size: 14px;
+  }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media screen and (max-width: 768px) {
+  .audit-container {
+    padding: 8px;
+    font-size: 13px;
+  }
+  
+  .header {
+    padding: 10px 12px;
+    margin: 0 -8px 15px;
+    width: calc(100% + 16px);
+    border-radius: 0;
+    flex-wrap: wrap;
+  }
+  
+  .title-section h2 {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  
+  .header-actions {
+    flex-direction: row;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  
+  .btn-action {
+    width: auto;
+    margin: 0;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  
+  .subtitle {
+    font-size: 11px;
+  }
+  
+  .audit-header {
+    margin: 0 -8px 10px;
+    padding: 8px 12px;
+    border-radius: 0;
+  }
+  
+  .table-container {
+    margin: 0 -8px 15px;
+    width: calc(100% + 16px);
+  }
+  
+  table.details-table {
+    min-width: 1000px;
+  }
+  
+  .table-header th,
+  .table-row td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+  
+  .module-list {
+    padding-left: 15px;
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media screen and (max-width: 480px) {
+  .audit-container {
+    padding: 4px;
+    font-size: 12px;
+  }
+  
+  .header {
+    padding: 8px 10px;
+    margin: 0 -4px 10px;
+    width: calc(100% + 8px);
+  }
+  
+  .title-section h2 {
+    font-size: 14px;
+  }
+  
+  .audit-header {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  
+  .table-container {
+    margin: 0 -5px 12px;
+    width: calc(100% + 10px);
+  }
+  
+  .table-header th,
+  .table-row td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+  
+  .module-list {
+    padding-left: 12px;
+    font-size: 10px;
+  }
 }

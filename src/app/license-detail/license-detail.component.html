@@ -8,7 +8,7 @@
     <div class="header-actions">
       <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
       <button class="btn-action btn-list" (click)="onList()">List</button>
-      <button class="btn-action btn-audit" (click)="onAudit()">Audit</button>
+      <button class="btn-action btn-audit" (click)="onAudit()">Audit</button  >
       <button
         class="btn-action btn-reset"
         (click)="onReset()"
@@ -103,7 +103,9 @@
             <td>
               <select
                 [value]="module.module"
-                (change)="onModuleChange(module.id, 'module', $event.target.value)"
+                (change)="
+                  onModuleChange(module.id, 'module', $event.target.value)
+                "
                 class="module-select"
                 [disabled]="!canEdit()"
                 [class.readonly]="!canEdit()"
@@ -121,7 +123,13 @@
               <input
                 type="number"
                 [value]="module.numberOfUsers"
-                (input)="onModuleChange(module.id, 'numberOfUsers', +$event.target.value)"
+                (input)="
+                  onModuleChange(
+                    module.id,
+                    'numberOfUsers',
+                    +$event.target.value
+                  )
+                "
                 class="users-input form-input"
                 min="1"
                 [readonly]="!canEdit()"
@@ -131,8 +139,10 @@
             <td>
               <input
                 type="date"
-                [value]="module.startDate | date: 'yyyy-MM-dd'"
-                (input)="onDateChange(module.id, 'startDate', $event.target.value)"
+                [value]="module.startDate | date : 'yyyy-MM-dd'"
+                (input)="
+                  onDateChange(module.id, 'startDate', $event.target.value)
+                "
                 class="form-input date-input"
                 [readonly]="!canEdit()"
                 [class.readonly]="!canEdit()"
@@ -141,8 +151,10 @@
             <td>
               <input
                 type="date"
-                [value]="module.endDate | date: 'yyyy-MM-dd'"
-                (input)="onDateChange(module.id, 'endDate', $event.target.value)"
+                [value]="module.endDate | date : 'yyyy-MM-dd'"
+                (input)="
+                  onDateChange(module.id, 'endDate', $event.target.value)
+                "
                 class="form-input date-input"
                 [readonly]="!canEdit()"
                 [class.readonly]="!canEdit()"

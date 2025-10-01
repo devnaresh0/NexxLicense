@@ -22,25 +22,29 @@ import { AuditComponent } from './audit/audit.component';
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { 
-    path: 'licenses', 
+  {
+    path: 'licenses',
     component: LicenseListComponent,
-    canActivate: [AuthGuard] 
+    canActivate: [AuthGuard]
   },
-  { 
-    path: 'license/:id', 
+  {
+    path: 'license/:id',
     component: LicenseDetailComponent,
     canActivate: [AuthGuard]
   },
-  { 
-    path: 'license/:id/edit', 
+  {
+    path: 'license/:id/edit',
     component: LicenseDetailComponent,
     canActivate: [AuthGuard]
   },
-   { path: 'audit/:domain', component: AuditComponent, canActivate: [AuthGuard] },
+  {
+    path: 'audit/:domain',
+    component: AuditComponent,
+    canActivate: [AuthGuard]
+  },
 
-  { 
-    path: 'license/:id/view', 
+  {
+    path: 'license/:id/view',
     component: LicenseDetailComponent,
     canActivate: [AuthGuard]
   },
@@ -61,7 +65,7 @@ const routes: Routes = [
     BrowserModule,
     ReactiveFormsModule,
     FormsModule,
-    HttpClientModule, 
+    HttpClientModule,
     RouterModule.forRoot(routes, { useHash: true }),
     MatDatepickerModule,
     MatFormFieldModule,

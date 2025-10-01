@@ -1,9 +1,23 @@
 <div class="audit-container">
+  <div class="header">
+    <div class="title-section">
+      <h2>License</h2>
+      <p class="subtitle">Allows to Issue/View License</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action btn-back" (click)="onBack()">Back</button>
+      <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
+      <button class="btn-action btn-list" (click)="onList()">List</button>
+      <button class="btn-action btn-reset" (click)="onReset()" *ngIf="canEdit()">
+        Reset
+      </button>
+    </div>
+  </div>
+  
   <div class="audit-header">
-    <h1 class="audit-title">Audit Trail for {{ domain }}</h1>
+    <p class="audit-title">Audit Trail for {{ domain }}</p>
   </div>
 
-  <div *ngIf="loading" class="loading-message">Loading...</div>
   <div *ngIf="error" class="error-message">{{ error }}</div>
 
   <div class="table-container" *ngIf="!loading && !error">
@@ -12,27 +26,77 @@
         <tr class="table-header">
           <th>#</th>
           <th>Action</th>
+          <th>User</th>
           <th>Customer</th>
-          <th>Modules Count</th>
-          <th>Modules Detail</th>
+          <th>Status</th>
+          <th>Modules</th>
           <th>Timestamp</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let a of audits; let i = index" class="table-row">
+        <tr
+          *ngFor="let a of audits; let i = index"
+          class="table-row"
+          [class.created]="a.action === 'CREATE'"
+          [class.updated]="a.action === 'UPDATE'"
+          [class.deleted]="a.action === 'DELETE'"
+        >
           <td>{{ i + 1 }}</td>
-          <td>{{ a.action }}</td>
-          <td>{{ parseJson(a.newData)?.customerName || '—' }}</td>
-          <td>{{ parseJson(a.newData)?.modules?.length || 0 }}</td>
           <td>
-            <ul class="module-list">
-              <li *ngFor="let m of parseJson(a.newData)?.modules">
-                {{ m.moduleName }} ({{ m.numberOfUsers }} users)
-              </li>
-              <li *ngIf="!parseJson(a.newData)?.modules?.length">No modules</li>
-            </ul>
+            <span
+              class="action-badge"
+              [class.create]="a.action === 'CREATE'"
+              [class.update]="a.action === 'UPDATE'"
+              [class.delete]="a.action === 'DELETE'"
+            >
+              {{ a.action }}
+            </span>
           </td>
-          <td>{{ a.timestamp | date: 'dd-MM-yyyy HH:mm:ss' }}</td>
+          <td>
+            <div class="admin-info">
+              <span class="admin-name">{{ a.adminName }}</span>
+              <span class="admin-id"> (ID: {{ a.adminId }})</span>
+            </div>
+          </td>
+          <td>
+            <p><b>Domain - </b>{{ parseJson(a.newData)?.domain }}</p>
+            <p><b>Customer Name - </b>{{ parseJson(a.newData)?.customerName || "—" }}</p>
+          </td>
+          <td class="status-cell">
+            <span
+              class="status-badge"
+              [class.active]="parseJson(a.newData)?.active"
+              [class.inactive]="!parseJson(a.newData)?.active"
+            >
+              <strong>{{
+                parseJson(a.newData)?.active ? "Active" : "Inactive"
+              }}</strong>
+            </span>
+          </td>
+          <td>
+            <div class="changes-container">
+              <div class="modules-summary">
+                <ul class="module-list">
+                  <li *ngFor="let m of parseJson(a.newData)?.modules">
+                    <strong>{{ m.moduleName }}</strong> ({{ m.numberOfUsers }}
+                    users)
+                    <p class="date-range">
+                      [<strong>Date Range:</strong>
+                      {{ m.startDate | date : "dd MMM yyyy" }} -
+                      {{ m.endDate | date : "dd MMM yyyy" }}]
+                    </p>
+                  </li>
+                  <li *ngIf="!parseJson(a.newData)?.modules?.length">
+                    No modules
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </td>
+          <td class="timestamp">
+            <div>{{ a.timestamp | date : "dd MMM yyyy" }}</div>
+            <div class="time">{{ a.timestamp | date : "HH:mm:ss" }}</div>
+          </td>
         </tr>
         <tr *ngIf="audits.length === 0" class="no-data-row">
           <td colspan="6" class="no-data">No audit records found.</td>
