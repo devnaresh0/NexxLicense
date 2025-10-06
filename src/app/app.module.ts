@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
@@ -18,6 +19,10 @@ import { LogoutConfirmationComponent } from './shared/logout-confirmation/logout
 import { AuthGuard } from './guards/auth.guard';
 import { ErrorService } from './services/error.service';
 import { AuditComponent } from './audit/audit.component';
+import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import { LoaderComponent } from './shared/components/loader/loader.component';
+import { LoadingService } from './services/loading.service';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -47,19 +52,19 @@ const routes: Routes = [
     path: 'license/:id/view',
     component: LicenseDetailComponent,
     canActivate: [AuthGuard]
-  },
-  { path: '**', redirectTo: '/login' }
+  }
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
-    ErrorComponent,
     LoginComponent,
     LicenseListComponent,
     LicenseDetailComponent,
+    ErrorComponent,
     LogoutConfirmationComponent,
-    AuditComponent
+    AuditComponent,
+    LoaderComponent
   ],
   imports: [
     BrowserModule,
@@ -69,13 +74,23 @@ const routes: Routes = [
     RouterModule.forRoot(routes, { useHash: true }),
     MatDatepickerModule,
     MatFormFieldModule,
-    MatInputModule,
     MatNativeDateModule,
     BrowserAnimationsModule
   ],
   providers: [
     ErrorService,
-    AuthGuard
+    AuthGuard,
+    LoadingService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

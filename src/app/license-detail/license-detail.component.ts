@@ -1,5 +1,5 @@
 // license-detail.component.ts
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, Router } from "@angular/router";
@@ -40,9 +40,10 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   prevModules: LicenseModule[];
   originalLicenseData: any;
   availableModules: ModuleResponse[] = [];
+  isSaving: boolean = false;
 
   private destroy$ = new Subject<void>();
-  
+
   licenseHeader: LicenseHeader = {
     serialNumber: null,
     domain: "",
@@ -55,6 +56,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private licenseService: LicenseService,
     private errorService: ErrorService,
+    private cdr: ChangeDetectorRef,
     private logoutService: LogoutService
   ) { }
 
@@ -62,22 +64,22 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-      if (params["id"] === "new") {
-        this.isNewLicense = true;
-        this.isEditMode = true;
-        this.initializeNewLicense();
-      } else {
-        this.licenseId = params["id"];
-        this.isEditMode =
-          this.route.snapshot.routeConfig &&
-            this.route.snapshot.routeConfig.path &&
-            this.route.snapshot.routeConfig.path.endsWith("edit")
-            ? true
-            : false;
-        this.loadLicense();
-      }
-      this.loadModules();
-    });
+        if (params["id"] === "new") {
+          this.isNewLicense = true;
+          this.isEditMode = true;
+          this.initializeNewLicense();
+        } else {
+          this.licenseId = params["id"];
+          this.isEditMode =
+            this.route.snapshot.routeConfig &&
+              this.route.snapshot.routeConfig.path &&
+              this.route.snapshot.routeConfig.path.endsWith("edit")
+              ? true
+              : false;
+          this.loadLicense();
+        }
+        this.loadModules();
+      });
   }
 
   initializeNewLicense() {
@@ -113,25 +115,25 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     this.licenseService.getLicenseDetails(this.licenseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(
-      (data) => {
-        console.log(data)
-        this.licenseHeader = { ...data.header };
-        this.licenseModules = data.modules.map((m) => ({ ...m }))
-        this.originalLicenseData = JSON.parse(JSON.stringify(data));
-        this.prevHeader = { ...this.licenseHeader };
-        this.prevModules = this.licenseModules.map((m) => ({ ...m }));
-      },
-      (error) => {
-        console.error("Error loading license:", error);
-      }
-    );
+        (data) => {
+          console.log(data)
+          this.licenseHeader = { ...data.header };
+          this.licenseModules = data.modules.map((m) => ({ ...m }))
+          this.originalLicenseData = JSON.parse(JSON.stringify(data));
+          this.prevHeader = { ...this.licenseHeader };
+          this.prevModules = this.licenseModules.map((m) => ({ ...m }));
+        },
+        (error) => {
+          console.error("Error loading license:", error);
+        }
+      );
   }
 
   onList() {
     this.router.navigate(["/licenses"]);
   }
-  
-    onAudit() {
+
+  onAudit() {
     if (this.licenseHeader && this.licenseHeader.domain) {
       this.router.navigate(['/audit', this.licenseHeader.domain]);
     } else {
@@ -150,6 +152,12 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
+    console.log('Saving license...', this.isSaving);
+    if (this.isSaving) {
+      return; // prevent duplicate clicks
+    }
+    this.isSaving = true;
+
     // Convert empty string to null for serialNumber
     const header = {
       ...this.licenseHeader,
@@ -183,7 +191,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
 
     // Get adminId from localStorage or use a default value
     const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
-    
+
     // Create the final payload with additional fields
     const licenseData = {
       adminId: adminId,
@@ -203,7 +211,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       const errorMessage = validation.errors.join('\n');
       this.errorService.showError(errorMessage, 'error');
       return;
-      }
+    }
 
     console.log('Saving license data:', licenseData);
 
@@ -216,6 +224,9 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         console.error("Error saving license:", error);
       }
     });
+    setTimeout(() => {
+      this.isSaving = false;
+    }, 2000);
   }
 
   addModule() {
