@@ -149,74 +149,85 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSave() {
-    // Convert empty string to null for serialNumber
-    const header = {
-      ...this.licenseHeader,
-      serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
-    };
+isSaving = false; // add this property in your component
 
-    // Create a map of module names to their IDs for quick lookup
-    const moduleNameToIdMap = new Map<string, number>();
-    this.availableModules.forEach(module => {
-      moduleNameToIdMap.set(module.moduleName, module.id);
-    });
-
-    // Map the license modules to include moduleId
-    const modulesWithIds = this.licenseModules.map(module => {
-      const moduleId = moduleNameToIdMap.get(module.module) || 0;
-      return {
-        ...module,
-        moduleId: moduleId,
-        moduleName: module.module
-      };
-    });
-
-    // Create the base license data
-    const baseLicenseData = {
-      header: {
-        ...header,
-        id: this.licenseId,
-      },
-      modules: modulesWithIds,
-    };
-
-    // Get adminId from localStorage or use a default value
-    const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
-    
-    // Create the final payload with additional fields
-    const licenseData = {
-      adminId: adminId,
-      id: this.licenseId ? parseInt(this.licenseId, 10) : null,
-      oldData: null,
-      newData: JSON.stringify({
-        ...baseLicenseData.header,
-        modules: baseLicenseData.modules
-      }),
-      ...baseLicenseData // Keep the original structure for backward compatibility
-    };
-
-    const validation = this.licenseService.validateLicense(licenseData);
-    console.log(JSON.stringify(licenseData));
-    if (!validation.isValid) {
-      // Show validation errors in a popup
-      const errorMessage = validation.errors.join('\n');
-      this.errorService.showError(errorMessage, 'error');
-      return;
-      }
-
-    console.log('Saving license data:', licenseData);
-
-    this.licenseService.saveLicense(licenseData).subscribe({
-      next: (response) => {
-        const message = response.message || 'License saved successfully';
-        this.router.navigate(['/licenses']);
-      },
-      error: (error) => {
-        console.error("Error saving license:", error);
-      }
-    });
+onSave() {
+  if (this.isSaving) {
+    return; // prevent duplicate clicks
   }
+  this.isSaving = true;
+
+  // Convert empty string to null for serialNumber
+  const header = {
+    ...this.licenseHeader,
+    serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
+  };
+
+  // Create a map of module names to their IDs for quick lookup
+  const moduleNameToIdMap = new Map<string, number>();
+  this.availableModules.forEach(module => {
+    moduleNameToIdMap.set(module.moduleName, module.id);
+  });
+
+  // Map the license modules to include moduleId
+  const modulesWithIds = this.licenseModules.map(module => {
+    const moduleId = moduleNameToIdMap.get(module.module) || 0;
+    return {
+      ...module,
+      moduleId: moduleId,
+      moduleName: module.module
+    };
+  });
+
+  // Create the base license data
+  const baseLicenseData = {
+    header: {
+      ...header,
+      id: this.licenseId,
+    },
+    modules: modulesWithIds,
+  };
+
+  // Get adminId from localStorage or use a default value
+  const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
+
+  // Create the final payload with additional fields
+  const licenseData = {
+    adminId: adminId,
+    id: this.licenseId ? parseInt(this.licenseId, 10) : null,
+    oldData: null,
+    newData: JSON.stringify({
+      ...baseLicenseData.header,
+      modules: baseLicenseData.modules
+    }),
+    ...baseLicenseData // Keep the original structure for backward compatibility
+  };
+
+  const validation = this.licenseService.validateLicense(licenseData);
+  console.log(JSON.stringify(licenseData));
+
+  if (!validation.isValid) {
+    // Show validation errors in a popup
+    const errorMessage = validation.errors.join('\n');
+    this.errorService.showError(errorMessage, 'error');
+    this.isSaving = false; // reset flag so user can try again
+    return;
+  }
+
+  console.log('Saving license data:', licenseData);
+
+  this.licenseService.saveLicense(licenseData).subscribe({
+    next: (response) => {
+      const message = response.message || 'License saved successfully';
+      this.router.navigate(['/licenses']);
+      this.isSaving = false; // reset after success
+    },
+    error: (error) => {
+      console.error("Error saving license:", error);
+      this.isSaving = false; // reset after error
+    }
+  });
+}
 
   addModule() {
     const newId = Math.max(...this.licenseModules.map((m) => +m.id), 0) + 1;
