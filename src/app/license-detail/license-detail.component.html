@@ -8,7 +8,7 @@
     <div class="header-actions">
       <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
       <button class="btn-action btn-list" (click)="onList()">List</button>
-      <button class="btn-action btn-audit" (click)="onAudit()">Audit</button  >
+      <button class="btn-action btn-audit" (click)="onAudit()">Audit</button>
       <button
         class="btn-action btn-reset"
         (click)="onReset()"
@@ -96,28 +96,26 @@
         </thead>
         <tbody>
           <tr
-            *ngFor="let module of licenseModules; let i = index"
+            *ngFor="let module of licenseModules; let i = index; trackBy: trackByModuleId"
             class="table-row"
           >
             <td>{{ i + 1 }}</td>
             <td>
               <select
-                [value]="module.module"
-                (change)="
-                  onModuleChange(module.id, 'module', $event.target.value)
-                "
+                [(ngModel)]="module.module"
+                (ngModelChange)="onModuleChange(module.id, 'module', $event)"
                 class="module-select"
                 [disabled]="!canEdit()"
                 [class.readonly]="!canEdit()"
               >
-                <option value="">Select Module</option>
+                <option [ngValue]="''" disabled>Select Module</option>
                 <option
                   *ngFor="let availableModule of availableModules"
-                  [value]="availableModule.moduleName"
+                  [ngValue]="availableModule.moduleName"
                 >
                   {{ availableModule.moduleName }}
-                </option>
-              </select>
+                </option></select
+              >
             </td>
             <td>
               <input

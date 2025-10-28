@@ -1,7 +1,7 @@
 // license-detail.component.ts
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Subject, throwError } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { ActivatedRoute, Router } from "@angular/router";
 import { LicenseService, ModuleResponse } from "../services/license.service";
 import { LogoutService } from "../services/logout.service";
@@ -40,9 +40,10 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   prevModules: LicenseModule[];
   originalLicenseData: any;
   availableModules: ModuleResponse[] = [];
+  isSaving: boolean = false;
 
   private destroy$ = new Subject<void>();
-  
+
   licenseHeader: LicenseHeader = {
     serialNumber: null,
     domain: "",
@@ -55,6 +56,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private licenseService: LicenseService,
     private errorService: ErrorService,
+    private cdr: ChangeDetectorRef,
     private logoutService: LogoutService
   ) { }
 
@@ -62,22 +64,22 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
-      if (params["id"] === "new") {
-        this.isNewLicense = true;
-        this.isEditMode = true;
-        this.initializeNewLicense();
-      } else {
-        this.licenseId = params["id"];
-        this.isEditMode =
-          this.route.snapshot.routeConfig &&
-            this.route.snapshot.routeConfig.path &&
-            this.route.snapshot.routeConfig.path.endsWith("edit")
-            ? true
-            : false;
-        this.loadLicense();
-      }
-      this.loadModules();
-    });
+        if (params["id"] === "new") {
+          this.isNewLicense = true;
+          this.isEditMode = true;
+          this.initializeNewLicense();
+        } else {
+          this.licenseId = params["id"];
+          this.isEditMode =
+            this.route.snapshot.routeConfig &&
+              this.route.snapshot.routeConfig.path &&
+              this.route.snapshot.routeConfig.path.endsWith("edit")
+              ? true
+              : false;
+          this.loadLicense();
+        }
+        this.loadModules();
+      });
   }
 
   initializeNewLicense() {
@@ -89,6 +91,10 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     };
     this.loadModules();
     this.licenseModules = [];
+  }
+
+  trackByModuleId(index: number, module: LicenseModule): number {
+    return module.id;
   }
 
   loadModules() {
@@ -110,28 +116,58 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   loadLicense() {
-    this.licenseService.getLicenseDetails(this.licenseId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-      (data) => {
-        console.log(data)
-        this.licenseHeader = { ...data.header };
-        this.licenseModules = data.modules.map((m) => ({ ...m }))
-        this.originalLicenseData = JSON.parse(JSON.stringify(data));
-        this.prevHeader = { ...this.licenseHeader };
-        this.prevModules = this.licenseModules.map((m) => ({ ...m }));
-      },
-      (error) => {
-        console.error("Error loading license:", error);
-      }
-    );
+    // First ensure modules are loaded
+    this.licenseService.getModules()
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((modules: ModuleResponse[]) => {
+          this.availableModules = modules;
+          // Now load the license details
+          return this.licenseService.getLicenseDetails(this.licenseId);
+        })
+      )
+      .subscribe({
+        next: (data: any) => {
+          console.log('License data loaded:', data);
+          this.licenseHeader = { ...data.header };
+          
+          // Map the modules to ensure we have the correct module names
+          this.licenseModules = (data.modules || []).map((module: any) => {
+            // Find the full module details from availableModules
+            const moduleDetails = this.availableModules.find(m => 
+              (m as any).id === module.moduleId || m.moduleName === module.module
+            );
+            
+            return {
+              ...module,
+              module: (moduleDetails && moduleDetails.moduleName) || module.module || '',
+              // Ensure all required fields are present
+              id: module.id || Math.floor(Math.random() * 10000),
+              numberOfUsers: module.numberOfUsers || 1,
+              startDate: module.startDate || this.formatDate(new Date()),
+              endDate: module.endDate || this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+            };
+          });
+          
+          this.originalLicenseData = JSON.parse(JSON.stringify(data));
+          this.prevHeader = { ...this.licenseHeader };
+          this.prevModules = this.licenseModules.map(m => ({ ...m }));
+          
+          // Force change detection to update the view
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error loading license:', error);
+          this.errorService.showError('Failed to load license details', 'error');
+        }
+      });
   }
 
   onList() {
     this.router.navigate(["/licenses"]);
   }
-  
-    onAudit() {
+
+  onAudit() {
     if (this.licenseHeader && this.licenseHeader.domain) {
       this.router.navigate(['/audit', this.licenseHeader.domain]);
     } else {
@@ -149,19 +185,12 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-isSaving = false; // add this property in your component
-
-onSave() {
-  if (this.isSaving) {
-    return; // prevent duplicate clicks
-  }
-  this.isSaving = true;
-
-  // Convert empty string to null for serialNumber
-  const header = {
-    ...this.licenseHeader,
-    serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
-  };
+  onSave() {
+    // Convert empty string to null for serialNumber
+    const header = {
+      ...this.licenseHeader,
+      serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
+    };
 
   // Create a map of module names to their IDs for quick lookup
   const moduleNameToIdMap = new Map<string, number>();
@@ -188,46 +217,42 @@ onSave() {
     modules: modulesWithIds,
   };
 
-  // Get adminId from localStorage or use a default value
-  const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
+    // Get adminId from localStorage or use a default value
+    const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
+    
+    // Create the final payload with additional fields
+    const licenseData = {
+      adminId: adminId,
+      id: this.licenseId ? parseInt(this.licenseId, 10) : null,
+      oldData: null,
+      newData: JSON.stringify({
+        ...baseLicenseData.header,
+        modules: baseLicenseData.modules
+      }),
+      ...baseLicenseData // Keep the original structure for backward compatibility
+    };
 
-  // Create the final payload with additional fields
-  const licenseData = {
-    adminId: adminId,
-    id: this.licenseId ? parseInt(this.licenseId, 10) : null,
-    oldData: null,
-    newData: JSON.stringify({
-      ...baseLicenseData.header,
-      modules: baseLicenseData.modules
-    }),
-    ...baseLicenseData // Keep the original structure for backward compatibility
-  };
-
-  const validation = this.licenseService.validateLicense(licenseData);
-  console.log(JSON.stringify(licenseData));
-
-  if (!validation.isValid) {
-    // Show validation errors in a popup
-    const errorMessage = validation.errors.join('\n');
-    this.errorService.showError(errorMessage, 'error');
-    this.isSaving = false; // reset flag so user can try again
-    return;
-  }
+    const validation = this.licenseService.validateLicense(licenseData);
+    console.log(JSON.stringify(licenseData));
+    if (!validation.isValid) {
+      // Show validation errors in a popup
+      const errorMessage = validation.errors.join('\n');
+      this.errorService.showError(errorMessage, 'error');
+      return;
+      }
 
   console.log('Saving license data:', licenseData);
 
-  this.licenseService.saveLicense(licenseData).subscribe({
-    next: (response) => {
-      const message = response.message || 'License saved successfully';
-      this.router.navigate(['/licenses']);
-      this.isSaving = false; // reset after success
-    },
-    error: (error) => {
-      console.error("Error saving license:", error);
-      this.isSaving = false; // reset after error
-    }
-  });
-}
+    this.licenseService.saveLicense(licenseData).subscribe({
+      next: (response) => {
+        const message = response.message || 'License saved successfully';
+        this.router.navigate(['/licenses']);
+      },
+      error: (error) => {
+        console.error("Error saving license:", error);
+      }
+    });
+  }
 
   addModule() {
     const newId = Math.max(...this.licenseModules.map((m) => +m.id), 0) + 1;
@@ -345,6 +370,13 @@ onSave() {
 
   canEdit(): boolean {
     return this.isEditMode || this.isNewLicense;
+  }
+
+  /**
+   * Compares modules for the select element
+   */
+  compareModules(module1: any, module2: any): boolean {
+    return module1 && module2 ? module1 === module2 : module1 === module2;
   }
 
   // Logout method

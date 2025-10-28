@@ -18,6 +18,7 @@ export interface LicenseAudit {
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuditService {
   // Adjust this to match your backend endpoint
   private baseUrl = `${apiUrl}/licenses/audit`;
