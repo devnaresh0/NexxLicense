@@ -35,24 +35,31 @@ export class LoadingInterceptor implements HttpInterceptor {
     }
 
     return next.handle(request).pipe(
+      // Handle successful responses
       tap({
-        error: () => {
+        next: (event) => {
+          if (event instanceof HttpResponse) {
+            this.handleRequestComplete();
+          }
+        },
+        error: (error) => {
           this.handleRequestComplete();
         }
       }),
+      // Ensure loading is hidden when the request completes (success or error)
       finalize(() => {
         this.handleRequestComplete();
       }),
+      // Re-throw the error after handling
       catchError((error: HttpErrorResponse) => {
         console.error('Error in request:', error);
-        this.handleRequestComplete();
         return throwError(() => error);
       })
     );
   }
 
-  private handleRequestComplete() {
-    this.totalRequests--;
+  private handleRequestComplete(): void {
+    this.totalRequests = Math.max(0, this.totalRequests - 1);
     if (this.totalRequests === 0) {
       this.loadingService.hide();
     }

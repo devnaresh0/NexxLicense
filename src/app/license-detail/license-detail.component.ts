@@ -1,7 +1,7 @@
 // license-detail.component.ts
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { ActivatedRoute, Router } from "@angular/router";
 import { LicenseService, ModuleResponse } from "../services/license.service";
 import { LogoutService } from "../services/logout.service";
@@ -93,6 +93,10 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     this.licenseModules = [];
   }
 
+  trackByModuleId(index: number, module: LicenseModule): number {
+    return module.id;
+  }
+
   loadModules() {
     this.licenseService.getModules()
       .pipe(takeUntil(this.destroy$))
@@ -112,21 +116,51 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   loadLicense() {
-    this.licenseService.getLicenseDetails(this.licenseId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        (data) => {
-          console.log(data)
+    // First ensure modules are loaded
+    this.licenseService.getModules()
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((modules: ModuleResponse[]) => {
+          this.availableModules = modules;
+          // Now load the license details
+          return this.licenseService.getLicenseDetails(this.licenseId);
+        })
+      )
+      .subscribe({
+        next: (data: any) => {
+          console.log('License data loaded:', data);
           this.licenseHeader = { ...data.header };
-          this.licenseModules = data.modules.map((m) => ({ ...m }))
+          
+          // Map the modules to ensure we have the correct module names
+          this.licenseModules = (data.modules || []).map((module: any) => {
+            // Find the full module details from availableModules
+            const moduleDetails = this.availableModules.find(m => 
+              (m as any).id === module.moduleId || m.moduleName === module.module
+            );
+            
+            return {
+              ...module,
+              module: (moduleDetails && moduleDetails.moduleName) || module.module || '',
+              // Ensure all required fields are present
+              id: module.id || Math.floor(Math.random() * 10000),
+              numberOfUsers: module.numberOfUsers || 1,
+              startDate: module.startDate || this.formatDate(new Date()),
+              endDate: module.endDate || this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
+            };
+          });
+          
           this.originalLicenseData = JSON.parse(JSON.stringify(data));
           this.prevHeader = { ...this.licenseHeader };
-          this.prevModules = this.licenseModules.map((m) => ({ ...m }));
+          this.prevModules = this.licenseModules.map(m => ({ ...m }));
+          
+          // Force change detection to update the view
+          this.cdr.detectChanges();
         },
-        (error) => {
-          console.error("Error loading license:", error);
+        error: (error) => {
+          console.error('Error loading license:', error);
+          this.errorService.showError('Failed to load license details', 'error');
         }
-      );
+      });
   }
 
   onList() {
@@ -345,6 +379,13 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
 
   canEdit(): boolean {
     return this.isEditMode || this.isNewLicense;
+  }
+
+  /**
+   * Compares modules for the select element
+   */
+  compareModules(module1: any, module2: any): boolean {
+    return module1 && module2 ? module1 === module2 : module1 === module2;
   }
 
   // Logout method
