@@ -118,6 +118,14 @@ export class LicenseService {
         catchError(this.handleError<any>('updateLicense'))
       );
   }
+  downloadBuild() {
+    // call to download build at localhost:9090/NexxLicense/download
+    console.log(`${apiUrl}/licenses/download`)
+    return this.http.get(`${apiUrl}/licenses/download`)
+      .pipe(
+        catchError(this.handleError<any>('downloadBuild'))
+      );
+  }
 
   // Validate license data
   validateLicense(license: any): { isValid: boolean; errors: string[] } {

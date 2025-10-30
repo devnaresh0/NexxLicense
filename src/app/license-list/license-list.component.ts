@@ -225,6 +225,18 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     }
   }
 
+  onDownload() {
+    console.log('Download button clicked');
+    this.licenseService.downloadBuild().subscribe({
+      next: (response) => {
+        console.log('Download started', response);
+      },
+      error: (error) => {
+        console.error('Download failed:', error);
+      }
+    });
+  }
+
   getPageNumbers(): (number | string)[] {
     const pages: (number | string)[] = [];
 
