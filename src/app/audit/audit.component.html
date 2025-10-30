@@ -28,7 +28,6 @@
           <th>Action</th>
           <th>User</th>
           <th>Customer</th>
-          <th>Status</th>
           <th>Modules</th>
           <th>Timestamp</th>
         </tr>
@@ -58,21 +57,22 @@
               <span class="admin-id"> (ID: {{ a.adminId }})</span>
             </div>
           </td>
-          <td>
-            <p><b>Domain - </b>{{ parseJson(a.newData)?.domain }}</p>
-            <p><b>Customer Name - </b>{{ parseJson(a.newData)?.customerName || "—" }}</p>
-          </td>
-          <td class="status-cell">
-            <span
-              class="status-badge"
-              [class.active]="parseJson(a.newData)?.active"
-              [class.inactive]="!parseJson(a.newData)?.active"
-            >
-              <strong>{{
-                parseJson(a.newData)?.active ? "Active" : "Inactive"
-              }}</strong>
-            </span>
-          </td>
+       <td>
+  <p><b>Domain - </b>{{ parseJson(a.newData)?.domain }}</p>
+  <p><b>Customer Name - </b>{{ parseJson(a.newData)?.customerName || "—" }}</p>
+  <p><b>Serial Number - </b>{{ parseJson(a.newData)?.serialNumber || "—" }}</p>
+  <p>
+    <b>Status - </b>
+    <span
+      class="status-badge"
+      [class.active]="parseJson(a.newData)?.active"
+      [class.inactive]="!parseJson(a.newData)?.active"
+    >
+      {{ parseJson(a.newData)?.active ? "Active" : "Inactive" }}
+    </span>
+  </p>
+</td>
+
           <td>
             <div class="changes-container">
               <div class="modules-summary">
@@ -80,11 +80,11 @@
                   <li *ngFor="let m of parseJson(a.newData)?.modules">
                     <strong>{{ m.moduleName }}</strong> ({{ m.numberOfUsers }}
                     users)
-                    <p class="date-range">
+                    <span class="date-range">
                       [<strong>Date Range:</strong>
                       {{ m.startDate | date : "dd MMM yyyy" }} -
                       {{ m.endDate | date : "dd MMM yyyy" }}]
-                    </p>
+                    </span>
                   </li>
                   <li *ngIf="!parseJson(a.newData)?.modules?.length">
                     No modules
