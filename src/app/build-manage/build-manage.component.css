@@ -1,64 +1,552 @@
-.build-manage-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+.license-detail-container {
+  padding: 10px;
+  background-color: #f5f5f5;
+  /* min-height: 100%; */
+  /* height: auto; */
 }
 
 .header {
   display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
-.btn-back {
-  background: none;
-  border: 1px solid #ccc;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.btn-back:hover {
-  background: #f5f5f5;
-}
-
-.card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.card-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid #eee;
-  background-color: #f8f9fa;
-}
-
-.card-header h3 {
+.title-section h2 {
   margin: 0;
   font-size: 18px;
   color: #333;
+  font-weight: 500;
 }
 
-.card-body {
-  padding: 20px;
+.subtitle {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 14px;
 }
 
-/* Responsive design */
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-logout {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-logout:hover {
+  background-color: #c82333;
+}
+
+.btn-action {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.btn-list {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-reset {
+  background-color: #fd7e14;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-save {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+.btn-audit {
+  background-color: #007bff; /* Bootstrap blue */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-audit:hover {
+  background-color: #0056b3; /* darker blue on hover */
+}
+
+.btn-save:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Upload Section Styles */
+.upload-section {
+  margin-top: 15px;
+  background: white;
+  padding: 15px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.upload-container {
+  margin-bottom: 15px;
+}
+
+.upload-field {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  border: 1px solid #dee2e6;
+}
+
+.input-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.upload-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-upload {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-submit {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 5px;
+}
+
+.upload-field label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.upload-field input[type="text"],
+.upload-field input[type="date"],
+.upload-field input[type="file"],
+.upload-field select {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  height: 30px;
+}
+
+.upload-field input[type="file"] {
+  padding: 3px;
+}
+
+.upload-field .end-date-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.btn-list:hover {
+  background-color: #218838;
+}
+
+.btn-reset:hover {
+  background-color: #e66a00;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.license-header-section,
+.license-details-section {
+  background-color: white;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  background-color: #17a2b8;
+  color: white;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.btn-add-module {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 3px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn-add-module:hover {
+  background-color: #218838;
+}
+
+.header-form {
+  padding: 7px;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 20px 1fr 20px 1fr; /* 3 columns for IE */
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  gap: 20px;
+  -ms-grid-rows: auto;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 3px;
+  font-weight: 500;
+  color: #333;
+  font-size: 13px;
+}
+
+.form-input {
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.form-input:read-only {
+  background-color: #f8f9fa;
+}
+
+.form-input:focus:not(:read-only) {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+}
+
+/* Date input specific styles */
+input[type="date"] {
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-size: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 30px;
+  background-color: white;
+  cursor: pointer;
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+}
+
+/* Hide calendar icon in readonly state */
+input[type="date"][readonly]::-webkit-calendar-picker-indicator,
+input[type="date"].readonly::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+/* Hide the default calendar icon in WebKit browsers */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 0;
+  margin: 0;
+}
+
+/* Make the date input consistent across browsers */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  padding: 0 2px;
+}
+
+.toggle-group {
+  justify-self: end;
+  align-self: center;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 24px;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.toggle-slider:before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+.toggle-input:checked+.toggle-slider {
+  background-color: #28a745;
+}
+
+.toggle-input:checked+.toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-input:disabled+.toggle-slider {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.table-container {
+  padding: 0 5px 5px 5px;
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.details-table .table-header {
+  background-color: #6c757d;
+  color: white;
+}
+
+.details-table .table-header th {
+  padding: 8px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.details-table .table-row {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.details-table .table-row:hover {
+  background-color: #f8f9fa;
+}
+
+.details-table .table-row td {
+  padding: 5px 0px 15px 0px;
+  color: #333;
+  font-size: 13px;
+}
+
+.module-select,
+.users-input,
+.date-input {
+  width: 100%;
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.module-select:disabled {
+  background-color: white;
+  cursor: not-allowed;
+  opacity: 1; /* Override default opacity to prevent fading */
+  color: black; /* Darker text color */
+}
+
+.module-select:focus,
+.users-input:focus,
+.date-input:focus {
+  outline: none;
+  border-color: #17a2b8;
+  box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+}
+
+.users-input {
+  max-width: 80px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+
+}
+
+.btn-add,
+.btn-remove {
+  width: 25px;
+  height: 25px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-remove {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-remove:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-add:hover {
+  background-color: #218838;
+}
+
+.btn-remove:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.no-data-row {
+  background-color: #f8f9fa;
+}
+
+.no-data {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px !important;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
+    gap: 15px;
+  }
+
+  .header-actions {
+    align-self: stretch;
+  }
+
+  .header-form {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .toggle-group {
+    justify-self: start;
+  }
+
+  .section-title {
+    /* font-size: 12px !important; */
+    flex-direction: column;
+    gap: 5px;
     align-items: flex-start;
-    gap: 10px;
   }
-  
-  .btn-back {
-    align-self: flex-start;
+
+  .details-table {
+    font-size: 12px;
   }
+
+  .details-table .table-header th,
+  .details-table .table-row td {
+    padding: 8px;
+  }
+
+  .module-select,
+  .users-input,
+  .date-input {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 800px) {
+  .license-detail-container {
+    padding: 10px;
+  }
+
+  .details-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+table {
+  border-collapse: collapse; /* clean, no double borders */
+  width: 100%;
 }

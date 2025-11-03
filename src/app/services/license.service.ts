@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { ErrorService } from './error.service';
 import { apiUrl } from 'src/environments/global';
 
@@ -119,12 +119,32 @@ export class LicenseService {
       );
   }
   downloadBuild() {
-    // call to download build at localhost:9090/NexxLicense/download
-    console.log(`${apiUrl}/licenses/download`)
-    return this.http.get(`${apiUrl}/licenses/download`)
-      .pipe(
-        catchError(this.handleError<any>('downloadBuild'))
-      );
+    return this.http.get<any>(`${apiUrl}/licenses/download`).pipe(
+      tap(response => {
+        // Show the server's response message
+        const message = response.message || 
+          (response.status === 'success' 
+            ? `File has been copied to: ${response.destination}`
+            : 'Download completed with unknown status');
+            
+        this.errorService.showError(
+          response.status === 'success' ? `${response.message}` : 'Download Status',
+          message
+        );
+      }),
+      catchError(error => {
+        // Handle error and show error message
+        const errorMessage = (error && error.error && error.error.message) 
+          ? error.error.message 
+          : 'Failed to start download';
+          
+        this.errorService.showError(
+          'Download Failed',
+          errorMessage
+        );
+        return throwError(error);
+      })
+    );
   }
 
   // Validate license data
