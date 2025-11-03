@@ -8,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LicenseState } from '../state/license.state';
 import { environment } from '../../environments/environment';
-import {apiUrl} from '../../environments/global';
+import { apiUrl } from '../../environments/global';
 export interface License {
   id: string;
   serialNumber: number;
@@ -209,13 +209,8 @@ export class BuildListComponent implements OnInit, OnDestroy {
   }
 
   //View license
-  viewLicense(license: License) {
-    this.router.navigate(['/license', license.id, 'view']);
-  }
-
-  //Create new license
-  createNewLicense() {
-    this.router.navigate(['/license/new']);
+  manageLicense(license: License) {
+    this.router.navigate(['/build', license.id, 'manage']);
   }
 
   // Toggle upload mode
@@ -260,9 +255,10 @@ export class BuildListComponent implements OnInit, OnDestroy {
     select.className = 'upload-type';
     select.innerHTML = [
       '<option value="">Select Type</option>',
-      '<option value="frontend">Frontend</option>',
-      '<option value="backend">Backend</option>',
-      '<option value="mobile">Mobile</option>'
+      '<option value="NexxLicense-frontend">NexxLicense-Frontend</option>',
+      '<option value="NexxLicense-backend">NexxLicense-Backend</option>',
+      '<option value="NexxRetail-frontend">NexxRetail-Frontend</option>',
+      '<option value="NexxRetail-backend">NexxRetail-Backend</option>'
     ].join('');
 
     // Create version input
@@ -288,7 +284,7 @@ export class BuildListComponent implements OnInit, OnDestroy {
     removeBtn.type = 'button';
     removeBtn.textContent = 'Remove';
     removeBtn.className = 'btn-remove';
-    removeBtn.onclick = function() {
+    removeBtn.onclick = function () {
       if (wrapper.parentNode) {
         wrapper.parentNode.removeChild(wrapper);
       }
@@ -303,119 +299,50 @@ export class BuildListComponent implements OnInit, OnDestroy {
     container.appendChild(wrapper);
   }
 
-  // Handle file upload
+  // handle file upload
   private async handleUpload() {
-    const formData = new FormData();
     const uploads = document.querySelectorAll('.upload-field');
-    
-    // Convert NodeList to Array for better compatibility
     const uploadsArray = Array.prototype.slice.call(uploads);
-    
-    interface Build {
-      type: string;
-      version: string;
-      endDate: string;
-      files: File[];
-    }
 
-    // Group files by type (frontend/backend/mobile)
-    const builds: Build[] = [];
-    
-    // Process each upload field
-    uploadsArray.forEach((field: Element) => {
+    // Prepare FormData (single request)
+    const formData = new FormData();
+
+    uploadsArray.forEach((field: Element, index: number) => {
       const select = field.querySelector('select.upload-type') as HTMLSelectElement;
       const versionInput = field.querySelector('input.upload-version') as HTMLInputElement;
       const endDateInput = field.querySelector('input.upload-end-date') as HTMLInputElement;
       const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
-      
+
       if (!select || !versionInput || !endDateInput || !(fileInput && fileInput.files && fileInput.files[0])) {
-        return; // Skip if any required field is missing
+        return; // skip if any field missing
       }
-      
-      const type = select.value;
+
+      const file = fileInput.files[0];
       const version = versionInput.value;
       const endDate = endDateInput.value;
-      const file = fileInput.files[0];
-      
-      // Find existing build of this type and version or create a new one
-      let build = builds.find(b => b.type === type && b.version === version);
-      if (!build) {
-        build = { type, version, endDate, files: [] };
-        builds.push(build);
-      }
-      
-      // Add the file to the build
-      build.files.push(file);
+      const fileType = select.value; // maps to 'fileType' in backend
+      const licenseIds = Array.from(this.selectedLicenses); // assume one or more selected licenses
+
+      // Append one entry per file (you can choose to send one by one instead)
+      formData.append('file', file, file.name);
+      formData.append('version', version);
+      formData.append('licenseId', licenseIds.length > 0 ? licenseIds[0] : ''); // pick first license if multiple
+      formData.append('fileType', fileType);
+      formData.append('endDate', endDate);
     });
 
-    // Add data to formData
-    builds.forEach((build, buildIndex) => {
-      // Add files
-      build.files.forEach((file) => {
-        formData.append(`builds[${buildIndex}][files]`, file, file.name);
-      });
-      
-      // Add build metadata
-      formData.append(`builds[${buildIndex}][type]`, build.type);
-      formData.append(`builds[${buildIndex}][version]`, build.version);
-      formData.append(`builds[${buildIndex}][endDate]`, build.endDate);
-    });
-
-    // Add selected license IDs
-    const licenseIds = Array.from(this.selectedLicenses);
-    formData.append('licenseIds', JSON.stringify(licenseIds));
-    
-    // Add admin details from localStorage
-    const adminId = localStorage.getItem('adminId');
-    const adminUsername = localStorage.getItem('username');
-    
-    if (adminId) {
-      formData.append('adminId', adminId);
-    }
-    
-    if (adminUsername) {
-      formData.append('adminUsername', adminUsername);
-    }
-
-    // Log the request structure for debugging
-    const requestStructure = {
-      builds: builds.map(build => ({
-        type: build.type,
-        version: build.version,
-        endDate: build.endDate,
-        files: build.files.map(file => ({
-          name: file.name,
-          size: file.size,
-          type: file.type
-        }))
-      })),
-      licenseIds: licenseIds,
-      adminId: adminId || null,
-      adminUsername: adminUsername || null
-    };
-
-    console.log('API Request Structure:', JSON.stringify(requestStructure, null, 2));
-    console.log('FormData entries:');
-    // Log FormData entries (for debugging)
+    console.log('FormData prepared for backend:');
     for (const pair of (formData as any).entries()) {
-      if (pair[1] instanceof File) {
-        console.log(pair[0], ':', 'File -', pair[1].name, `(${pair[1].size} bytes)`);
-      } else {
-        console.log(pair[0], ':', pair[1]);
-      }
+      console.log(pair[0], ':', pair[1]);
     }
 
     try {
-      console.log('Sending build data to server...');
-      
-      // Make the HTTP POST request
       const response = await this.http.post(
-        `${apiUrl}/builds-receive`,
+        `${apiUrl}/upload`,
         formData,
         {
           headers: new HttpHeaders({
-            // 'Content-Type' will be set automatically by the browser
-            // when using FormData with files
+            // 'Content-Type' is automatically set for FormData
           }),
           reportProgress: true,
           observe: 'response'
@@ -424,21 +351,15 @@ export class BuildListComponent implements OnInit, OnDestroy {
 
       console.log('Upload successful', response);
       alert('Files uploaded successfully!');
-      
-      // Reset form and exit upload mode
       this.isUploadMode = false;
+
       const uploadContainer = document.querySelector('.upload-container');
-      if (uploadContainer) {
-        uploadContainer.innerHTML = '';
-      }
-      
-      // Optionally refresh the builds list if needed
-      // this.loadBuilds();
-      
+      if (uploadContainer) uploadContainer.innerHTML = '';
+
     } catch (error) {
       console.error('Upload failed:', error);
-      const errorMessage = error && error.error && error.error.message 
-        ? error.error.message 
+      const errorMessage = error && error.error && error.error.message
+        ? error.error.message
         : '';
       alert('Upload failed. Please try again. ' + errorMessage);
     }
@@ -463,7 +384,7 @@ export class BuildListComponent implements OnInit, OnDestroy {
   toggleSelectAll(event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     const currentPageLicenses = this.getPaginatedLicenses();
-    
+
     if (isChecked) {
       currentPageLicenses.forEach(license => {
         this.selectedLicenses.add(license.id);

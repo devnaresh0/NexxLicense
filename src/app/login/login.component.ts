@@ -1,8 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../services/Auth.service';
 import { ErrorService } from '../services/error.service';
+import { environment } from '../../environments/environment';
+import { apiUrl } from 'src/environments/global';
 
 @Component({
   selector: 'app-login',
@@ -18,17 +21,39 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
   username: string = '';
   showUsernameError: boolean = false;
   showPasswordError: boolean = false;
+  FEversion: string = localStorage.getItem('FEversion') || '1.0.0';
+  BEversion: string = localStorage.getItem('BEversion') || '1.0.0';
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private errorService: ErrorService
+    private errorService: ErrorService,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
     this.initializeForm();
+    this.fetchBackendVersion();
+    localStorage.setItem('FEversion', '1.0.0');
     // this.checkExistingAuth();
+  }
+
+  private fetchBackendVersion(): void {
+    this.http.get<{ version: string }>(`${apiUrl}/api/health`)
+      .subscribe({
+        next: (response) => {
+          if (response && response.version) {
+            this.BEversion = response.version;
+            localStorage.setItem('BEversion', this.BEversion);
+          }
+        },
+        error: (error) => {
+          console.error('Failed to fetch backend version:', error);
+          // Use default version if API call fails
+          this.BEversion = localStorage.getItem('BEversion') || '1.0.0';
+        }
+      });
   }
 
   ngAfterViewInit(): void {
@@ -43,7 +68,7 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
   // private checkExistingAuth(): void {
   //   const adminId = localStorage.getItem('adminId');
   //   const username = localStorage.getItem('username');
-    
+
   //   if (adminId && username) {
   //     this.errorService.showError(`Logging in as existing user ${username}`, 'success');
   //     this.router.navigate(['/licenses']);
@@ -78,7 +103,7 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
     if (passwordControl && passwordControl.valid) {
       this.showPasswordError = false;
-      
+
       this.authService.login(this.username, passwordControl.value).subscribe({
         next: (res) => {
           if (res.success) {
