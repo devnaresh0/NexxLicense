@@ -8,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LicenseState } from '../state/license.state';
 import { environment } from '../../environments/environment';
-import {apiUrl} from '../../environments/global';
+import { apiUrl } from '../../environments/global';
 export interface License {
   id: string;
   serialNumber: number;
@@ -209,13 +209,8 @@ export class BuildListComponent implements OnInit, OnDestroy {
   }
 
   //View license
-  viewLicense(license: License) {
-    this.router.navigate(['/license', license.id, 'view']);
-  }
-
-  //Create new license
-  createNewLicense() {
-    this.router.navigate(['/license/new']);
+  manageLicense(license: License) {
+    this.router.navigate(['/build', license.id, 'manage']);
   }
 
   // Toggle upload mode
@@ -260,9 +255,10 @@ export class BuildListComponent implements OnInit, OnDestroy {
     select.className = 'upload-type';
     select.innerHTML = [
       '<option value="">Select Type</option>',
-      '<option value="frontend">Frontend</option>',
-      '<option value="backend">Backend</option>',
-      '<option value="mobile">Mobile</option>'
+      '<option value="NexxLicense-frontend">NexxLicense-Frontend</option>',
+      '<option value="NexxLicense-backend">NexxLicense-Backend</option>',
+      '<option value="NexxRetail-frontend">NexxRetail-Frontend</option>',
+      '<option value="NexxRetail-backend">NexxRetail-Backend</option>'
     ].join('');
 
     // Create version input
@@ -288,7 +284,7 @@ export class BuildListComponent implements OnInit, OnDestroy {
     removeBtn.type = 'button';
     removeBtn.textContent = 'Remove';
     removeBtn.className = 'btn-remove';
-    removeBtn.onclick = function() {
+    removeBtn.onclick = function () {
       if (wrapper.parentNode) {
         wrapper.parentNode.removeChild(wrapper);
       }
@@ -303,72 +299,115 @@ export class BuildListComponent implements OnInit, OnDestroy {
     container.appendChild(wrapper);
   }
 
- private async handleUpload() {
+  private async handleUpload() {
+
   const uploads = document.querySelectorAll('.upload-field');
+
   const uploadsArray = Array.prototype.slice.call(uploads);
-
+ 
   // Prepare FormData (single request)
+
   const formData = new FormData();
-
+ 
   uploadsArray.forEach((field: Element, index: number) => {
+
     const select = field.querySelector('select.upload-type') as HTMLSelectElement;
+
     const versionInput = field.querySelector('input.upload-version') as HTMLInputElement;
+
     const endDateInput = field.querySelector('input.upload-end-date') as HTMLInputElement;
+
     const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
-
+ 
     if (!select || !versionInput || !endDateInput || !(fileInput && fileInput.files && fileInput.files[0])) {
+
       return; // skip if any field missing
+
     }
-
+ 
     const file = fileInput.files[0];
+
     const version = versionInput.value;
+
     const endDate = endDateInput.value;
+
     const fileType = select.value; // maps to 'fileType' in backend
+
     const licenseIds = Array.from(this.selectedLicenses); // assume one or more selected licenses
-
+ 
     // Append one entry per file (you can choose to send one by one instead)
+
     formData.append('file', file, file.name);
+
     formData.append('version', version);
+
     formData.append('licenseId', licenseIds.length > 0 ? licenseIds[0] : ''); // pick first license if multiple
+
     formData.append('fileType', fileType);
+
     formData.append('endDate', endDate);
+
   });
-
+ 
   console.log('FormData prepared for backend:');
+
   for (const pair of (formData as any).entries()) {
+
     console.log(pair[0], ':', pair[1]);
-  }
 
+  }
+ 
   try {
+
     const response = await this.http.post(
+
       `${apiUrl}/upload`,
+
       formData,
+
       {
+
         headers: new HttpHeaders({
+
           // 'Content-Type' is automatically set for FormData
+
         }),
+
         reportProgress: true,
+
         observe: 'response'
+
       }
+
     ).toPromise();
-
+ 
     console.log('Upload successful', response);
+
     alert('Files uploaded successfully!');
+
     this.isUploadMode = false;
-
+ 
     const uploadContainer = document.querySelector('.upload-container');
-    if (uploadContainer) uploadContainer.innerHTML = '';
 
+    if (uploadContainer) uploadContainer.innerHTML = '';
+ 
   } catch (error) {
+
     console.error('Upload failed:', error);
+
     const errorMessage = error && error.error && error.error.message 
+
       ? error.error.message 
+
       : '';
+
     alert('Upload failed. Please try again. ' + errorMessage);
+
   }
+
 }
 
-
+ 
   // Toggle license selection
   toggleLicenseSelection(licenseId: string, event: Event) {
     event.stopPropagation();
@@ -388,7 +427,7 @@ export class BuildListComponent implements OnInit, OnDestroy {
   toggleSelectAll(event: Event) {
     const isChecked = (event.target as HTMLInputElement).checked;
     const currentPageLicenses = this.getPaginatedLicenses();
-    
+
     if (isChecked) {
       currentPageLicenses.forEach(license => {
         this.selectedLicenses.add(license.id);

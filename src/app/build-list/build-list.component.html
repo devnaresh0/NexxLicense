@@ -6,9 +6,8 @@
       <p class="subtitle">Allows to Issue/View Builds</p>
     </div>
     <div class="header-action">
-      <button class="btn-logout" (click)="onDownload()">Download</button>
-      <button class="btn-upload" (click)="toggleUploadMode()">Upload</button>
       <button class="btn-logout" (click)="onLogout()">Logout</button>
+      <button class="btn-upload" (click)="toggleUploadMode()">Upload</button>
       <button class="btn-new" (click)="createNewLicense()">New</button>
     </div>
   </div>
@@ -109,11 +108,8 @@
           </td>
           <td>
             <div class="action-buttons">
-              <button class="btn-action edit" (click)="editLicense(license)">
-                Edit
-              </button>
-              <button class="btn-action view" (click)="viewLicense(license)">
-                View
+              <button class="btn-action view" (click)="manageLicense(license)">
+                Manage
               </button>
             </div>
           </td>

@@ -25,6 +25,7 @@ import { LoaderComponent } from './shared/components/loader/loader.component';
 import { LoadingService } from './services/loading.service';
 import { IntroComponent } from './intro/intro.componenet';
 import { BuildListComponent } from './build-list/build-list.component';
+import { BuildManageComponent } from './build-manage/build-manage.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -55,6 +56,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'build/:id/manage',
+    component: BuildManageComponent,
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'audit/:domain',
     component: AuditComponent,
     canActivate: [AuthGuard]
@@ -78,7 +84,8 @@ const routes: Routes = [
     AuditComponent,
     IntroComponent,
     LoaderComponent,
-    BuildListComponent
+    BuildListComponent,
+    BuildManageComponent
   ],
   imports: [
     BrowserModule,
