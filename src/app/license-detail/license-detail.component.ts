@@ -186,46 +186,40 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-    console.log('Saving license...', this.isSaving);
-    if (this.isSaving) {
-      return; // prevent duplicate clicks
-    }
-    this.isSaving = true;
-
     // Convert empty string to null for serialNumber
     const header = {
       ...this.licenseHeader,
       serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
     };
 
-    // Create a map of module names to their IDs for quick lookup
-    const moduleNameToIdMap = new Map<string, number>();
-    this.availableModules.forEach(module => {
-      moduleNameToIdMap.set(module.moduleName, module.id);
-    });
+  // Create a map of module names to their IDs for quick lookup
+  const moduleNameToIdMap = new Map<string, number>();
+  this.availableModules.forEach(module => {
+    moduleNameToIdMap.set(module.moduleName, module.id);
+  });
 
-    // Map the license modules to include moduleId
-    const modulesWithIds = this.licenseModules.map(module => {
-      const moduleId = moduleNameToIdMap.get(module.module) || 0;
-      return {
-        ...module,
-        moduleId: moduleId,
-        moduleName: module.module
-      };
-    });
-
-    // Create the base license data
-    const baseLicenseData = {
-      header: {
-        ...header,
-        id: this.licenseId,
-      },
-      modules: modulesWithIds,
+  // Map the license modules to include moduleId
+  const modulesWithIds = this.licenseModules.map(module => {
+    const moduleId = moduleNameToIdMap.get(module.module) || 0;
+    return {
+      ...module,
+      moduleId: moduleId,
+      moduleName: module.module
     };
+  });
+
+  // Create the base license data
+  const baseLicenseData = {
+    header: {
+      ...header,
+      id: this.licenseId,
+    },
+    modules: modulesWithIds,
+  };
 
     // Get adminId from localStorage or use a default value
     const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
-
+    
     // Create the final payload with additional fields
     const licenseData = {
       adminId: adminId,
@@ -245,9 +239,9 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       const errorMessage = validation.errors.join('\n');
       this.errorService.showError(errorMessage, 'error');
       return;
-    }
+      }
 
-    console.log('Saving license data:', licenseData);
+  console.log('Saving license data:', licenseData);
 
     this.licenseService.saveLicense(licenseData).subscribe({
       next: (response) => {
@@ -258,9 +252,6 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         console.error("Error saving license:", error);
       }
     });
-    setTimeout(() => {
-      this.isSaving = false;
-    }, 2000);
   }
 
   addModule() {
