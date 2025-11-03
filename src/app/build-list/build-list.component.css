@@ -42,16 +42,23 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  margin-bottom: 10px;
-  padding: 10px;
+  margin-bottom: 15px;
+  padding: 15px;
   background-color: #fff;
   border: 1px solid #dee2e6;
   border-radius: 4px;
+  flex-wrap: wrap;
 }
 
-.upload-field select,
-.upload-field input[type="file"] {
-  padding: 5px;
+.upload-field > * {
+  margin: 5px 0;
+}
+
+.upload-type, 
+.upload-version,
+.upload-end-date,
+.upload-file {
+  padding: 8px 12px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 14px;

@@ -1,12 +1,14 @@
 // license-list.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LicenseService } from '../services/license.service';
 import { LogoutService } from '../services/logout.service';
-import { filter, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LicenseState } from '../state/license.state';
-
+import { environment } from '../../environments/environment';
+import {apiUrl} from '../../environments/global';
 export interface License {
   id: string;
   serialNumber: number;
@@ -42,7 +44,8 @@ export class BuildListComponent implements OnInit, OnDestroy {
     private router: Router,
     private licenseService: LicenseService,
     private licenseState: LicenseState,
-    private logoutService: LogoutService
+    private logoutService: LogoutService,
+    private http: HttpClient
   ) { }
 
   ngOnInit() {
@@ -252,18 +255,37 @@ export class BuildListComponent implements OnInit, OnDestroy {
     const wrapper = document.createElement('div');
     wrapper.className = 'upload-field';
 
+    // Create type select
     const select = document.createElement('select');
+    select.className = 'upload-type';
     select.innerHTML = [
       '<option value="">Select Type</option>',
-      '<option value="report">Report</option>',
-      '<option value="invoice">Invoice</option>',
-      '<option value="summary">Summary</option>'
+      '<option value="frontend">Frontend</option>',
+      '<option value="backend">Backend</option>',
+      '<option value="mobile">Mobile</option>'
     ].join('');
 
+    // Create version input
+    const versionInput = document.createElement('input');
+    versionInput.type = 'text';
+    versionInput.className = 'upload-version';
+    versionInput.placeholder = 'Version (e.g., 1.0.0)';
+    versionInput.required = true;
+
+    // Create end date input
+    const endDateInput = document.createElement('input');
+    endDateInput.type = 'date';
+    endDateInput.className = 'upload-end-date';
+    endDateInput.required = true;
+
+    // Create file input
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
+    fileInput.className = 'upload-file';
 
+    // Create remove button
     const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
     removeBtn.textContent = 'Remove';
     removeBtn.className = 'btn-remove';
     removeBtn.onclick = function() {
@@ -272,8 +294,10 @@ export class BuildListComponent implements OnInit, OnDestroy {
       }
     };
 
-    // For IE11 compatibility, use appendChild instead of append
+    // Append all elements
     wrapper.appendChild(select);
+    wrapper.appendChild(versionInput);
+    wrapper.appendChild(endDateInput);
     wrapper.appendChild(fileInput);
     wrapper.appendChild(removeBtn);
     container.appendChild(wrapper);
@@ -287,28 +311,136 @@ export class BuildListComponent implements OnInit, OnDestroy {
     // Convert NodeList to Array for better compatibility
     const uploadsArray = Array.prototype.slice.call(uploads);
     
-    uploadsArray.forEach((field: Element, index: number) => {
-      const select = field.querySelector('select') as HTMLSelectElement;
-      const fileInput = field.querySelector('input[type=file]') as HTMLInputElement;
-      const file = fileInput && fileInput.files && fileInput.files[0];
+    interface Build {
+      type: string;
+      version: string;
+      endDate: string;
+      files: File[];
+    }
+
+    // Group files by type (frontend/backend/mobile)
+    const builds: Build[] = [];
+    
+    // Process each upload field
+    uploadsArray.forEach((field: Element) => {
+      const select = field.querySelector('select.upload-type') as HTMLSelectElement;
+      const versionInput = field.querySelector('input.upload-version') as HTMLInputElement;
+      const endDateInput = field.querySelector('input.upload-end-date') as HTMLInputElement;
+      const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
       
-      if (file && select && select.value) {
-        formData.append('files', file);
-        formData.append('metadata', JSON.stringify({
-          id: index,
-          category: select.value,
-          filename: file.name
-        }));
+      if (!select || !versionInput || !endDateInput || !(fileInput && fileInput.files && fileInput.files[0])) {
+        return; // Skip if any required field is missing
       }
+      
+      const type = select.value;
+      const version = versionInput.value;
+      const endDate = endDateInput.value;
+      const file = fileInput.files[0];
+      
+      // Find existing build of this type and version or create a new one
+      let build = builds.find(b => b.type === type && b.version === version);
+      if (!build) {
+        build = { type, version, endDate, files: [] };
+        builds.push(build);
+      }
+      
+      // Add the file to the build
+      build.files.push(file);
     });
 
+    // Add data to formData
+    builds.forEach((build, buildIndex) => {
+      // Add files
+      build.files.forEach((file) => {
+        formData.append(`builds[${buildIndex}][files]`, file, file.name);
+      });
+      
+      // Add build metadata
+      formData.append(`builds[${buildIndex}][type]`, build.type);
+      formData.append(`builds[${buildIndex}][version]`, build.version);
+      formData.append(`builds[${buildIndex}][endDate]`, build.endDate);
+    });
+
+    // Add selected license IDs
+    const licenseIds = Array.from(this.selectedLicenses);
+    formData.append('licenseIds', JSON.stringify(licenseIds));
+    
+    // Add admin details from localStorage
+    const adminId = localStorage.getItem('adminId');
+    const adminUsername = localStorage.getItem('username');
+    
+    if (adminId) {
+      formData.append('adminId', adminId);
+    }
+    
+    if (adminUsername) {
+      formData.append('adminUsername', adminUsername);
+    }
+
+    // Log the request structure for debugging
+    const requestStructure = {
+      builds: builds.map(build => ({
+        type: build.type,
+        version: build.version,
+        endDate: build.endDate,
+        files: build.files.map(file => ({
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }))
+      })),
+      licenseIds: licenseIds,
+      adminId: adminId || null,
+      adminUsername: adminUsername || null
+    };
+
+    console.log('API Request Structure:', JSON.stringify(requestStructure, null, 2));
+    console.log('FormData entries:');
+    // Log FormData entries (for debugging)
+    for (const pair of (formData as any).entries()) {
+      if (pair[1] instanceof File) {
+        console.log(pair[0], ':', 'File -', pair[1].name, `(${pair[1].size} bytes)`);
+      } else {
+        console.log(pair[0], ':', pair[1]);
+      }
+    }
+
     try {
-      // Replace with your actual upload endpoint
-      // await this.yourService.uploadFiles(formData).toPromise();
+      console.log('Sending build data to server...');
+      
+      // Make the HTTP POST request
+      const response = await this.http.post(
+        `${apiUrl}/builds-receive`,
+        formData,
+        {
+          headers: new HttpHeaders({
+            // 'Content-Type' will be set automatically by the browser
+            // when using FormData with files
+          }),
+          reportProgress: true,
+          observe: 'response'
+        }
+      ).toPromise();
+
+      console.log('Upload successful', response);
       alert('Files uploaded successfully!');
+      
+      // Reset form and exit upload mode
+      this.isUploadMode = false;
+      const uploadContainer = document.querySelector('.upload-container');
+      if (uploadContainer) {
+        uploadContainer.innerHTML = '';
+      }
+      
+      // Optionally refresh the builds list if needed
+      // this.loadBuilds();
+      
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Upload failed. Please try again.');
+      const errorMessage = error && error.error && error.error.message 
+        ? error.error.message 
+        : '';
+      alert('Upload failed. Please try again. ' + errorMessage);
     }
   }
 
