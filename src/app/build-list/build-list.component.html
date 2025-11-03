@@ -1,12 +1,15 @@
-<div class="build-container">
+<!-- license-list.component.html -->
+<div class="license-container">
   <div class="header">
     <div class="title-section">
       <h2>Builds</h2>
-      <p class="subtitle">Manage application builds and versions</p>
+      <p class="subtitle">Allows to Issue/View Builds</p>
     </div>
     <div class="header-action">
+      <button class="btn-logout" (click)="onDownload()">Download</button>
+      <button class="btn-upload" (click)="toggleUploadMode()">Upload</button>
       <button class="btn-logout" (click)="onLogout()">Logout</button>
-      <button class="btn-new" (click)="createNewBuild()">New Build</button>
+      <button class="btn-new" (click)="createNewLicense()">New</button>
     </div>
   </div>
 
@@ -27,91 +30,114 @@
     </button>
     <button
       class="tab"
-      [class.active]="selectedFilter === 'Draft'"
-      (click)="onFilterChange('Draft')"
+      [class.active]="selectedFilter === 'Inactive'"
+      (click)="onFilterChange('Inactive')"
     >
-      Draft
+      Inactive
     </button>
   </div>
 
   <div class="search-section">
     <div class="search-controls">
       <div class="search-group">
-        <label>Search Builds</label>
+        <label>Search For License</label>
         <div class="search-input-group">
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            placeholder="Search by build number, version or notes"
+            placeholder="Search"
             class="search-input"
             (keyup.enter)="onSearch()"
           />
           <button class="btn-search" (click)="onSearch()">Search</button>
         </div>
       </div>
+      <div class="order-group">
+        <label>Order By</label>
+        <select
+          class="order-select"
+          [ngModel]="sortBy"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option value="search">Search</option>
+          <option value="domain">Domain</option>
+          <option value="customer">Customer</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Container -->
+  <div class="upload-section" *ngIf="isUploadMode">
+    <div class="upload-container" id="upload-container"></div>
+    <div class="upload-actions">
+      <button class="btn-upload" id="add-file">Add File</button>
+      <button class="btn-submit" id="submit">Upload All</button>
     </div>
   </div>
 
   <div class="table-container">
-    <table class="builds-table">
+    <table class="license-table">
       <thead>
-        <tr>
-          <th (click)="onSort('buildNumber')">
-            Build Number
-            <span class="sort-icon" *ngIf="sortBy === 'buildNumber'">
-              {{ sortOrder === 'asc' ? '↑' : '↓' }}
-            </span>
-          </th>
-          <th (click)="onSort('version')">
-            Version
-            <span class="sort-icon" *ngIf="sortBy === 'version'">
-              {{ sortOrder === 'asc' ? '↑' : '↓' }}
-            </span>
-          </th>
-          <th (click)="onSort('releaseDate')">
-            Release Date
-            <span class="sort-icon" *ngIf="sortBy === 'releaseDate'">
-              {{ sortOrder === 'asc' ? '↑' : '↓' }}
-            </span>
-          </th>
-          <th (click)="onSort('status')">
-            Status
-            <span class="sort-icon" *ngIf="sortBy === 'status'">
-              {{ sortOrder === 'asc' ? '↑' : '↓' }}
-            </span>
-          </th>
+        <tr class="table-header">
+          <th>#</th>
+          <th>Domain</th>
+          <th>Customer</th>
+          <th>Status</th>
           <th>Actions</th>
+          <th *ngIf="isUploadMode">
+            <input type="checkbox" 
+                   [checked]="selectedLicenses.size === getPaginatedLicenses().length && selectedLicenses.size > 0"
+                   (change)="toggleSelectAll($event)">
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let build of filteredBuilds">
-          <td>{{ build.buildNumber }}</td>
-          <td>{{ build.version }}</td>
-          <td>{{ build.releaseDate | date: 'mediumDate' }}</td>
+        <tr
+          *ngFor="let license of getPaginatedLicenses(); let i = index"
+          class="table-row"
+          [class.selected]="isLicenseSelected(license.id)"
+        >
+          
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td>{{ license.domain }}</td>
+          <td>{{ license.customerName }}</td>
           <td>
-            <span class="status-badge" [class.active]="build.status === 'Active'" [class.draft]="build.status === 'Draft'">
-              {{ build.status }}
+            <span class="status-badge" [class.active]="license.active === true">
+              {{ license.active ? "Active" : "Inactive" }}
             </span>
           </td>
-          <td class="actions">
-            <button class="btn-view" (click)="viewBuild(build.id)">View</button>
-            <button class="btn-edit" (click)="editBuild(build.id)">Edit</button>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action edit" (click)="editLicense(license)">
+                Edit
+              </button>
+              <button class="btn-action view" (click)="viewLicense(license)">
+                View
+              </button>
+            </div>
           </td>
-        </tr>
-        <tr *ngIf="filteredBuilds.length === 0">
-          <td colspan="5" class="no-results">No builds found</td>
+          <td *ngIf="isUploadMode">
+            <input type="checkbox" 
+                   [checked]="isLicenseSelected(license.id)"
+                   (change)="toggleLicenseSelection(license.id, $event)">
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="pagination" *ngIf="filteredBuilds.length > 0">
-    <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
-      Previous
-    </button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
-      Next
-    </button>
+  <div class="pagination">
+    <div class="pagination-controls">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        class="page-btn"
+        [class.active]="currentPage === page"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+    <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
   </div>
 </div>

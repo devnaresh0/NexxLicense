@@ -145,9 +145,12 @@
 
 .header-form {
   padding: 7px;
+  display: -ms-grid;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  -ms-grid-columns: 1fr 20px 1fr 20px 1fr; /* 3 columns for IE */
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
   gap: 20px;
+  -ms-grid-rows: auto;
   align-items: end;
 }
 

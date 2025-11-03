@@ -1,16 +1,18 @@
+// license-list.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { LicenseService } from '../services/license.service';
 import { LogoutService } from '../services/logout.service';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { LicenseState } from '../state/license.state';
 
-export interface Build {
+export interface License {
   id: string;
-  buildNumber: string;
-  version: string;
-  releaseDate: string;
-  status: 'Active' | 'Inactive' | 'Draft';
-  notes: string;
+  serialNumber: number;
+  domain: string;
+  customerName: string;
+  active: boolean;
 }
 
 @Component({
@@ -18,45 +20,45 @@ export interface Build {
   templateUrl: './build-list.component.html',
   styleUrls: ['./build-list.component.css']
 })
+
 export class BuildListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  builds: Build[] = [
-    // Sample data - replace with actual API call
-    {
-      id: '1',
-      buildNumber: 'B-1001',
-      version: '1.0.0',
-      releaseDate: '2023-11-01',
-      status: 'Active',
-      notes: 'Initial release'
-    },
-    {
-      id: '2',
-      buildNumber: 'B-1002',
-      version: '1.0.1',
-      releaseDate: '2023-11-03',
-      status: 'Draft',
-      notes: 'Bug fixes'
-    }
-  ];
-  
-  filteredBuilds: Build[] = [];
+  licenses: License[] = [];
+  filteredLicenses: License[] = [];
+
+  // State properties with default values
   searchTerm: string = '';
   selectedFilter: string = 'All';
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 1;
-  sortOrder: 'asc' | 'desc' = 'asc';
-  sortBy: string = 'buildNumber';
+  sortOrder: 'asc' = 'asc';
+  sortBy: string = 'search';
+  isUploadMode = false; // Tracks if upload mode is active
+  selectedLicenses = new Set<string>(); // Tracks selected license IDs
 
   constructor(
     private router: Router,
+    private licenseService: LicenseService,
+    private licenseState: LicenseState,
     private logoutService: LogoutService
   ) { }
 
   ngOnInit() {
-    this.filteredBuilds = [...this.builds];
+    // Subscribe to state changes
+    this.licenseState.getState$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        this.searchTerm = state.searchTerm;
+        this.selectedFilter = state.selectedFilter;
+        this.currentPage = state.currentPage;
+        this.itemsPerPage = state.itemsPerPage;
+        this.sortBy = state.sortBy;
+        this.sortOrder = state.sortOrder;
+      });
+
+    this.loadLicenses();
   }
 
   ngOnDestroy() {
@@ -64,73 +66,340 @@ export class BuildListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onSearch() {
-    this.filteredBuilds = this.builds.filter(build =>
-      build.buildNumber.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      build.version.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      build.notes.toLowerCase().includes(this.searchTerm.toLowerCase())
+  private updateState() {
+    this.licenseState.updateState({
+      searchTerm: this.searchTerm,
+      selectedFilter: this.selectedFilter,
+      currentPage: this.currentPage,
+      itemsPerPage: this.itemsPerPage,
+      sortBy: this.sortBy,
+      sortOrder: this.sortOrder
+    });
+  }
+
+  loadLicenses() {
+    this.licenseService.getLicenses().subscribe(
+      data => {
+        this.licenses = data;
+        this.applyFilters();
+        this.calculateTotalPages();
+      },
+      error => {
+        console.error('Error loading licenses:', error);
+      }
     );
   }
 
+  // Filter 
   onFilterChange(filter: string) {
     this.selectedFilter = filter;
-    this.currentPage = 1;
+    this.currentPage = 1; // Reset to first page when filter changes
     this.applyFilters();
+    this.updateState();
   }
 
-  applyFilters() {
-    let result = [...this.builds];
-    
+  //search via input 
+  onSearch() {
+    this.currentPage = 1; // Reset to first page when searching
+    this.applyFilters();
+    this.updateState();
+  }
+
+  // Filter the license based on status and search term
+  private applyFilters() {
+    if (!this.licenses || this.licenses.length === 0) return;
+
+    let filtered = [...this.licenses];
     // Apply status filter
     if (this.selectedFilter !== 'All') {
-      result = result.filter(build => build.status === this.selectedFilter);
-    }
-    
-    // Apply search
-    if (this.searchTerm) {
-      result = result.filter(build =>
-        Object.values(build).some(val => 
-          val.toString().toLowerCase().includes(this.searchTerm.toLowerCase())
-        )
+      filtered = filtered.filter(license =>
+        license.active === (this.selectedFilter === 'Active')
       );
     }
-    
-    // Apply sorting
-    result.sort((a, b) => {
-      const aValue = a[this.sortBy as keyof Build];
-      const bValue = b[this.sortBy as keyof Build];
-      
-      if (aValue < bValue) return this.sortOrder === 'asc' ? -1 : 1;
-      if (aValue > bValue) return this.sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
-    
-    this.filteredBuilds = result;
+
+    // Apply search filter
+    if (this.searchTerm) {
+      filtered = filtered.filter(license =>
+        license.domain.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        license.customerName.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply sorting with current sort order
+    filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
+
+    this.filteredLicenses = filtered;
+    this.calculateTotalPages();
+
+    // Ensure current page is within bounds
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    } else if (this.currentPage < 1 && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
   }
 
-  onSort(column: string) {
-    if (this.sortBy === column) {
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+  //Calculate total pages for Pagination
+  private calculateTotalPages() {
+    this.totalPages = Math.ceil(this.filteredLicenses.length / this.itemsPerPage);
+  }
+
+  //Get paginated licenses for display
+  getPaginatedLicenses(): License[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredLicenses.slice(startIndex, endIndex);
+  }
+
+  //Sort licenses based on selected field
+  onSortChange(sortBy: string) {
+    // Toggle sort order if clicking the same field, otherwise default to ascending
+    if (this.sortBy === sortBy) {
+      this.sortOrder = this.sortOrder;
     } else {
-      this.sortBy = column;
+      this.sortBy = sortBy;
       this.sortOrder = 'asc';
     }
     this.applyFilters();
+    this.updateState();
   }
 
-  createNewBuild() {
-    this.router.navigate(['/builds/new']);
+  //Sort licenses based on selected field
+  private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
+    if (sortBy === 'search') {
+      return [...licenses];
+    }
+    return [...licenses].sort((a, b) => {
+      let valueA = a[sortBy as keyof License];
+      let valueB = b[sortBy as keyof License];
+
+      // Convert to string for case-insensitive comparison
+      const strA = String(valueA).toLowerCase();
+      const strB = String(valueB).toLowerCase();
+
+      if (strA < strB) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (strA > strB) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
   }
 
-  editBuild(buildId: string) {
-    this.router.navigate(['/builds', buildId, 'edit']);
+  //Go to specific page
+  goToPage(page: number | string) {
+    // Convert string to number if needed
+    const pageNum = typeof page === 'string' ? parseInt(page, 10) : page;
+
+    if (pageNum >= 1 && pageNum <= this.totalPages && pageNum !== this.currentPage) {
+      this.currentPage = pageNum;
+      // Force change detection by creating a new array reference
+      this.filteredLicenses = [...this.filteredLicenses];
+      this.updateState();
+    }
   }
 
-  viewBuild(buildId: string) {
-    this.router.navigate(['/builds', buildId]);
+  //Edit license
+  editLicense(license: License) {
+    this.router.navigate(['/license', license.id, 'edit']);
   }
 
-  onLogout() {
-    this.logoutService.showConfirmation();
+  //View license
+  viewLicense(license: License) {
+    this.router.navigate(['/license', license.id, 'view']);
+  }
+
+  //Create new license
+  createNewLicense() {
+    this.router.navigate(['/license/new']);
+  }
+
+  // Toggle upload mode
+  toggleUploadMode() {
+    this.isUploadMode = !this.isUploadMode;
+    if (this.isUploadMode) {
+      this.initializeUploader();
+    } else {
+      this.selectedLicenses.clear();
+    }
+  }
+
+  // Initialize the uploader
+  private initializeUploader() {
+    // This will be called after the view is initialized
+    setTimeout(() => {
+      const uploadContainer = document.getElementById('upload-container');
+      const addFileBtn = document.getElementById('add-file');
+      const submitBtn = document.getElementById('submit');
+
+      if (!uploadContainer || !addFileBtn || !submitBtn) return;
+
+      // Clear any existing upload fields
+      uploadContainer.innerHTML = '';
+
+      // Add the first upload field
+      this.addUploadField(uploadContainer);
+
+      // Add event listeners
+      addFileBtn.addEventListener('click', () => this.addUploadField(uploadContainer));
+      submitBtn.addEventListener('click', () => this.handleUpload());
+    });
+  }
+
+  // Add a new upload field
+  private addUploadField(container: HTMLElement) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'upload-field';
+
+    const select = document.createElement('select');
+    select.innerHTML = [
+      '<option value="">Select Type</option>',
+      '<option value="report">Report</option>',
+      '<option value="invoice">Invoice</option>',
+      '<option value="summary">Summary</option>'
+    ].join('');
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = 'Remove';
+    removeBtn.className = 'btn-remove';
+    removeBtn.onclick = function() {
+      if (wrapper.parentNode) {
+        wrapper.parentNode.removeChild(wrapper);
+      }
+    };
+
+    // For IE11 compatibility, use appendChild instead of append
+    wrapper.appendChild(select);
+    wrapper.appendChild(fileInput);
+    wrapper.appendChild(removeBtn);
+    container.appendChild(wrapper);
+  }
+
+  // Handle file upload
+  private async handleUpload() {
+    const formData = new FormData();
+    const uploads = document.querySelectorAll('.upload-field');
+    
+    // Convert NodeList to Array for better compatibility
+    const uploadsArray = Array.prototype.slice.call(uploads);
+    
+    uploadsArray.forEach((field: Element, index: number) => {
+      const select = field.querySelector('select') as HTMLSelectElement;
+      const fileInput = field.querySelector('input[type=file]') as HTMLInputElement;
+      const file = fileInput && fileInput.files && fileInput.files[0];
+      
+      if (file && select && select.value) {
+        formData.append('files', file);
+        formData.append('metadata', JSON.stringify({
+          id: index,
+          category: select.value,
+          filename: file.name
+        }));
+      }
+    });
+
+    try {
+      // Replace with your actual upload endpoint
+      // await this.yourService.uploadFiles(formData).toPromise();
+      alert('Files uploaded successfully!');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Upload failed. Please try again.');
+    }
+  }
+
+  // Toggle license selection
+  toggleLicenseSelection(licenseId: string, event: Event) {
+    event.stopPropagation();
+    if (this.selectedLicenses.has(licenseId)) {
+      this.selectedLicenses.delete(licenseId);
+    } else {
+      this.selectedLicenses.add(licenseId);
+    }
+  }
+
+  // Check if a license is selected
+  isLicenseSelected(licenseId: string): boolean {
+    return this.selectedLicenses.has(licenseId);
+  }
+
+  // Toggle select all licenses in current page
+  toggleSelectAll(event: Event) {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    const currentPageLicenses = this.getPaginatedLicenses();
+    
+    if (isChecked) {
+      currentPageLicenses.forEach(license => {
+        this.selectedLicenses.add(license.id);
+      });
+    } else {
+      currentPageLicenses.forEach(license => {
+        this.selectedLicenses.delete(license.id);
+      });
+    }
+  }
+
+
+  // Logout method
+  async onLogout() {
+    const confirmed = await this.logoutService.showConfirmation();
+    if (confirmed) {
+      console.log('logut click');
+      localStorage.removeItem('adminId');
+      localStorage.removeItem('username');
+      this.router.navigate(['/login']);
+    }
+  }
+
+  onDownload() {
+    console.log('Download button clicked');
+    this.licenseService.downloadBuild().subscribe({
+      next: (response) => {
+        console.log('Download started', response);
+      },
+      error: (error) => {
+        console.error('Download failed:', error);
+      }
+    });
+  }
+
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+
+    // Always show first page
+    pages.push(1);
+
+    if (this.totalPages <= 1) {
+      return pages;
+    }
+
+    // Calculate the range of pages to show around current page
+    let startPage = Math.max(2, this.currentPage - 1);
+    let endPage = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+    // Adjust if we're near the start or end
+    if (this.currentPage <= 3) {
+      endPage = Math.min(4, this.totalPages - 1);
+    } else if (this.currentPage >= this.totalPages - 2) {
+      startPage = Math.max(this.totalPages - 3, 2);
+    }
+
+    // Add middle pages
+    for (let i = startPage; i <= endPage; i++) {
+      if (i > 1 && i < this.totalPages) {
+        pages.push(i);
+      }
+    }
+
+    // Always show last page if there is more than one page
+    if (this.totalPages > 1) {
+      pages.push(this.totalPages);
+    }
+
+    return pages;
   }
 }
