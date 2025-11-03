@@ -84,7 +84,7 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
           if (res.success) {
             localStorage.setItem('adminId', res.adminId);
             localStorage.setItem('username', res.username);
-            this.router.navigate(['/licenses']);
+            this.router.navigate(['/intro']);
           } else {
             const errorMessage = res.message || 'Invalid Credentials';
             this.errorService.showError(errorMessage, 'error');

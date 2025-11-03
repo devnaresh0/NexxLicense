@@ -1,0 +1,117 @@
+<div class="build-container">
+  <div class="header">
+    <div class="title-section">
+      <h2>Builds</h2>
+      <p class="subtitle">Manage application builds and versions</p>
+    </div>
+    <div class="header-action">
+      <button class="btn-logout" (click)="onLogout()">Logout</button>
+      <button class="btn-new" (click)="createNewBuild()">New Build</button>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <button
+      class="tab"
+      [class.active]="selectedFilter === 'All'"
+      (click)="onFilterChange('All')"
+    >
+      All
+    </button>
+    <button
+      class="tab"
+      [class.active]="selectedFilter === 'Active'"
+      (click)="onFilterChange('Active')"
+    >
+      Active
+    </button>
+    <button
+      class="tab"
+      [class.active]="selectedFilter === 'Draft'"
+      (click)="onFilterChange('Draft')"
+    >
+      Draft
+    </button>
+  </div>
+
+  <div class="search-section">
+    <div class="search-controls">
+      <div class="search-group">
+        <label>Search Builds</label>
+        <div class="search-input-group">
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Search by build number, version or notes"
+            class="search-input"
+            (keyup.enter)="onSearch()"
+          />
+          <button class="btn-search" (click)="onSearch()">Search</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="builds-table">
+      <thead>
+        <tr>
+          <th (click)="onSort('buildNumber')">
+            Build Number
+            <span class="sort-icon" *ngIf="sortBy === 'buildNumber'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="onSort('version')">
+            Version
+            <span class="sort-icon" *ngIf="sortBy === 'version'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="onSort('releaseDate')">
+            Release Date
+            <span class="sort-icon" *ngIf="sortBy === 'releaseDate'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th (click)="onSort('status')">
+            Status
+            <span class="sort-icon" *ngIf="sortBy === 'status'">
+              {{ sortOrder === 'asc' ? '↑' : '↓' }}
+            </span>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let build of filteredBuilds">
+          <td>{{ build.buildNumber }}</td>
+          <td>{{ build.version }}</td>
+          <td>{{ build.releaseDate | date: 'mediumDate' }}</td>
+          <td>
+            <span class="status-badge" [class.active]="build.status === 'Active'" [class.draft]="build.status === 'Draft'">
+              {{ build.status }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-view" (click)="viewBuild(build.id)">View</button>
+            <button class="btn-edit" (click)="editBuild(build.id)">Edit</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredBuilds.length === 0">
+          <td colspan="5" class="no-results">No builds found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="filteredBuilds.length > 0">
+    <button [disabled]="currentPage === 1" (click)="currentPage = currentPage - 1">
+      Previous
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button [disabled]="currentPage === totalPages" (click)="currentPage = currentPage + 1">
+      Next
+    </button>
+  </div>
+</div>

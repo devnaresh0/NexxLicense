@@ -23,10 +23,17 @@ import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { LoaderComponent } from './shared/components/loader/loader.component';
 import { LoadingService } from './services/loading.service';
+import { IntroComponent } from './intro/intro.componenet';
+import { BuildListComponent } from './build-list/build-list.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  {
+    path: 'intro',
+    component: IntroComponent,
+    canActivate: [AuthGuard]
+  },
   {
     path: 'licenses',
     component: LicenseListComponent,
@@ -40,6 +47,11 @@ const routes: Routes = [
   {
     path: 'license/:id/edit',
     component: LicenseDetailComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'builds',
+    component: BuildListComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -64,7 +76,9 @@ const routes: Routes = [
     ErrorComponent,
     LogoutConfirmationComponent,
     AuditComponent,
-    LoaderComponent
+    IntroComponent,
+    LoaderComponent,
+    BuildListComponent
   ],
   imports: [
     BrowserModule,
