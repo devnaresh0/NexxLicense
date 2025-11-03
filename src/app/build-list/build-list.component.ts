@@ -247,6 +247,27 @@ export class BuildListComponent implements OnInit, OnDestroy {
 
   // Add a new upload field
   private addUploadField(container: HTMLElement) {
+    // Add compact styles
+    if (!document.getElementById('upload-field-styles')) {
+      const style = document.createElement('style');
+      style.id = 'upload-field-styles';
+      style.textContent = `
+        .upload-field { margin: 2px 0; }
+        .upload-field select,
+        .upload-field input[type="text"],
+        .upload-field input[type="date"],
+        .upload-field input[type="file"] {
+          width: 100%;
+          padding: 0.2rem 0.3rem;
+          font-size: 12px;
+          border: 1px solid #ddd;
+          border-radius: 2px;
+          line-height: 1.2;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     const wrapper = document.createElement('div');
     wrapper.className = 'upload-field';
 
@@ -278,134 +299,220 @@ export class BuildListComponent implements OnInit, OnDestroy {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.className = 'upload-file';
+    fileInput.accept = '.zip,.tar,.gz,.rar';
 
-    // Create remove button
+    const createLabel = (text: string, forId: string) => {
+      const label = document.createElement('label');
+      label.textContent = text;
+      label.setAttribute('for', forId);
+      label.style.display = 'block';
+      label.style.fontSize = '10px';
+      label.style.marginBottom = '1px';
+      label.style.color = '#666';
+      return label;
+    };
+
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
-    removeBtn.textContent = 'Remove';
-    removeBtn.className = 'btn-remove';
+    removeBtn.innerHTML = '×';
+    removeBtn.title = 'Remove';
+    removeBtn.style.background = '#ff6b6b';
+    removeBtn.style.color = 'white';
+    removeBtn.style.border = 'none';
+    removeBtn.style.borderRadius = '2px';
+    removeBtn.style.width = '18px';
+    removeBtn.style.height = '18px';
+    removeBtn.style.display = 'inline-flex';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.justifyContent = 'center';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.padding = '0';
+    removeBtn.style.lineHeight = '1';
+    removeBtn.style.marginBottom = '16px'; // Align with end date input
     removeBtn.onclick = function () {
       if (wrapper.parentNode) {
         wrapper.parentNode.removeChild(wrapper);
       }
     };
 
-    // Append all elements
-    wrapper.appendChild(select);
-    wrapper.appendChild(versionInput);
-    wrapper.appendChild(endDateInput);
-    wrapper.appendChild(fileInput);
-    wrapper.appendChild(removeBtn);
+    const inputGroup = document.createElement('div');
+    inputGroup.style.display = 'grid';
+    inputGroup.style.gridTemplateColumns = '1fr 1fr 1fr';
+    inputGroup.style.gap = '4px';
+    inputGroup.style.padding = '6px';
+    inputGroup.style.border = '1px solid #e0e0e0';
+    inputGroup.style.borderRadius = '3px';
+    inputGroup.style.backgroundColor = '#f5f5f5';
+
+    const field1 = document.createElement('div');
+    const field2 = document.createElement('div');
+    const field3 = document.createElement('div');
+    const field4 = document.createElement('div');
+    field4.style.gridColumn = '1 / -1';
+    
+    // Create container for end date and remove button
+    const endDateContainer = document.createElement('div');
+    endDateContainer.style.display = 'flex';
+    endDateContainer.style.gap = '4px';
+    endDateContainer.style.alignItems = 'flex-end';
+    
+    const endDateWrapper = document.createElement('div');
+    endDateWrapper.style.flex = '1';
+    
+    // Add elements to field containers
+    field1.appendChild(createLabel('Build Type', 'build-type-' + Date.now()));
+    field1.appendChild(select);
+    field2.appendChild(createLabel('Version', 'version-' + Date.now()));
+    field2.appendChild(versionInput);
+    
+    // Add end date and remove button to container
+    endDateWrapper.appendChild(createLabel('End Date', 'end-date-' + Date.now()));
+    endDateWrapper.appendChild(endDateInput);
+    endDateContainer.appendChild(endDateWrapper);
+    endDateContainer.appendChild(removeBtn);
+    field3.appendChild(endDateContainer);
+    
+    field4.appendChild(createLabel('Build File', 'file-' + Date.now()));
+    field4.appendChild(fileInput);
+
+    // Add fields to input group
+    inputGroup.appendChild(field1);
+    inputGroup.appendChild(field2);
+    inputGroup.appendChild(field3);
+    inputGroup.appendChild(field4);
+    
+    wrapper.appendChild(inputGroup);
     container.appendChild(wrapper);
   }
 
   private async handleUpload() {
+    try {
+      console.group('=== Starting File Upload ===');
+      
+      const uploads = document.querySelectorAll('.upload-field');
+      const uploadsArray = Array.from(uploads);
+      const formData = new FormData();
+      const uploadData: any[] = [];
+      const licenseIds = Array.from(this.selectedLicenses);
 
-  const uploads = document.querySelectorAll('.upload-field');
-
-  const uploadsArray = Array.prototype.slice.call(uploads);
- 
-  // Prepare FormData (single request)
-
-  const formData = new FormData();
- 
-  uploadsArray.forEach((field: Element, index: number) => {
-
-    const select = field.querySelector('select.upload-type') as HTMLSelectElement;
-
-    const versionInput = field.querySelector('input.upload-version') as HTMLInputElement;
-
-    const endDateInput = field.querySelector('input.upload-end-date') as HTMLInputElement;
-
-    const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
- 
-    if (!select || !versionInput || !endDateInput || !(fileInput && fileInput.files && fileInput.files[0])) {
-
-      return; // skip if any field missing
-
-    }
- 
-    const file = fileInput.files[0];
-
-    const version = versionInput.value;
-
-    const endDate = endDateInput.value;
-
-    const fileType = select.value; // maps to 'fileType' in backend
-
-    const licenseIds = Array.from(this.selectedLicenses); // assume one or more selected licenses
- 
-    // Append one entry per file (you can choose to send one by one instead)
-
-    formData.append('file', file, file.name);
-
-    formData.append('version', version);
-
-    formData.append('licenseId', licenseIds.length > 0 ? licenseIds[0] : ''); // pick first license if multiple
-
-    formData.append('fileType', fileType);
-
-    formData.append('endDate', endDate);
-
-  });
- 
-  console.log('FormData prepared for backend:');
-
-  for (const pair of (formData as any).entries()) {
-
-    console.log(pair[0], ':', pair[1]);
-
-  }
- 
-  try {
-
-    const response = await this.http.post(
-
-      `${apiUrl}/upload`,
-
-      formData,
-
-      {
-
-        headers: new HttpHeaders({
-
-          // 'Content-Type' is automatically set for FormData
-
-        }),
-
-        reportProgress: true,
-
-        observe: 'response'
-
+      console.log('Selected License IDs:', licenseIds);
+      
+      // Process each upload field
+      uploadsArray.forEach((field: Element, index: number) => {
+        const select = field.querySelector('select.upload-type') as HTMLSelectElement;
+        const versionInput = field.querySelector('input.upload-version') as HTMLInputElement;
+        const endDateInput = field.querySelector('input.upload-end-date') as HTMLInputElement;
+        const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
+        
+        // Skip if any required field is missing
+        if (!select || !versionInput || !endDateInput || !(fileInput && fileInput.files && fileInput.files[0])) {
+          console.warn(`Skipping incomplete upload field at index ${index}`);
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        const version = versionInput.value;
+        const endDate = endDateInput.value;
+        const fileType = select.value;
+        
+        // Prepare data for logging
+        const fileInfo = {
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          version,
+          endDate,
+          buildType: fileType,
+          licenseId: licenseIds[0] || 'None selected'
+        };
+        
+        uploadData.push(fileInfo);
+        
+        // Add to FormData for the actual upload
+        formData.append('files', file);
+        formData.append('versions', version);
+        formData.append('endDates', endDate);
+        formData.append('types', fileType);
+        if (licenseIds[0]) {
+          formData.append('licenseId', licenseIds[0]);
+        }
+      });
+      
+      // Log the collected data
+      console.log('Files to be uploaded:', uploadData);
+      console.log('FormData entries:');
+      for (const pair of (formData as any).entries()) {
+        if (pair[0] === 'files') {
+          console.log(`${pair[0]}: ${pair[1].name} (${pair[1].size} bytes, ${pair[1].type})`);
+        } else {
+          console.log(`${pair[0]}: ${pair[1]}`);
+        }
       }
 
-    ).toPromise();
- 
-    console.log('Upload successful', response);
+      // Check if there are any files to upload
+      if (uploadData.length === 0) {
+        console.warn('No valid files selected for upload');
+        alert('Please complete all required fields for at least one file.');
+        return;
+      }
 
-    alert('Files uploaded successfully!');
+      console.log('Sending upload request to:', `${apiUrl}/api/builds/upload`);
+      
+      // Make the API call
+      const response = await this.http.post(
+        `${apiUrl}/api/builds/upload`,
+        formData,
+        {
+          headers: new HttpHeaders({
+            'Accept': 'application/json'
+          }),
+          reportProgress: true,
+          observe: 'response'
+        }
+      ).toPromise();
 
-    this.isUploadMode = false;
- 
-    const uploadContainer = document.querySelector('.upload-container');
-
-    if (uploadContainer) uploadContainer.innerHTML = '';
- 
-  } catch (error) {
-
-    console.error('Upload failed:', error);
-
-    const errorMessage = error && error.error && error.error.message 
-
-      ? error.error.message 
-
-      : '';
-
-    alert('Upload failed. Please try again. ' + errorMessage);
-
+      console.group('Upload Successful');
+      console.log('Server Response:', response);
+      console.groupEnd();
+      
+      alert('Files uploaded successfully!');
+      
+      // Reset the upload form
+      this.isUploadMode = false;
+      const uploadContainer = document.getElementById('upload-container');
+      if (uploadContainer) {
+        uploadContainer.innerHTML = '';
+      }
+      
+      // Reload the builds list to show the newly uploaded files
+      this.loadLicenses();
+      
+      console.groupEnd(); // End the main group
+      
+    } catch (error) {
+      console.group('Upload Failed');
+      console.error('Error details:', error);
+      
+      let errorMessage = 'Upload failed. Please try again.';
+      if (error && error.error) {
+        if (typeof error.error === 'string') {
+          try {
+            const errorObj = JSON.parse(error.error);
+            errorMessage = errorObj.message || errorMessage;
+          } catch (e) {
+            errorMessage = error.error;
+          }
+        } else if (error.error.message) {
+          errorMessage = error.error.message;
+        }
+      }
+      
+      console.error('Error message to user:', errorMessage);
+      console.groupEnd();
+      
+      alert(errorMessage);
+    }
   }
-
-}
 
  
   // Toggle license selection

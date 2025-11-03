@@ -27,11 +27,12 @@
 }
 /* Upload Section */
 .upload-section {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: #17a2b8;
+  border: 1px solid #138496;
   border-radius: 4px;
   padding: 15px;
   margin-bottom: 20px;
+  color: white;
 }
 
 .upload-container {
