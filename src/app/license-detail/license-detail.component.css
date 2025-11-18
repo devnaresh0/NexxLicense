@@ -78,8 +78,10 @@
   font-weight: 500;
   transition: background-color 0.3s ease;
 }
+
 .btn-audit {
-  background-color: #007bff; /* Bootstrap blue */
+  background-color: #007bff;
+  /* Bootstrap blue */
   color: white;
   border: none;
   border-radius: 4px;
@@ -89,7 +91,8 @@
 }
 
 .btn-audit:hover {
-  background-color: #0056b3; /* darker blue on hover */
+  background-color: #0056b3;
+  /* darker blue on hover */
 }
 
 .btn-save:disabled {
@@ -145,12 +148,9 @@
 
 .header-form {
   padding: 7px;
-  display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 20px 1fr 20px 1fr; /* 3 columns for IE */
-  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  grid-template-columns: 1.25fr 0.75fr 0.50fr 0.25fr;
   gap: 20px;
-  -ms-grid-rows: auto;
   align-items: end;
 }
 
@@ -228,6 +228,7 @@ input[type="date"]::-webkit-datetime-edit-text {
 .toggle-group {
   justify-self: end;
   align-self: center;
+  flex: 3;
 }
 
 .toggle-label {
@@ -326,8 +327,10 @@ input[type="date"]::-webkit-datetime-edit-text {
 .module-select:disabled {
   background-color: white;
   cursor: not-allowed;
-  opacity: 1; /* Override default opacity to prevent fading */
-  color: black; /* Darker text color */
+  opacity: 1;
+  /* Override default opacity to prevent fading */
+  color: black;
+  /* Darker text color */
 }
 
 .module-select:focus,
@@ -452,7 +455,9 @@ input[type="date"]::-webkit-datetime-edit-text {
     white-space: nowrap;
   }
 }
+
 table {
-  border-collapse: collapse; /* clean, no double borders */
+  border-collapse: collapse;
+  /* clean, no double borders */
   width: 100%;
 }

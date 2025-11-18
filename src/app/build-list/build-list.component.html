@@ -7,34 +7,11 @@
     </div>
     <div class="header-action">
       <button class="btn-logout" (click)="onLogout()">Logout</button>
-      <button class="btn-upload" (click)="toggleUploadMode()">Upload</button>
       <button class="btn-new" (click)="createNewLicense()">New</button>
     </div>
   </div>
 
-  <div class="filter-tabs">
-    <button
-      class="tab"
-      [class.active]="selectedFilter === 'All'"
-      (click)="onFilterChange('All')"
-    >
-      All
-    </button>
-    <button
-      class="tab"
-      [class.active]="selectedFilter === 'Active'"
-      (click)="onFilterChange('Active')"
-    >
-      Active
-    </button>
-    <button
-      class="tab"
-      [class.active]="selectedFilter === 'Inactive'"
-      (click)="onFilterChange('Inactive')"
-    >
-      Inactive
-    </button>
-  </div>
+  <div class="filter-tabs"></div>
 
   <div class="search-section">
     <div class="search-controls">
@@ -67,7 +44,7 @@
   </div>
 
   <!-- Upload Container -->
-  <div class="upload-section" *ngIf="isUploadMode">
+  <div class="upload-section">
     <div class="upload-container" id="upload-container"></div>
     <div class="upload-actions">
       <button class="btn-upload" id="add-file">Add File</button>
@@ -75,7 +52,59 @@
     </div>
   </div>
 
-  <div class="table-container">Recent Releases will show up here !</div>
+  <div class="table-container">
+    <table class="license-table">
+      <thead>
+        <tr class="table-header">
+          <th>#</th>
+          <th>Domain</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Actions</th>
+          <th *ngIf="isUploadMode">
+            <input
+              type="checkbox"
+              [checked]="
+                selectedLicenses.size === getPaginatedLicenses().length &&
+                selectedLicenses.size > 0
+              "
+              (change)="toggleSelectAll($event)"
+            />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let license of getPaginatedLicenses(); let i = index"
+          class="table-row"
+          [class.selected]="isLicenseSelected(license.id)"
+        >
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td>{{ license.domain }}</td>
+          <td>{{ license.customerName }}</td>
+          <td>
+            <span class="status-badge" [class.active]="license.active === true">
+              {{ license.active ? "Active" : "Inactive" }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-action view" (click)="manageLicense(license)">
+                Manage
+              </button>
+            </div>
+          </td>
+          <td *ngIf="isUploadMode">
+            <input
+              type="checkbox"
+              [checked]="isLicenseSelected(license.id)"
+              (change)="toggleLicenseSelection(license.id, $event)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="pagination">
     <div class="pagination-controls">
