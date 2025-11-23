@@ -3,7 +3,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { LicenseHeader } from '../services/license.service';
 
 export interface LicenseListState {
-  licenses: LicenseHeader[];
   searchTerm: string;
   selectedFilter: string;
   currentPage: number;
@@ -13,7 +12,6 @@ export interface LicenseListState {
 }
 
 const initialState: LicenseListState = {
-  licenses: [],
   searchTerm: '',
   selectedFilter: 'All',
   currentPage: 1,

@@ -56,7 +56,7 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'build/:id/manage',
+    path: 'build/manage',
     component: BuildManageComponent,
     canActivate: [AuthGuard]
   },

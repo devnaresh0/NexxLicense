@@ -80,9 +80,7 @@ export class BuildManageComponent implements OnInit, OnDestroy {
               (this.route.snapshot.routeConfig.path.endsWith("edit") || this.route.snapshot.routeConfig.path.endsWith("manage"))
               ? true
               : false;
-          this.loadLicense();
         }
-        this.loadModules();
       });
   }
 
@@ -134,14 +132,14 @@ export class BuildManageComponent implements OnInit, OnDestroy {
         next: (data: any) => {
           console.log('License data loaded:', data);
           this.licenseHeader = { ...data.header };
-          
+
           // Map the modules to ensure we have the correct module names
           this.licenseModules = (data.modules || []).map((module: any) => {
             // Find the full module details from availableModules
-            const moduleDetails = this.availableModules.find(m => 
+            const moduleDetails = this.availableModules.find(m =>
               (m as any).id === module.moduleId || m.moduleName === module.module
             );
-            
+
             return {
               ...module,
               module: (moduleDetails && moduleDetails.moduleName) || module.module || '',
@@ -152,11 +150,11 @@ export class BuildManageComponent implements OnInit, OnDestroy {
               endDate: module.endDate || this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
             };
           });
-          
+
           this.originalLicenseData = JSON.parse(JSON.stringify(data));
           this.prevHeader = { ...this.licenseHeader };
           this.prevModules = this.licenseModules.map(m => ({ ...m }));
-          
+
           // Force change detection to update the view
           this.cdr.detectChanges();
         },
@@ -196,34 +194,34 @@ export class BuildManageComponent implements OnInit, OnDestroy {
       serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
     };
 
-  // Create a map of module names to their IDs for quick lookup
-  const moduleNameToIdMap = new Map<string, number>();
-  this.availableModules.forEach(module => {
-    moduleNameToIdMap.set(module.moduleName, module.id);
-  });
+    // Create a map of module names to their IDs for quick lookup
+    const moduleNameToIdMap = new Map<string, number>();
+    this.availableModules.forEach(module => {
+      moduleNameToIdMap.set(module.moduleName, module.id);
+    });
 
-  // Map the license modules to include moduleId
-  const modulesWithIds = this.licenseModules.map(module => {
-    const moduleId = moduleNameToIdMap.get(module.module) || 0;
-    return {
-      ...module,
-      moduleId: moduleId,
-      moduleName: module.module
+    // Map the license modules to include moduleId
+    const modulesWithIds = this.licenseModules.map(module => {
+      const moduleId = moduleNameToIdMap.get(module.module) || 0;
+      return {
+        ...module,
+        moduleId: moduleId,
+        moduleName: module.module
+      };
+    });
+
+    // Create the base license data
+    const baseLicenseData = {
+      header: {
+        ...header,
+        id: this.licenseId,
+      },
+      modules: modulesWithIds,
     };
-  });
-
-  // Create the base license data
-  const baseLicenseData = {
-    header: {
-      ...header,
-      id: this.licenseId,
-    },
-    modules: modulesWithIds,
-  };
 
     // Get adminId from localStorage or use a default value
     const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
-    
+
     // Create the final payload with additional fields
     const licenseData = {
       adminId: adminId,
@@ -243,9 +241,9 @@ export class BuildManageComponent implements OnInit, OnDestroy {
       const errorMessage = validation.errors.join('\n');
       this.errorService.showError(errorMessage, 'error');
       return;
-      }
+    }
 
-  console.log('Saving license data:', licenseData);
+    console.log('Saving license data:', licenseData);
 
     this.licenseService.saveLicense(licenseData).subscribe({
       next: (response) => {
@@ -377,10 +375,8 @@ export class BuildManageComponent implements OnInit, OnDestroy {
     select.className = 'upload-type';
     select.innerHTML = [
       '<option value="">Select Type</option>',
-      '<option value="NexxLicense-frontend">NexxLicense-Frontend</option>',
-      '<option value="NexxLicense-backend">NexxLicense-Backend</option>',
-      '<option value="NexxRetail-frontend">NexxRetail-Frontend</option>',
-      '<option value="NexxRetail-backend">NexxRetail-Backend</option>'
+      '<option value="NexxLicense">NexxLicense</option>',
+      '<option value="NexxRetail">NexxRetail</option>'
     ].join('');
 
     // Create version input
@@ -450,29 +446,29 @@ export class BuildManageComponent implements OnInit, OnDestroy {
     const field3 = document.createElement('div');
     const field4 = document.createElement('div');
     field4.style.gridColumn = '1 / -1';
-    
+
     // Create container for end date and remove button
     const endDateContainer = document.createElement('div');
     endDateContainer.style.display = 'flex';
     endDateContainer.style.gap = '4px';
     endDateContainer.style.alignItems = 'flex-end';
-    
+
     const endDateWrapper = document.createElement('div');
     endDateWrapper.style.flex = '1';
-    
+
     // Add elements to field containers
     field1.appendChild(createLabel('Build Type', 'build-type-' + Date.now()));
     field1.appendChild(select);
     field2.appendChild(createLabel('Version', 'version-' + Date.now()));
     field2.appendChild(versionInput);
-    
+
     // Add end date and remove button to container
     endDateWrapper.appendChild(createLabel('End Date', 'end-date-' + Date.now()));
     endDateWrapper.appendChild(endDateInput);
     endDateContainer.appendChild(endDateWrapper);
     endDateContainer.appendChild(removeBtn);
     field3.appendChild(endDateContainer);
-    
+
     field4.appendChild(createLabel('Build File', 'file-' + Date.now()));
     field4.appendChild(fileInput);
 
@@ -481,7 +477,7 @@ export class BuildManageComponent implements OnInit, OnDestroy {
     inputGroup.appendChild(field2);
     inputGroup.appendChild(field3);
     inputGroup.appendChild(field4);
-    
+
     wrapper.appendChild(inputGroup);
     container.appendChild(wrapper);
   }
@@ -489,34 +485,61 @@ export class BuildManageComponent implements OnInit, OnDestroy {
   private async handleUpload() {
     try {
       console.group('=== Starting File Upload ===');
-      
-      const uploadFields = document.querySelectorAll('.upload-field');
-      const uploadData = [];
-      
+
+      const uploads = document.querySelectorAll('.upload-field');
+      const uploadsArray = Array.from(uploads);
+      const formData = new FormData();
+      const uploadData: any[] = [];
+      let fileCount = 0;
+
       // Process each upload field
-      Array.from(uploadFields).forEach((field, index) => {
-        const typeSelect = field.querySelector('select') as HTMLSelectElement;
+      uploadsArray.forEach((field: Element, index: number) => {
+        const select = field.querySelector('select') as HTMLSelectElement;
         const versionInput = field.querySelector('input[type="text"]') as HTMLInputElement;
         const endDateInput = field.querySelector('input[type="date"]') as HTMLInputElement;
         const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
 
-        if (fileInput.files && fileInput.files[0]) {
-          const file = fileInput.files[0];
-          
-          // Create the upload object matching the builds list format
-          const fileInfo = {
-            buildType: typeSelect.value,
-            endDate: endDateInput.value,
-            fileName: file.name,
-            fileSize: file.size,
-            fileType: file.type,
-            licenseId: this.licenseId && this.licenseId !== 'new' ? this.licenseId : 'None selected',
-            version: versionInput.value
-          };
-          
-          uploadData.push(fileInfo);
+        // Skip if any required field is missing
+        if (!select || !versionInput || !endDateInput || !fileInput || !fileInput.files || fileInput.files.length === 0) {
+          console.warn(`Skipping incomplete upload field at index ${index}`);
+          return;
         }
+
+        const file = fileInput.files[0];
+        const version = versionInput.value;
+        const endDate = endDateInput.value;
+        const fileType = select.value;
+        const licenseId = this.licenseId && this.licenseId !== 'new' ? this.licenseId : 'None selected';
+
+        // Add to FormData with array-like syntax for multiple files
+        formData.append(`files[${fileCount}]`, file, file.name);
+        formData.append(`versions[${fileCount}]`, version);
+        formData.append(`endDates[${fileCount}]`, endDate);
+        formData.append(`types[${fileCount}]`, fileType);
+        fileCount++;
+
+        // Add to uploadData for logging
+        uploadData.push({
+          fileName: file.name,
+          fileSize: file.size,
+          fileType: file.type,
+          version,
+          endDate,
+          buildType: fileType,
+          licenseId: licenseId
+        });
       });
+
+      // Add license ID only once if available
+      if (this.licenseId && this.licenseId !== 'new') {
+        formData.append('licenseId', this.licenseId);
+      }
+
+      console.log('Files to be uploaded:', uploadData);
+      console.log('FormData entries:');
+      for (const pair of (formData as any).entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
 
       // Check if there are any files to upload
       if (uploadData.length === 0) {
@@ -525,40 +548,43 @@ export class BuildManageComponent implements OnInit, OnDestroy {
         return;
       }
 
-      console.log('Uploading files:', uploadData);
-      
-      // Send the data as JSON
+      console.log('FormData entries:');
+      for (const pair of (formData as any).entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+      }
+
+      // Send the FormData with proper headers
       const response = await this.http.post(
         `${apiUrl}/api/builds/upload`,
-        uploadData,
+        formData,
         {
-          headers: {
-            'Content-Type': 'application/json',
+          // Let the browser set the Content-Type with boundary
+          headers: new HttpHeaders({
             'Accept': 'application/json'
-          },
+          }),
           observe: 'response'
         }
       ).toPromise();
-      
+
       console.group('Upload Successful');
       console.log('Server Response:', response);
       console.groupEnd();
-      
+
       alert('Files uploaded successfully!');
-      
+
       // Reset the upload form
       this.isUploadMode = false;
       const uploadContainer = document.getElementById('upload-container');
       if (uploadContainer) {
         uploadContainer.innerHTML = '';
       }
-      
+
       console.groupEnd(); // End the main group
-      
+
     } catch (error) {
       console.group('Upload Failed');
       console.error('Error details:', error);
-      
+
       let errorMessage = 'Upload Successfull';
       if (error && error.error) {
         if (typeof error.error === 'string') {
@@ -572,10 +598,10 @@ export class BuildManageComponent implements OnInit, OnDestroy {
           errorMessage = error.error.message;
         }
       }
-      
+
       console.error('Error message to user:', errorMessage);
       console.groupEnd();
-      
+
       alert(errorMessage);
     }
   }
@@ -661,5 +687,8 @@ export class BuildManageComponent implements OnInit, OnDestroy {
       localStorage.removeItem('username');
       this.router.navigate(['/login']);
     }
+  }
+  newBuild(){
+    this.router.navigate(['/builds']);
   }
 }

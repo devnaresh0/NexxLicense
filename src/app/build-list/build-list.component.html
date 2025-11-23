@@ -7,12 +7,31 @@
     </div>
     <div class="header-action">
       <button class="btn-logout" (click)="onLogout()">Logout</button>
-      <button class="btn-new" (click)="createNewLicense()">New</button>
+      <button class="btn-new" (click)="navigateToBuilds()">Build-List</button>
     </div>
   </div>
 
-  <div class="filter-tabs"></div>
+  <!-- Upload Container -->
+  <div class="upload-section">
+    <div class="upload-container" id="upload-container"></div>
+    <div class="upload-actions">
+      <button class="btn-upload" id="add-file">Add File</button>
+      <button class="btn-submit" id="submit">Upload All</button>
+    </div>
+  </div>
 
+  <div class="build-users">
+    <label><input type="checkbox" />Send All</label>
+    <label
+      ><input
+        type="checkbox"
+        [(ngModel)]="isSendSelected"
+        (change)="onSendSelectedChange($event)"
+      />Send Selected</label
+    >
+  </div>
+
+<div class="license-list" *ngIf="isSendSelected">
   <div class="search-section">
     <div class="search-controls">
       <div class="search-group">
@@ -40,15 +59,6 @@
           <option value="customer">Customer</option>
         </select>
       </div>
-    </div>
-  </div>
-
-  <!-- Upload Container -->
-  <div class="upload-section">
-    <div class="upload-container" id="upload-container"></div>
-    <div class="upload-actions">
-      <button class="btn-upload" id="add-file">Add File</button>
-      <button class="btn-submit" id="submit">Upload All</button>
     </div>
   </div>
 
@@ -88,13 +98,6 @@
             </span>
           </td>
           <td>
-            <div class="action-buttons">
-              <button class="btn-action view" (click)="manageLicense(license)">
-                Manage
-              </button>
-            </div>
-          </td>
-          <td *ngIf="isUploadMode">
             <input
               type="checkbox"
               [checked]="isLicenseSelected(license.id)"
@@ -119,4 +122,5 @@
     </div>
     <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
   </div>
+</div>
 </div>

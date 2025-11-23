@@ -282,10 +282,8 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
     select.className = 'upload-type';
     select.innerHTML = [
       '<option value="">Select Type</option>',
-      '<option value="NexxLicense-frontend">NexxLicense-Frontend</option>',
-      '<option value="NexxLicense-backend">NexxLicense-Backend</option>',
-      '<option value="NexxRetail-frontend">NexxRetail-Frontend</option>',
-      '<option value="NexxRetail-backend">NexxRetail-Backend</option>'
+      '<option value="NexxLicense">NexxLicense</option>',
+      '<option value="NexxRetail">NexxRetail</option>'
     ].join('');
 
     // Create version input
@@ -454,6 +452,7 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
       const formData = new FormData();
       const uploadData: any[] = [];
       const licenseIds = Array.from(this.selectedLicenses);
+      let fileCount = 0;
 
       console.log('Selected License IDs:', licenseIds);
 
@@ -466,7 +465,7 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
         const fileInput = field.querySelector('input[type="file"]') as HTMLInputElement;
 
         // Skip if any required field is missing
-        if (!select || !versionInput || !startDateInput || !endDateInput || !(fileInput && fileInput.files && fileInput.files[0])) {
+        if (!select || !versionInput || !startDateInput || !endDateInput || !fileInput || !fileInput.files || fileInput.files.length === 0) {
           console.warn(`Skipping incomplete upload field at index ${index}`);
           return;
         }
@@ -477,8 +476,16 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
         const endDate = endDateInput.value;
         const fileType = select.value;
 
-        // Prepare data for logging
-        const fileInfo = {
+        // Add to FormData with array-like syntax for multiple files
+        formData.append('files', file, file.name);  // Changed from `files[${fileCount}]`
+        formData.append('versions', version);       // Changed from `versions[${fileCount}]`
+        formData.append('startDates', startDate);   // Changed from `startDates[${fileCount}]`
+        formData.append('endDates', endDate);       // Changed from `endDates[${fileCount}]`
+        formData.append('types', fileType);         // Changed from `types[${fileCount}]`
+        fileCount++;
+
+        // Add to uploadData for logging
+        uploadData.push({
           fileName: file.name,
           fileSize: file.size,
           fileType: file.type,
@@ -487,30 +494,18 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
           endDate,
           buildType: fileType,
           licenseId: licenseIds[0] || 'None selected'
-        };
-
-        uploadData.push(fileInfo);
-
-        // Add to FormData for the actual upload
-        formData.append('files', file);
-        formData.append('versions', version);
-        formData.append('startDates', startDate);
-        formData.append('endDates', endDate);
-        formData.append('types', fileType);
-        if (licenseIds[0]) {
-          formData.append('licenseId', licenseIds[0]);
-        }
+        });
       });
 
-      // Log the collected data
+      // Add license ID only once if available
+      if (licenseIds[0]) {
+        formData.append('licenseId', licenseIds[0]);
+      }
+
       console.log('Files to be uploaded:', uploadData);
       console.log('FormData entries:');
       for (const pair of (formData as any).entries()) {
-        if (pair[0] === 'files') {
-          console.log(`${pair[0]}: ${pair[1].name} (${pair[1].size} bytes, ${pair[1].type})`);
-        } else {
-          console.log(`${pair[0]}: ${pair[1]}`);
-        }
+        console.log(`${pair[0]}:`, pair[1]);
       }
 
       // Check if there are any files to upload
@@ -527,6 +522,7 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
         `${apiUrl}/api/builds/upload`,
         formData,
         {
+          // Let the browser set the Content-Type with boundary
           headers: new HttpHeaders({
             'Accept': 'application/json'
           }),
@@ -557,7 +553,7 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
       console.group('Upload Failed');
       console.error('Error details:', error);
 
-      let errorMessage = 'Upload successfull.';
+      let errorMessage = 'Upload failed. Please try again.';
       if (error && error.error) {
         if (typeof error.error === 'string') {
           try {
@@ -566,8 +562,10 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
           } catch (e) {
             errorMessage = error.error;
           }
-        } else if (error.error.message) {
+        } else if (error.error && error.error.message) {
           errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
         }
       }
 
@@ -672,5 +670,14 @@ export class BuildListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return pages;
+  }
+
+  isSendSelected: boolean = false;
+  onSendSelectedChange(event: any) {
+    this.isSendSelected = event.target.checked;
+  }
+
+  navigateToBuilds() {
+    this.router.navigate(['/build/manage']);
   }
 }

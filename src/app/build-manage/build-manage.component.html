@@ -1,83 +1,114 @@
-<!-- license-detail.component.html -->
-<div class="license-detail-container">
+<!-- license-list.component.html -->
+<div class="license-container">
   <div class="header">
     <div class="title-section">
-      <h2>License</h2>
-      <p class="subtitle">Allows to Issue/View License</p>
+      <h2>Builds</h2>
+      <p class="subtitle">Allows to Issue/View Builds</p>
     </div>
-    <div class="header-actions">
-      <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
-      <button class="btn-action btn-list" (click)="navigateToBuilds()">Builds</button>
+    <div class="header-action">
+      <button class="btn-logout" (click)="onLogout()">Logout</button>
+      <button class="btn-new" (click)="newBuild()">New</button>
     </div>
   </div>
 
-  <div class="license-header-section">
-    <div class="section-title">License Header</div>
-    <div class="header-form">
-      <div class="form-group">
-        <label>Serial No.</label>
-        <input
-          type="text"
-          [(ngModel)]="licenseHeader.serialNumber"
-          placeholder="Enter Serial No."
-          class="form-input"
-          [readonly]="!canEdit()"
-        />
-      </div>
-      <div class="form-group">
-        <label>Domain</label>
-        <input
-          type="text"
-          [(ngModel)]="licenseHeader.domain"
-          class="form-input"
-          [readonly]="!canEdit()"
-          placeholder="Enter domain name"
-        />
-      </div>
-      <div class="form-group">
-        <label>Customer Name</label>
-        <input
-          type="text"
-          [(ngModel)]="licenseHeader.customerName"
-          class="form-input"
-          [readonly]="!canEdit()"
-          placeholder="Enter customer name"
-        />
-      </div>
-      <div class="form-group toggle-group">
-        <label class="toggle-label">
+  <!-- Upload Container -->
+  <div class="upload-section">
+    <div class="upload-container" id="upload-container"></div>
+    <div class="upload-actions">
+      Build History Empty
+    </div>
+  </div>
+
+<div class="license-list" *ngIf="isSendSelected">
+  <div class="search-section">
+    <div class="search-controls">
+      <div class="search-group">
+        <label>Search For License</label>
+        <div class="search-input-group">
           <input
-            type="checkbox"
-            [(ngModel)]="licenseHeader.active"
-            class="toggle-input"
-            [disabled]="!canEdit()"
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Search"
+            class="search-input"
+            (keyup.enter)="onSearch()"
           />
-          <span class="toggle-slider"></span>
-          Active
-        </label>
+          <button class="btn-search" (click)="onSearch()">Search</button>
+        </div>
+      </div>
+      <div class="order-group">
+        <label>Order By</label>
+        <select
+          class="order-select"
+          [ngModel]="sortBy"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option value="search">Search</option>
+          <option value="domain">Domain</option>
+          <option value="customer">Customer</option>
+        </select>
       </div>
     </div>
   </div>
 
-  <div class="license-details-section">
-    <div class="section-title">
-      License Details
+  <div class="table-container">
+    <table class="license-table">
+      <thead>
+        <tr class="table-header">
+          <th>#</th>
+          <th>Domain</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Actions</th>
+          <th *ngIf="isUploadMode">
+            <input
+              type="checkbox"
+              [checked]="
+                selectedLicenses.size === getPaginatedLicenses().length &&
+                selectedLicenses.size > 0
+              "
+              (change)="toggleSelectAll($event)"
+            />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let license of getPaginatedLicenses(); let i = index"
+          class="table-row"
+          [class.selected]="isLicenseSelected(license.id)"
+        >
+          <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
+          <td>{{ license.domain }}</td>
+          <td>{{ license.customerName }}</td>
+          <td>
+            <span class="status-badge" [class.active]="license.active === true">
+              {{ license.active ? "Active" : "Inactive" }}
+            </span>
+          </td>
+          <td>
+            <input
+              type="checkbox"
+              [checked]="isLicenseSelected(license.id)"
+              (change)="toggleLicenseSelection(license.id, $event)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <div class="pagination-controls">
       <button
-        class="btn-add-module"
-        (click)="toggleUploadMode()"
-        *ngIf="canEdit()"
+        *ngFor="let page of getPageNumbers()"
+        class="page-btn"
+        [class.active]="currentPage === page"
+        (click)="goToPage(page)"
       >
-        {{ isUploadMode ? "Cancel Upload" : "Upload File" }}
+        {{ page }}
       </button>
     </div>
-
-    <!-- Upload Section -->
-    <div class="upload-section" *ngIf="isUploadMode">
-      <div class="upload-container" id="upload-container"></div>
-      <div class="upload-actions">
-        <button class="btn-upload" id="add-file">Add File</button>
-        <button class="btn-submit" id="submit-upload">Upload All</button>
-      </div>
-    </div>
+    <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
   </div>
+</div>
 </div>
