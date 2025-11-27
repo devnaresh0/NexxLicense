@@ -25,7 +25,7 @@ import { LoaderComponent } from './shared/components/loader/loader.component';
 import { LoadingService } from './services/loading.service';
 import { IntroComponent } from './intro/intro.componenet';
 import { BuildListComponent } from './build-list/build-list.component';
-import { BuildManageComponent } from './build-manage/build-manage.component';
+import { BuildUploadComponent } from './build-upload/build-upload.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -51,13 +51,13 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'builds',
+    path: 'build-list',
     component: BuildListComponent,
     canActivate: [AuthGuard]
   },
   {
-    path: 'build/manage',
-    component: BuildManageComponent,
+    path: 'build-upload',
+    component: BuildUploadComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -85,7 +85,7 @@ const routes: Routes = [
     IntroComponent,
     LoaderComponent,
     BuildListComponent,
-    BuildManageComponent
+    BuildUploadComponent
   ],
   imports: [
     BrowserModule,

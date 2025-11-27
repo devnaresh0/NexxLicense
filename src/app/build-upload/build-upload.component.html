@@ -1,0 +1,76 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div formArrayName="builds">
+    <div
+      *ngFor="let b of builds.controls; let i = index"
+      [formGroupName]="i"
+      style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px"
+    >
+      <label>Version</label>
+      <input type="text" formControlName="version" />
+
+      <label>Start Date</label>
+      <input type="date" formControlName="start_date" />
+
+      <label>End Date</label>
+      <input type="date" formControlName="end_date" />
+
+      <label>App Type</label>
+      <select formControlName="app_type">
+        <option value="frontend">Frontend</option>
+        <option value="backend">Backend</option>
+        <option value="both">Both</option>
+      </select>
+
+      <label>Upload File</label>
+      <input type="file" (change)="onFileChange($event, i)" />
+
+      <button type="button" (click)="removeBuild(i)" *ngIf="builds.length > 1">
+        Remove
+      </button>
+    </div>
+  </div>
+
+  <button type="button" (click)="addBuild()">+ Add File</button>
+
+  <button type="submit">Submit</button>
+</form>
+
+<h3>Select Customers to Send Build To</h3>
+
+<div *ngIf="loadingLicenses">Loading customers...</div>
+
+<table
+  *ngIf="!loadingLicenses && licenses.length > 0"
+  style="width: 100%; border-collapse: collapse; margin-top: 20px"
+>
+  <thead>
+    <tr>
+      <th style="border-bottom: 1px solid #ccc; padding: 5px">Select</th>
+      <th style="border-bottom: 1px solid #ccc; padding: 5px">Customer Name</th>
+      <th style="border-bottom: 1px solid #ccc; padding: 5px">Domain</th>
+      <th style="border-bottom: 1px solid #ccc; padding: 5px">Serial No.</th>
+      <th style="border-bottom: 1px solid #ccc; padding: 5px">Active</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let lic of licenses">
+      <td style="padding: 5px">
+        <input
+          type="checkbox"
+          (change)="toggleLicenseSelection(lic.id, $event)"
+        />
+      </td>
+      <td style="padding: 5px">{{ lic.customerName }}</td>
+      <td style="padding: 5px">{{ lic.domain }}</td>
+      <td style="padding: 5px">{{ lic.serialNumber }}</td>
+      <td style="padding: 5px">
+        <span [style.color]="lic.active ? 'green' : 'red'">
+          {{ lic.active ? "Active" : "Inactive" }}
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loadingLicenses && licenses.length === 0">No customers found.</div>
