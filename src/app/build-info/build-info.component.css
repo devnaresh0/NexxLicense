@@ -1,0 +1,229 @@
+/* HEADER WRAPPER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* TITLE + SUBTITLE */
+.title-section h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 12px;
+}
+
+/* ACTION BUTTON WRAPPER */
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* GENERIC BUTTON STYLE */
+.btn-action {
+  padding: 4px 10px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+/* LOGOUT BUTTON */
+.btn-logout {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btn-logout:hover {
+  background-color: #c82333;
+}
+
+/* NEW BUTTON */
+.btn-list {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-list:hover {
+  background-color: #218838;
+}
+
+/* --------------------------------------------- */
+/* PAGE WRAPPER */
+/* --------------------------------------------- */
+.container {
+  background-color: #f5f5f5;
+  padding: 10px 12px;
+  font-family: Arial, sans-serif;
+}
+
+/* --------------------------------------------- */
+/* HEADINGS */
+/* --------------------------------------------- */
+h2 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #17a2b8;
+}
+
+h3 {
+  margin: 15px 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #17a2b8;
+}
+
+/* --------------------------------------------- */
+/* INFO BOX (SESSION HEADER) */
+/* --------------------------------------------- */
+.info-box {
+  background-color: #e3f6f9;
+  border-left: 4px solid #17a2b8;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.info-box p {
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+/* --------------------------------------------- */
+/* TABLES */
+/* --------------------------------------------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background-color: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  /* allow horizontal stretching without wrapping */
+  table-layout: fixed;
+}
+
+/* Table Header */
+th {
+  background-color: #17a2b8;
+  color: white;
+  padding: 8px;
+  font-weight: 600;
+  text-align: left;
+  border: 1px solid #138496;
+  font-size: 13px;
+}
+
+/* Table Rows */
+td {
+  border: 1px solid #e0e0e0;
+  padding: 6px 8px;
+  color: #333;
+  word-wrap: break-word;
+}
+
+/* Zebra rows */
+tr:nth-child(even) td {
+  background-color: #fafafa;
+}
+
+/* Hover */
+tr:hover td {
+  background-color: #f1f9fa;
+}
+
+/* --------------------------------------------- */
+/* TABLE SCROLLING (makes page compact) */
+/* --------------------------------------------- */
+table {
+  display: block;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* --------------------------------------------- */
+/* LINKS */
+/* --------------------------------------------- */
+a {
+  color: #17a2b8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------- */
+/* SPACING / DIVIDERS */
+/* --------------------------------------------- */
+hr {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+  margin: 20px 0 10px 0;
+}
+
+/* --------------------------------------------- */
+/* COLUMN WIDTHS (improves visual layout) */
+/* --------------------------------------------- */
+th:nth-child(1), td:nth-child(1) { width: 10%; }
+th:nth-child(2), td:nth-child(2) { width: 30%; }
+th:nth-child(3), td:nth-child(3) { width: 15%; }
+th:nth-child(4), td:nth-child(4) { width: 15%; }
+th:nth-child(5), td:nth-child(5) { width: 15%; }
+th:nth-child(6), td:nth-child(6) { width: 15%; }
+
+/* for customer table with 6 columns */
+table.customer-table th:nth-child(1),
+table.customer-table td:nth-child(1) { width: 20%; }
+
+table.customer-table th:nth-child(2),
+table.customer-table td:nth-child(2) { width: 18%; }
+
+table.customer-table th:nth-child(3),
+table.customer-table td:nth-child(3) { width: 20%; }
+
+table.customer-table th:nth-child(4),
+table.customer-table td:nth-child(4) { width: 15%; }
+
+table.customer-table th:nth-child(5),
+table.customer-table td:nth-child(5) { width: 14%; }
+
+table.customer-table th:nth-child(6),
+table.customer-table td:nth-child(6) { width: 13%; }
+
+/* --------------------------------------------- */
+/* RESPONSIVE */
+/* --------------------------------------------- */
+@media (max-width: 768px) {
+  table {
+    max-height: none;
+    display: block;
+    overflow-x: auto;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  h3 {
+    font-size: 15px;
+  }
+
+  td, th {
+    font-size: 12px;
+  }
+}

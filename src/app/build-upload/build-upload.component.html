@@ -1,76 +1,115 @@
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <div formArrayName="builds">
-    <div
-      *ngFor="let b of builds.controls; let i = index"
-      [formGroupName]="i"
-      style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px"
-    >
-      <label>Version</label>
-      <input type="text" formControlName="version" />
+<div class="header">
+  <div class="title-section">
+    <h2>Build Upload</h2>
+    <p class="subtitle">Allows to Upload Build Sessions</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
+    <button class="btn-action btn-list" (click)="navigateTo('/build-list')">
+      List
+    </button>
+  </div>
+</div>
+<div class="container">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div formArrayName="builds">
+      <div
+        class="build-row"
+        *ngFor="let b of builds.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <div class="form-field">
+          <label>Version</label>
+          <input type="text" formControlName="version" />
+        </div>
 
-      <label>Start Date</label>
-      <input type="date" formControlName="start_date" />
+        <div class="form-field">
+          <label>Start</label>
+          <input type="date" formControlName="start_date" />
+        </div>
 
-      <label>End Date</label>
-      <input type="date" formControlName="end_date" />
+        <div class="form-field">
+          <label>End</label>
+          <input type="date" formControlName="end_date" />
+        </div>
 
-      <label>App Type</label>
-      <select formControlName="app_type">
-        <option value="frontend">Frontend</option>
-        <option value="backend">Backend</option>
-        <option value="both">Both</option>
-      </select>
+        <div class="form-field">
+          <label>Type</label>
+          <select formControlName="app_type">
+            <option value="NexxRetail">NexxRetail</option>
+            <option value="NexxLicense">NexxLicense</option>
+            <option value="Pos">Pos</option>
+            <option value="Massenger">Massenger</option>
+            <option value="ActiveMQ">ActiveMQ</option>
+          </select>
+        </div>
 
-      <label>Upload File</label>
-      <input type="file" (change)="onFileChange($event, i)" />
+        <div class="form-field">
+          <label>File</label>
+          <input type="file" (change)="onFileChange($event, i)" />
+        </div>
 
-      <button type="button" (click)="removeBuild(i)" *ngIf="builds.length > 1">
-        Remove
-      </button>
+        <button
+          type="button"
+          class="btn-remove"
+          *ngIf="builds.length > 1"
+          (click)="removeBuild(i)"
+        >
+          ✕
+        </button>
+      </div>
     </div>
+
+    <button type="button" class="btn-add" (click)="addBuild()">
+      + Add File
+    </button>
+    <button type="submit" class="btn-submit">Submit</button>
+  </form>
+
+  <!-- ============================= -->
+  <!-- CUSTOMER TABLE -->
+  <!-- ============================= -->
+  <h3 class="customer-section-title">Select Customers to Send Build To</h3>
+
+  <div class="customer-selection">
+    <label class="radio-option">
+      <input type="radio" name="customerOption" value="all" (change)="onCustomerOptionChange('all')" [checked]="customerOption === 'all'">
+      Send to All Customers
+    </label>
+    <label class="radio-option">
+      <input type="radio" name="customerOption" value="select" (change)="onCustomerOptionChange('select')" [checked]="customerOption === 'select'">
+      Select Specific Customers
+    </label>
   </div>
 
-  <button type="button" (click)="addBuild()">+ Add File</button>
+  <div *ngIf="loadingLicenses">Loading customers...</div>
 
-  <button type="submit">Submit</button>
-</form>
+  <table class="customer-table" *ngIf="!loadingLicenses && licenses.length > 0 && customerOption === 'select'">
+    <thead>
+      <tr>
+        <th>Select</th>
+        <th>Customer</th>
+        <th>Domain</th>
+        <th>Serial No</th>
+      </tr>
+    </thead>
 
-<h3>Select Customers to Send Build To</h3>
+    <tbody>
+      <tr *ngFor="let lic of licenses">
+        <td>
+          <input
+            type="checkbox"
+            (change)="toggleLicenseSelection(lic.id, $event)"
+          />
+        </td>
+        <td>{{ lic.customerName }}</td>
+        <td>{{ lic.domain }}</td>
+        <td>{{ lic.serialNumber }}</td>
+      </tr>
+    </tbody>
+  </table>
 
-<div *ngIf="loadingLicenses">Loading customers...</div>
-
-<table
-  *ngIf="!loadingLicenses && licenses.length > 0"
-  style="width: 100%; border-collapse: collapse; margin-top: 20px"
->
-  <thead>
-    <tr>
-      <th style="border-bottom: 1px solid #ccc; padding: 5px">Select</th>
-      <th style="border-bottom: 1px solid #ccc; padding: 5px">Customer Name</th>
-      <th style="border-bottom: 1px solid #ccc; padding: 5px">Domain</th>
-      <th style="border-bottom: 1px solid #ccc; padding: 5px">Serial No.</th>
-      <th style="border-bottom: 1px solid #ccc; padding: 5px">Active</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr *ngFor="let lic of licenses">
-      <td style="padding: 5px">
-        <input
-          type="checkbox"
-          (change)="toggleLicenseSelection(lic.id, $event)"
-        />
-      </td>
-      <td style="padding: 5px">{{ lic.customerName }}</td>
-      <td style="padding: 5px">{{ lic.domain }}</td>
-      <td style="padding: 5px">{{ lic.serialNumber }}</td>
-      <td style="padding: 5px">
-        <span [style.color]="lic.active ? 'green' : 'red'">
-          {{ lic.active ? "Active" : "Inactive" }}
-        </span>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<div *ngIf="!loadingLicenses && licenses.length === 0">No customers found.</div>
+  <div *ngIf="!loadingLicenses && licenses.length === 0">
+    No customers found.
+  </div>
+</div>

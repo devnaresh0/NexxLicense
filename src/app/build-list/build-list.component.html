@@ -1,3 +1,70 @@
-<p>
-  build-list works!
-</p>
+<div class="header">
+  <div class="title-section">
+    <h2>Build Sessions</h2>
+    <p class="subtitle">Allows to Issue/View Build Sessions</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
+    <button class="btn-action btn-list" (click)="navigateTo('/intro')">Home</button>
+    <button class="btn-action btn-list" (click)="navigateTo('/build-upload')">
+      New
+    </button>
+  </div>
+</div>
+
+<div class="list-container">
+  <div *ngIf="loading" class="loading-box">
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="!loading && sessions.length === 0" class="no-data-box">
+    <p>No build sessions found.</p>
+  </div>
+  <div>Session table</div>
+  <div *ngIf="!loading && sessions.length > 0" class="table-wrapper">
+    <table class="session-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Uploaded By</th>
+          <th>Uploaded At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let s of paginatedSessions">
+          <td>{{ s.id }}</td>
+          <td>{{ s.uploadedBy }}</td>
+          <td>{{ s.uploaded_at | date : "dd MMM yyyy, HH:mm" }}</td>
+          <td>
+            <button class="btn-view" (click)="onView(s.id)">View</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination-wrapper" *ngIf="totalPages > 1">
+      <button
+        class="page-btn"
+        (click)="changePage(currentPage - 1)"
+        [disabled]="currentPage === 1"
+      >
+        Prev
+      </button>
+
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+
+      <button
+        class="page-btn"
+        (click)="changePage(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

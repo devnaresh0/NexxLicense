@@ -4,32 +4,32 @@
   /* min-height: 100%; */
   /* height: auto; */
 }
-
+ 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 10px;
 }
-
+ 
 .title-section h2 {
   margin: 0;
   font-size: 18px;
   color: #333;
   font-weight: 500;
 }
-
+ 
 .subtitle {
   margin: 5px 0 0 0;
   color: #666;
   font-size: 14px;
 }
-
+ 
 .header-actions {
   display: flex;
   gap: 10px;
 }
-
+ 
 .btn-logout {
   background-color: #dc3545;
   color: white;
@@ -39,16 +39,16 @@
   cursor: pointer;
   font-size: 14px;
 }
-
+ 
 .btn-logout:hover {
   background-color: #c82333;
 }
-
+ 
 .btn-action {
   padding: 5px 10px;
   font-size: 12px;
 }
-
+ 
 .btn-list {
   background-color: #28a745;
   color: white;
@@ -58,7 +58,7 @@
   font-weight: 500;
   transition: background-color 0.3s ease;
 }
-
+ 
 .btn-reset {
   background-color: #fd7e14;
   color: white;
@@ -68,7 +68,7 @@
   font-weight: 500;
   transition: background-color 0.3s ease;
 }
-
+ 
 .btn-save {
   background-color: #28a745;
   color: white;
@@ -78,7 +78,7 @@
   font-weight: 500;
   transition: background-color 0.3s ease;
 }
-
+ 
 .btn-audit {
   background-color: #007bff;
   /* Bootstrap blue */
@@ -89,29 +89,29 @@
   font-weight: 500;
   transition: background-color 0.3s ease;
 }
-
+ 
 .btn-audit:hover {
   background-color: #0056b3;
   /* darker blue on hover */
 }
-
+ 
 .btn-save:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
 }
-
+ 
 .btn-list:hover {
   background-color: #218838;
 }
-
+ 
 .btn-reset:hover {
   background-color: #e66a00;
 }
-
+ 
 .btn-save:hover:not(:disabled) {
   background-color: #218838;
 }
-
+ 
 .license-header-section,
 .license-details-section {
   background-color: white;
@@ -120,7 +120,7 @@
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
+ 
 .section-title {
   background-color: #17a2b8;
   color: white;
@@ -130,7 +130,7 @@
   align-items: center;
   font-size: 14px;
 }
-
+ 
 .btn-add-module {
   background-color: #28a745;
   color: white;
@@ -141,48 +141,48 @@
   font-size: 12px;
   font-weight: 500;
 }
-
+ 
 .btn-add-module:hover {
   background-color: #218838;
 }
-
+ 
 .header-form {
   padding: 7px;
   display: grid;
-  grid-template-columns: 1.25fr 0.75fr 0.50fr 0.25fr;
-  gap: 20px;
+  grid-template-columns: 0.85fr 0.65fr 0.80fr 0.15fr;
+  gap: 10px;
   align-items: end;
 }
-
+ 
 .form-group {
   display: flex;
   flex-direction: column;
 }
-
+ 
 .form-group label {
   margin-bottom: 3px;
   font-weight: 500;
   color: #333;
   font-size: 13px;
 }
-
+ 
 .form-input {
   padding: 3px;
   border: 1px solid #ddd;
   border-radius: 2px;
   font-size: 12px;
 }
-
+ 
 .form-input:read-only {
   background-color: #f8f9fa;
 }
-
+ 
 .form-input:focus:not(:read-only) {
   outline: none;
   border-color: #17a2b8;
   box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
 }
-
+ 
 /* Date input specific styles */
 input[type="date"] {
   padding: 3px;
@@ -195,19 +195,19 @@ input[type="date"] {
   background-color: white;
   cursor: pointer;
 }
-
+ 
 input[type="date"]:focus {
   outline: none;
   border-color: #17a2b8;
   box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
 }
-
+ 
 /* Hide calendar icon in readonly state */
 input[type="date"][readonly]::-webkit-calendar-picker-indicator,
 input[type="date"].readonly::-webkit-calendar-picker-indicator {
   display: none;
 }
-
+ 
 /* Hide the default calendar icon in WebKit browsers */
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
@@ -215,22 +215,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 0;
   margin: 0;
 }
-
+ 
 /* Make the date input consistent across browsers */
 input[type="date"]::-webkit-datetime-edit-fields-wrapper {
   padding: 0;
 }
-
+ 
 input[type="date"]::-webkit-datetime-edit-text {
   padding: 0 2px;
 }
-
+ 
 .toggle-group {
   justify-self: end;
   align-self: center;
   flex: 3;
 }
-
+ 
 .toggle-label {
   display: flex;
   align-items: center;
@@ -238,11 +238,11 @@ input[type="date"]::-webkit-datetime-edit-text {
   font-weight: 500;
   color: #333;
 }
-
+ 
 .toggle-input {
   display: none;
 }
-
+ 
 .toggle-slider {
   position: relative;
   width: 50px;
@@ -252,7 +252,7 @@ input[type="date"]::-webkit-datetime-edit-text {
   margin-right: 10px;
   transition: background-color 0.3s;
 }
-
+ 
 .toggle-slider:before {
   content: '';
   position: absolute;
@@ -264,56 +264,56 @@ input[type="date"]::-webkit-datetime-edit-text {
   left: 2px;
   transition: transform 0.3s;
 }
-
+ 
 .toggle-input:checked+.toggle-slider {
   background-color: #28a745;
 }
-
+ 
 .toggle-input:checked+.toggle-slider:before {
   transform: translateX(26px);
 }
-
+ 
 .toggle-input:disabled+.toggle-slider {
   cursor: not-allowed;
   opacity: 0.6;
 }
-
+ 
 .table-container {
   padding: 0 5px 5px 5px;
 }
-
+ 
 .details-table {
   width: 100%;
   border-collapse: collapse;
 }
-
+ 
 .details-table .table-header {
   background-color: #6c757d;
   color: white;
 }
-
+ 
 .details-table .table-header th {
   padding: 8px;
   text-align: left;
   font-weight: 500;
   font-size: 13px;
 }
-
+ 
 .details-table .table-row {
   border-bottom: 1px solid #eee;
   transition: background-color 0.2s ease;
 }
-
+ 
 .details-table .table-row:hover {
   background-color: #f8f9fa;
 }
-
+ 
 .details-table .table-row td {
   padding: 5px 0px 15px 0px;
   color: #333;
   font-size: 13px;
 }
-
+ 
 .module-select,
 .users-input,
 .date-input {
@@ -323,7 +323,7 @@ input[type="date"]::-webkit-datetime-edit-text {
   border-radius: 4px;
   font-size: 13px;
 }
-
+ 
 .module-select:disabled {
   background-color: white;
   cursor: not-allowed;
@@ -332,7 +332,7 @@ input[type="date"]::-webkit-datetime-edit-text {
   color: black;
   /* Darker text color */
 }
-
+ 
 .module-select:focus,
 .users-input:focus,
 .date-input:focus {
@@ -340,17 +340,17 @@ input[type="date"]::-webkit-datetime-edit-text {
   border-color: #17a2b8;
   box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
 }
-
+ 
 .users-input {
   max-width: 80px;
 }
-
+ 
 .action-buttons {
   display: flex;
   gap: 8px;
-
+ 
 }
-
+ 
 .btn-add,
 .btn-remove {
   width: 25px;
@@ -365,77 +365,77 @@ input[type="date"]::-webkit-datetime-edit-text {
   font-size: 15px;
   transition: background-color 0.3s ease;
 }
-
+ 
 .btn-add {
   background-color: #28a745;
   color: white;
 }
-
+ 
 .btn-remove {
   background-color: #dc3545;
   color: white;
 }
-
+ 
 .btn-remove:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
 }
-
+ 
 .btn-add:hover {
   background-color: #218838;
 }
-
+ 
 .btn-remove:hover:not(:disabled) {
   background-color: #c82333;
 }
-
+ 
 .no-data-row {
   background-color: #f8f9fa;
 }
-
+ 
 .no-data {
   text-align: center;
   color: #6c757d;
   font-style: italic;
   padding: 20px !important;
 }
-
+ 
 /* Responsive Design */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
     gap: 15px;
   }
-
+ 
   .header-actions {
     align-self: stretch;
   }
-
+ 
   .header-form {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-
+ 
   .toggle-group {
     justify-self: start;
   }
-
+ 
   .section-title {
     /* font-size: 12px !important; */
     flex-direction: column;
     gap: 5px;
     align-items: flex-start;
   }
-
+ 
   .details-table {
     font-size: 12px;
   }
-
+ 
   .details-table .table-header th,
   .details-table .table-row td {
     padding: 8px;
   }
-
+ 
   .module-select,
   .users-input,
   .date-input {
@@ -443,19 +443,19 @@ input[type="date"]::-webkit-datetime-edit-text {
     padding: 4px 8px;
   }
 }
-
+ 
 @media (max-width: 800px) {
   .license-detail-container {
     padding: 10px;
   }
-
+ 
   .details-table {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
 }
-
+ 
 table {
   border-collapse: collapse;
   /* clean, no double borders */

@@ -26,6 +26,7 @@ import { LoadingService } from './services/loading.service';
 import { IntroComponent } from './intro/intro.componenet';
 import { BuildListComponent } from './build-list/build-list.component';
 import { BuildUploadComponent } from './build-upload/build-upload.component';
+import { BuildInfoComponent } from './build-info/build-info.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -53,6 +54,11 @@ const routes: Routes = [
   {
     path: 'build-list',
     component: BuildListComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'build/info/:id',
+    component: BuildInfoComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -85,7 +91,8 @@ const routes: Routes = [
     IntroComponent,
     LoaderComponent,
     BuildListComponent,
-    BuildUploadComponent
+    BuildUploadComponent,
+    BuildInfoComponent
   ],
   imports: [
     BrowserModule,

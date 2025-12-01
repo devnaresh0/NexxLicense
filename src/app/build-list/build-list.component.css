@@ -1,0 +1,157 @@
+/* HEADER WRAPPER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+/* TITLE + SUBTITLE */
+.title-section h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 12px;
+}
+
+/* ACTION BUTTON WRAPPER */
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* GENERIC BUTTON STYLE */
+.btn-action {
+  padding: 4px 10px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+/* LOGOUT BUTTON */
+.btn-logout {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btn-logout:hover {
+  background-color: #c82333;
+}
+
+/* NEW BUTTON */
+.btn-list {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-list:hover {
+  background-color: #218838;
+}
+
+.list-container {
+  padding: 10px;
+  background-color: #f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+/* Page Title */
+h2 {
+  margin-top: 0;
+  color: #17a2b8;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Loading & No Data Box */
+.loading-box,
+.no-data-box {
+  background-color: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid #17a2b8;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table-wrapper {
+  margin-top: 12px;
+}
+
+/* TABLE */
+.session-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Table Header */
+.session-table thead th {
+  background-color: #17a2b8;
+  color: white;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #138496;
+  font-weight: 600;
+}
+
+/* Table Cells */
+.session-table td {
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  color: #333;
+}
+
+/* Zebra */
+.session-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+/* Hover */
+.session-table tbody tr:hover {
+  background-color: #f1f9fa;
+}
+
+/* VIEW Button */
+.btn-view {
+  background-color: #17a2b8;
+  color: white;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pagination-wrapper{
+  margin-top: 10px;
+}
+
+.page-info{
+  font-size: 12px;
+}
+
+.page-btn{
+  font-size: 11px;
+  background-color: #9edee8;
+}
+.btn-view:hover {
+  background-color: #138496;
+}
+
+/* Make table scrollable if needed */
+.table-wrapper {
+  overflow-x: auto;
+}

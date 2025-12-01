@@ -1,0 +1,93 @@
+<div class="header">
+  <div class="title-section">
+    <h2>Build Sessions Info</h2>
+    <p class="subtitle">Allows to Issue/View Build Sessions</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
+    <button class="btn-action btn-list" (click)="navigateTo('/build-list')">
+      List
+    </button>
+  </div>
+</div>
+
+<div class="container" *ngIf="loading">
+  <p>Loading...</p>
+</div>
+
+<div class="container" *ngIf="!loading && !data">
+  <p>No data found.</p>
+</div>
+
+<div class="container" *ngIf="!loading && data">
+  <!-- ------------------------ -->
+  <!-- Build Session Header -->
+  <!-- ------------------------ -->
+  <h3>Build Session #{{ data.id }}</h3>
+
+  <div class="info-box">
+    <p><strong>Uploaded By:</strong> {{ data.uploadedBy }}</p>
+    <p>
+      <strong>Uploaded At:</strong>
+      {{ data.uploadedAt | date : "dd MMM yyyy, HH:mm" }}
+    </p>
+    <p><strong>Start Date:</strong> {{ data.startDate }}</p>
+    <p><strong>End Date:</strong> {{ data.endDate }}</p>
+  </div>
+
+  <!-- ------------------------ -->
+  <!-- Files Table -->
+  <!-- ------------------------ -->
+  <h3>Files in this Build</h3>
+
+  <table border="1" width="100%" cellpadding="8">
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>App Type</th>
+      <th>Size</th>
+      <th>Version</th>
+    </tr>
+
+    <tr *ngFor="let f of data.files">
+      <td>{{ f.id }}</td>
+      <td>{{ f.fileName }}</td>
+      <td>{{ f.appType }}</td>
+      <td>{{ f.fileSize | number }}</td>
+      <td>{{ f.version }}</td>
+    </tr>
+  </table>
+
+  <!-- ------------------------ -->
+  <!-- Customer Table -->
+  <!-- ------------------------ -->
+  <h3>Assigned Customers & Status</h3>
+
+  <table border="1" width="100%" cellpadding="8">
+    <tr>
+      <th>Customer Name</th>
+      <th>Domain</th>
+      <th>File</th>
+      <th>Status</th>
+      <th>Downloaded At</th>
+      <th>Executed At</th>
+    </tr>
+
+    <ng-container *ngFor="let c of data.customers">
+      <tr *ngFor="let st of c.fileStatuses">
+        <td>{{ c.customerName }}</td>
+        <td>{{ c.domain }}</td>
+        <td>{{ getFileName(st.fileId) }}</td>
+        <td>{{ st.status }}</td>
+        <td>
+          {{
+            st.downloadedAt ? (st.downloadedAt | date : "dd MMM, HH:mm") : "-"
+          }}
+        </td>
+        <td>
+          {{ st.executedAt ? (st.executedAt | date : "dd MMM, HH:mm") : "-" }}
+        </td>
+      </tr>
+    </ng-container>
+  </table>
+</div>

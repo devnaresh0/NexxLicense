@@ -3,6 +3,8 @@ import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { LicenseService } from '../services/license.service';
 import { apiUrl } from 'src/environments/global';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { LogoutService } from '../services/logout.service';
 export interface License {
   id: string;
   serialNumber: number;
@@ -13,7 +15,8 @@ export interface License {
 
 @Component({
   selector: 'app-build-upload',
-  templateUrl: './build-upload.component.html'
+  templateUrl: './build-upload.component.html',
+  styleUrls: ['./build-upload.component.css']
 }
 )
 export class BuildUploadComponent implements OnInit {
@@ -24,11 +27,14 @@ export class BuildUploadComponent implements OnInit {
   licenses: License[] = [];
   selectedLicenseIds: number[] = [];
   loadingLicenses = false;
+  customerOption: string = 'all'; // 'all' or 'select'
 
   constructor(
     private fb: FormBuilder,
     private licenseService: LicenseService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router,
+    private logoutService: LogoutService
   ) { }
 
   ngOnInit() {
@@ -87,11 +93,18 @@ export class BuildUploadComponent implements OnInit {
   }
 
   // toggle selection of customers
-  toggleLicenseSelection(licenseId: number, event: any) {
+  toggleLicenseSelection(licenseId: string, event: any) {
     if (event.target.checked) {
-      this.selectedLicenseIds.push(licenseId);
+      this.selectedLicenseIds.push(Number(licenseId));
     } else {
-      this.selectedLicenseIds = this.selectedLicenseIds.filter(id => id !== licenseId);
+      this.selectedLicenseIds = this.selectedLicenseIds.filter(id => id !== Number(licenseId));
+    }
+  }
+
+  onCustomerOptionChange(option: string) {
+    this.customerOption = option;
+    if (option === 'all') {
+      this.selectedLicenseIds = []; // Clear selection when "all" is chosen
     }
   }
 
@@ -111,9 +124,17 @@ export class BuildUploadComponent implements OnInit {
     });
 
     // append selected customers
-    this.selectedLicenseIds.forEach((id, i) => {
-      formData.append(`licenseIds[${i}]`, String(id));
-    });
+    if (this.customerOption === 'all') {
+      // Send all license IDs when "Send to All Customers" is selected
+      this.licenses.forEach((license, i) => {
+        formData.append(`licenseIds[${i}]`, String(license.id));
+      });
+    } else {
+      // Send only selected license IDs when "Select Specific Customers" is selected
+      this.selectedLicenseIds.forEach((id, i) => {
+        formData.append(`licenseIds[${i}]`, String(id));
+      });
+    }
 
     // append uploaded by from localStorage
     const uploadedBy = localStorage.getItem('username');
@@ -131,5 +152,18 @@ export class BuildUploadComponent implements OnInit {
         alert("Error uploading builds");
       }
     });
+  }
+  navigateTo(url: string) {
+    this.router.navigate([url]);
+  }
+
+  async onLogout() {
+    const confirmed = await this.logoutService.showConfirmation();
+    if (confirmed) {
+      console.log('logout click');
+      localStorage.removeItem('adminId');
+      localStorage.removeItem('username');
+      this.router.navigate(['/login']);
+    }
   }
 }

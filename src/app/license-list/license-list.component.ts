@@ -3,9 +3,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LicenseService } from '../services/license.service';
 import { LogoutService } from '../services/logout.service';
+import { HttpClient } from '@angular/common/http';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LicenseState } from '../state/license.state';
+import { apiUrl } from 'src/environments/global';
 
 export interface License {
   id: string;
@@ -35,12 +37,14 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   totalPages: number = 1;
   sortOrder: 'asc' = 'asc';
   sortBy: string = 'search';
+  showDownloadButton: boolean = true; // Added download button visibility property
 
   constructor(
     private router: Router,
     private licenseService: LicenseService,
     private licenseState: LicenseState,
-    private logoutService: LogoutService
+    private logoutService: LogoutService,
+    private http: HttpClient
   ) { }
 
   ngOnInit() {
@@ -57,6 +61,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
       });
 
     this.loadLicenses();
+    this.checkUpdate();
   }
 
   ngOnDestroy() {
@@ -124,7 +129,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     }
 
     // Apply sorting with current sort order
-    filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
+    // filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
 
     this.filteredLicenses = filtered;
     this.calculateTotalPages();
@@ -162,28 +167,28 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     this.updateState();
   }
 
-  //Sort licenses based on selected field
-  private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
-    if (sortBy === 'search') {
-      return [...licenses];
-    }
-    return [...licenses].sort((a, b) => {
-      let valueA = a[sortBy as keyof License];
-      let valueB = b[sortBy as keyof License];
+  // //Sort licenses based on selected field
+  // private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
+  //   if (sortBy === 'search') {
+  //     return [...licenses];
+  //   }
+  //   return [...licenses].sort((a, b) => {
+  //     let valueA = a[sortBy as keyof License];
+  //     let valueB = b[sortBy as keyof License];
 
-      // Convert to string for case-insensitive comparison
-      const strA = String(valueA).toLowerCase();
-      const strB = String(valueB).toLowerCase();
+  //     // Convert to string for case-insensitive comparison
+  //     const strA = String(valueA).toLowerCase();
+  //     const strB = String(valueB).toLowerCase();
 
-      if (strA < strB) {
-        return direction === 'asc' ? -1 : 1;
-      }
-      if (strA > strB) {
-        return direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }
+  //     if (strA < strB) {
+  //       return direction === 'asc' ? -1 : 1;
+  //     }
+  //     if (strA > strB) {
+  //       return direction === 'asc' ? 1 : -1;
+  //     }
+  //     return 0;
+  //   });
+  // }
 
   //Go to specific page
   goToPage(page: number | string) {
@@ -224,17 +229,14 @@ export class LicenseListComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']);
     }
   }
+  
+  navigateTo(url: string) {
+    this.router.navigate([url]);
+  }
 
   onDownload() {
     console.log('Download button clicked');
-    this.licenseService.downloadBuild().subscribe({
-      next: (response) => {
-        console.log('Download started', response);
-      },
-      error: (error) => {
-        console.error('Download failed:', error);
-      }
-    });
+    alert("Update Started")
   }
 
   getPageNumbers(): (number | string)[] {
@@ -271,5 +273,29 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     }
 
     return pages;
+  }
+
+  // Check for updates and control download button visibility
+  checkUpdate() {
+    // Get parameters from localStorage
+    const serialNumber = localStorage.getItem('serialNumber') || '1234';
+    const domain = localStorage.getItem('domain') || 'harsh';
+    const appType = localStorage.getItem('appType') || 'backend';
+    const currentVersion = localStorage.getItem('currentVersion') || '0';
+
+    // Build the URL with parameters
+    const url = `${apiUrl}/client/check-update?serialNumber=${serialNumber}&domain=${domain}&appType=${appType}&currentVersion=${currentVersion}`;
+
+    // this.http.get(url).subscribe({
+    //   next: (response: any) => {
+    //     // Show download button only if response status is true
+    //     this.showDownloadButton = response.status === true;
+    //     console.log('Check update response:', response);
+    //   },
+    //   error: (error) => {
+    //     console.error('Check update failed:', error);
+    //     this.showDownloadButton = false; // Hide button on error
+    //   }
+    // });
   }
 }
