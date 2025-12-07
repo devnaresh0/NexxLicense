@@ -12,9 +12,8 @@ import { Observable, throwError } from 'rxjs';
 import { tap, finalize, catchError } from 'rxjs/operators';
 import { LoadingService } from '../../services/loading.service';
 
-/**
- * HTTP interceptor that shows a loading indicator during HTTP requests
- */
+// HTTP interceptor that shows a loading indicator during HTTP requests
+
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
   private totalRequests = 0;
@@ -23,7 +22,7 @@ export class LoadingInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Skip loader for specific requests if needed
-    if (request.url.includes('some-special-endpoint')) {
+    if (request.url.includes('/api/send-builds')) {
       return next.handle(request);
     }
     

@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { LicenseService } from '../services/license.service';
 import { apiUrl } from 'src/environments/global';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LogoutService } from '../services/logout.service';
+import { ErrorService } from "../services/error.service";
+
 export interface License {
   id: string;
   serialNumber: number;
@@ -34,7 +36,8 @@ export class BuildUploadComponent implements OnInit {
     private licenseService: LicenseService,
     private http: HttpClient,
     private router: Router,
-    private logoutService: LogoutService
+    private logoutService: LogoutService,
+    private errorService: ErrorService
   ) { }
 
   ngOnInit() {
@@ -110,6 +113,35 @@ export class BuildUploadComponent implements OnInit {
 
   // submit final payload
   submit() {
+    // Mark all form controls as touched to trigger validation messages
+    this.markFormGroupTouched(this.form);
+
+    // Check if form is invalid
+    if (this.form.invalid) {
+      this.errorService.showError('Please fill in all required fields', 'error');
+      return;
+    }
+
+    // Validate customer selection
+    if (this.customerOption === 'select' && this.selectedLicenseIds.length === 0) {
+      this.errorService.showError('Please select at least one customer', 'error');
+      return;
+    }
+
+    // Validate dates
+    const invalidDates = this.builds.controls.some(group => {
+      const startDateControl = group.get('start_date');
+      const endDateControl = group.get('end_date');
+      const startDate = startDateControl ? new Date(startDateControl.value) : null;
+      const endDate = endDateControl ? new Date(endDateControl.value) : null;
+      return endDate < startDate;
+    });
+
+    if (invalidDates) {
+      this.errorService.showError('End date cannot be before start date', 'error');
+      return;
+    }
+
     const formData = new FormData();
 
     // append builds
@@ -142,17 +174,42 @@ export class BuildUploadComponent implements OnInit {
       formData.append('uploadedBy', uploadedBy);
     }
 
-    this.http.post(apiUrl + '/api/send-builds', formData).subscribe({
-      next: (res) => {
-        console.log("Upload success:", res);
-        alert("Builds uploaded successfully!");
+    // Make the HTTP request with progress tracking
+    this.http.post(apiUrl + '/api/send-builds', formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).subscribe({
+      next: (event: any) => {
+        if (event.type === HttpEventType.UploadProgress) {
+          // Calculate and update progress
+          const progress = Math.round(100 * event.loaded / (event.total || 1));
+          this.errorService.showError(`Uploading... ${progress}% complete`, 'info');
+          this.router.navigate(['/build-list']);
+        } else if (event.type === HttpEventType.Response) {
+          // Show success message
+          this.errorService.showError('Builds uploaded successfully!', 'success');
+          console.log("Upload success:", event.body);
+        }
       },
       error: (err) => {
         console.error("Upload failed:", err);
-        alert("Error uploading builds");
+        const errorMessage = (err && err.error && err.error.message) ? err.error.message : 'Unknown error';
+        this.errorService.showError(`Error uploading builds: ${errorMessage}`, 'error');
       }
     });
   }
+  // helper method to mark all form controls as touched
+  private markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.controls[key];
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      } else {
+        control.markAsTouched();
+      }
+    });
+  }
+
   navigateTo(url: string) {
     this.router.navigate([url]);
   }
