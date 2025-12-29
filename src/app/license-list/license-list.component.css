@@ -16,7 +16,7 @@
 .title-section h2 {
   margin: 0;
   font-size: 20px;
-  color: #333;
+  color: black;
   font-weight: 500;
 }
 
@@ -38,6 +38,67 @@
 
 .btn-logout:hover {
   background-color: #c82333;
+}
+
+/* Confirmation Dialog Styles */
+.confirmation-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-content h3 {
+  margin-top: 0;
+  color: black;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-confirm {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-confirm:hover {
+  background-color: #c82333;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel:hover {
+  background-color: #5a6268;
 }
 
 .btn-new {
@@ -100,7 +161,7 @@
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
-  color: #333;
+  color: black;
 }
 
 .search-input-group {
@@ -186,12 +247,12 @@
 
 .table-row td {
   padding: 6px;
-  color: #333;
+  color: black;
   font-size: 13px;
 }
 
 .status-badge {
-  color: #333;
+  color: black;
   font-weight: 500;
 }
 

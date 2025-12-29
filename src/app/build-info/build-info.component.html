@@ -4,7 +4,10 @@
     <p class="subtitle">Allows to Issue/View Build Sessions</p>
   </div>
   <div class="header-actions">
-    <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
+    <button class="btn-action btn-logout">Logout</button>
+    <button class="btn-action btn-audit" (click)="exportCsv()">
+      Export CSV
+    </button>
     <button class="btn-action btn-list" (click)="navigateTo('/build-list')">
       List
     </button>
@@ -71,7 +74,21 @@
       <th>Status</th>
       <th>Downloaded At</th>
       <th>Executed At</th>
+      <th>Logs</th>
     </tr>
+
+    <!-- Add this right before the table -->
+    <div class="log-viewer" *ngIf="selectedLog !== null" (click)="closeLogs()">
+      <div class="log-content" (click)="$event.stopPropagation()">
+        <div class="log-header">
+          <h3>Update Logs</h3>
+          <button class="close-btn" (click)="closeLogs()">&times;</button>
+        </div>
+        <div class="log-body">
+          <pre>{{ selectedLog || "No logs available" }}</pre>
+        </div>
+      </div>
+    </div>
 
     <ng-container *ngFor="let c of data.customers">
       <tr *ngFor="let st of c.fileStatuses">
@@ -87,6 +104,14 @@
         <td>
           {{ st.executedAt ? (st.executedAt | date : "dd MMM, HH:mm") : "-" }}
         </td>
+        <button
+          class="log-btn"
+          (click)="showLogs(st.updateLog); $event.stopPropagation()"
+          [disabled]="!st.updateLog"
+          [class.disabled]="!st.updateLog"
+        >
+          Log
+        </button>
       </tr>
     </ng-container>
   </table>

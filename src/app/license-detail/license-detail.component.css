@@ -15,7 +15,7 @@
 .title-section h2 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  color: black;
   font-weight: 500;
 }
  
@@ -162,7 +162,7 @@
 .form-group label {
   margin-bottom: 3px;
   font-weight: 500;
-  color: #333;
+  color: black;
   font-size: 13px;
 }
  
@@ -236,7 +236,7 @@ input[type="date"]::-webkit-datetime-edit-text {
   align-items: center;
   cursor: pointer;
   font-weight: 500;
-  color: #333;
+  color: black;
 }
  
 .toggle-input {
@@ -310,7 +310,7 @@ input[type="date"]::-webkit-datetime-edit-text {
  
 .details-table .table-row td {
   padding: 5px 0px 15px 0px;
-  color: #333;
+  color: black;
   font-size: 13px;
 }
  

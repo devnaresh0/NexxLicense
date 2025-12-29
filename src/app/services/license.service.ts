@@ -45,8 +45,6 @@ export interface ModuleResponse {
 })
 export class LicenseService {
 
-  private apiUrl = 'http://localhost:9090/api';
-
   private httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
@@ -61,17 +59,13 @@ export class LicenseService {
   // Get all licenses
   getLicenses(): Observable<License[]> {
     return this.http.get<any[]>(`${apiUrl}/licenses`).pipe(
-      map(response => {
-        // Transform the nested response into a flat array
-        return response.map(item => ({
-          id: item.header.id,
-          serialNumber: item.header.serialNumber,
-          domain: item.header.domain,
-          customerName: item.header.customerName,
-          active: item.header.active
-        }));
-      }),
       catchError(this.handleError<License[]>('getLicenses', []))
+    );
+  }
+
+  getLicensesWithVersion() {
+    return this.http.get<any[]>(`${apiUrl}/licenses/license-version`).pipe(
+      catchError(this.handleError<any[]>('getLicensesWithVersion', []))
     );
   }
 
@@ -118,15 +112,16 @@ export class LicenseService {
         catchError(this.handleError<any>('updateLicense'))
       );
   }
+
   downloadBuild() {
     return this.http.get<any>(`${apiUrl}/licenses/download`).pipe(
       tap(response => {
         // Show the server's response message
-        const message = response.message || 
-          (response.status === 'success' 
+        const message = response.message ||
+          (response.status === 'success'
             ? `File has been copied to: ${response.destination}`
             : 'Download completed with unknown status');
-            
+
         this.errorService.showError(
           response.status === 'success' ? `${response.message}` : 'Download Status',
           message
@@ -134,10 +129,10 @@ export class LicenseService {
       }),
       catchError(error => {
         // Handle error and show error message
-        const errorMessage = (error && error.error && error.error.message) 
-          ? error.error.message 
+        const errorMessage = (error && error.error && error.error.message)
+          ? error.error.message
           : 'Failed to start download';
-          
+
         this.errorService.showError(
           'Download Failed',
           errorMessage
@@ -277,7 +272,7 @@ export class LicenseService {
         this.errorService.showError(errorMessage, 'error');
 
         // Let the app keep running by returning an empty result
-        return of(result as T);
+        return throwError(error);
       };
     }
   }

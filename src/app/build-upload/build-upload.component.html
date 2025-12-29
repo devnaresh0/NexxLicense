@@ -11,13 +11,9 @@
   </div>
 </div>
 <div class="container">
-  <form [formGroup]="form" (ngSubmit)="submit()">
+  <form class="" [formGroup]="form" (ngSubmit)="submit()">
     <div formArrayName="builds">
-      <div
-        class="build-row"
-        *ngFor="let b of builds.controls; let i = index"
-        [formGroupName]="i"
-      >
+      <div class="build-row upload-form" *ngFor="let b of builds.controls; let i = index" [formGroupName]="i">
         <div class="form-field">
           <label>Version</label>
           <input type="text" formControlName="version" />
@@ -49,12 +45,7 @@
           <input type="file" (change)="onFileChange($event, i)" />
         </div>
 
-        <button
-          type="button"
-          class="btn-remove"
-          *ngIf="builds.length > 1"
-          (click)="removeBuild(i)"
-        >
+        <button type="button" class="btn-remove" *ngIf="builds.length > 1" (click)="removeBuild(i)">
           ✕
         </button>
       </div>
@@ -73,43 +64,51 @@
 
   <div class="customer-selection">
     <label class="radio-option">
-      <input type="radio" name="customerOption" value="all" (change)="onCustomerOptionChange('all')" [checked]="customerOption === 'all'">
+      <input type="radio" name="customerOption" value="all" (change)="onCustomerOptionChange('all')"
+        [checked]="customerOption === 'all'">
       Send to All Customers
     </label>
     <label class="radio-option">
-      <input type="radio" name="customerOption" value="select" (change)="onCustomerOptionChange('select')" [checked]="customerOption === 'select'">
+      <input type="radio" name="customerOption" value="select" (change)="onCustomerOptionChange('select')"
+        [checked]="customerOption === 'select'">
       Select Specific Customers
     </label>
   </div>
 
-  <div *ngIf="loadingLicenses">Loading customers...</div>
+  <div *ngIf="loadingLicenses">Loading licenses...</div>
 
-  <table class="customer-table" *ngIf="!loadingLicenses && licenses.length > 0 && customerOption === 'select'">
+  <!-- show table only when selecting specific customers -->
+  <table class="customer-table" *ngIf="!loadingLicenses && groupedLicenses.length && customerOption === 'select'">
     <thead>
       <tr>
         <th>Select</th>
-        <th>Customer</th>
         <th>Domain</th>
-        <th>Serial No</th>
+        <th>Customer Name</th>
+        <th>App Type</th>
+        <th>Current Version</th>
       </tr>
     </thead>
-
     <tbody>
-      <tr *ngFor="let lic of licenses">
+      <tr *ngFor="let license of groupedLicenses">
         <td>
-          <input
-            type="checkbox"
-            (change)="toggleLicenseSelection(lic.id, $event)"
-          />
+          <input type="checkbox" [checked]="selectedLicenseIds.includes(license.id)"
+            (change)="toggleLicenseSelection(license.id, $event)" />
         </td>
-        <td>{{ lic.customerName }}</td>
-        <td>{{ lic.domain }}</td>
-        <td>{{ lic.serialNumber }}</td>
+        <td>{{ license.domain }}</td>
+        <td>{{ license.customerName }}</td>
+        <td>
+          <div *ngFor="let app of license.apps; let idx = index">
+            {{ app.appType || '-' }}
+          </div>
+        </td>
+        <td>
+          <div *ngFor="let app of license.apps; let idx = index">
+            {{ app.currentVersion || '-' }}
+          </div>
+        </td>
       </tr>
     </tbody>
   </table>
 
-  <div *ngIf="!loadingLicenses && licenses.length === 0">
-    No customers found.
-  </div>
+  <div *ngIf="!loadingLicenses && customerOption === 'select' && !groupedLicenses.length">No licenses found.</div>
 </div>

@@ -7,7 +7,13 @@
     </div>
     <div class="header-action">
       <button class="btn-new" (click)="navigateTo('/intro')">Home</button>
-      <button class="btn-logout" (click)="onDownload()">Download</button>
+      <button
+        *ngIf="showDownloadButton"
+        class="btn-logout"
+        (click)="downloadUpdate()"
+      >
+        Restart
+      </button>
       <button class="btn-logout" (click)="onLogout()">Logout</button>
       <button class="btn-new" (click)="createNewLicense()">New</button>
     </div>
@@ -118,5 +124,17 @@
       </button>
     </div>
     <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
+  </div>
+  
+  <!-- Confirmation Dialog -->
+  <div class="confirmation-dialog" *ngIf="showConfirmation">
+    <div class="dialog-content">
+      <h3>Confirm Restart ?</h3>
+      <p>The Tomcat will be stopped for Restart And work will pause!</p>
+      <div class="dialog-buttons">
+        <button class="btn-cancel" (click)="cancelRestart()">Cancel</button>
+        <button class="btn-confirm" (click)="confirmRestart()">Confirm</button>
+      </div>
+    </div>
   </div>
 </div>

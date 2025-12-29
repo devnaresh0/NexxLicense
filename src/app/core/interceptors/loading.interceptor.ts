@@ -52,7 +52,7 @@ export class LoadingInterceptor implements HttpInterceptor {
       // Re-throw the error after handling
       catchError((error: HttpErrorResponse) => {
         console.error('Error in request:', error);
-        return throwError(() => error);
+        return throwError(error);
       })
     );
   }

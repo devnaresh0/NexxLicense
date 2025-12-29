@@ -1,7 +1,7 @@
 // license-detail.component.ts
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { Subject, throwError } from 'rxjs';
-import { takeUntil, switchMap } from 'rxjs/operators';
+import { takeUntil, switchMap, finalize } from 'rxjs/operators';
 import { ActivatedRoute, Router } from "@angular/router";
 import { LicenseService, ModuleResponse } from "../services/license.service";
 import { LogoutService } from "../services/logout.service";
@@ -130,14 +130,14 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         next: (data: any) => {
           console.log('License data loaded:', data);
           this.licenseHeader = { ...data.header };
-          
+
           // Map the modules to ensure we have the correct module names
           this.licenseModules = (data.modules || []).map((module: any) => {
             // Find the full module details from availableModules
-            const moduleDetails = this.availableModules.find(m => 
+            const moduleDetails = this.availableModules.find(m =>
               (m as any).id === module.moduleId || m.moduleName === module.module
             );
-            
+
             return {
               ...module,
               module: (moduleDetails && moduleDetails.moduleName) || module.module || '',
@@ -148,11 +148,11 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
               endDate: module.endDate || this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
             };
           });
-          
+
           this.originalLicenseData = JSON.parse(JSON.stringify(data));
           this.prevHeader = { ...this.licenseHeader };
           this.prevModules = this.licenseModules.map(m => ({ ...m }));
-          
+
           // Force change detection to update the view
           this.cdr.detectChanges();
         },
@@ -186,40 +186,44 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
+
+    if (this.isSaving) return;   // hard guard
+    this.isSaving = true;
+
     // Convert empty string to null for serialNumber
     const header = {
       ...this.licenseHeader,
       serialNumber: this.licenseHeader.serialNumber === '' ? null : this.licenseHeader.serialNumber
     };
 
-  // Create a map of module names to their IDs for quick lookup
-  const moduleNameToIdMap = new Map<string, number>();
-  this.availableModules.forEach(module => {
-    moduleNameToIdMap.set(module.moduleName, module.id);
-  });
+    // Create a map of module names to their IDs for quick lookup
+    const moduleNameToIdMap = new Map<string, number>();
+    this.availableModules.forEach(module => {
+      moduleNameToIdMap.set(module.moduleName, module.id);
+    });
 
-  // Map the license modules to include moduleId
-  const modulesWithIds = this.licenseModules.map(module => {
-    const moduleId = moduleNameToIdMap.get(module.module) || 0;
-    return {
-      ...module,
-      moduleId: moduleId,
-      moduleName: module.module
+    // Map the license modules to include moduleId
+    const modulesWithIds = this.licenseModules.map(module => {
+      const moduleId = moduleNameToIdMap.get(module.module) || 0;
+      return {
+        ...module,
+        moduleId: moduleId,
+        moduleName: module.module
+      };
+    });
+
+    // Create the base license data
+    const baseLicenseData = {
+      header: {
+        ...header,
+        id: this.licenseId,
+      },
+      modules: modulesWithIds,
     };
-  });
-
-  // Create the base license data
-  const baseLicenseData = {
-    header: {
-      ...header,
-      id: this.licenseId,
-    },
-    modules: modulesWithIds,
-  };
 
     // Get adminId from localStorage or use a default value
     const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
-    
+
     // Create the final payload with additional fields
     const licenseData = {
       adminId: adminId,
@@ -239,19 +243,20 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       const errorMessage = validation.errors.join('\n');
       this.errorService.showError(errorMessage, 'error');
       return;
-      }
+    }
 
-  console.log('Saving license data:', licenseData);
+    console.log('Saving license data:', licenseData);
 
-    this.licenseService.saveLicense(licenseData).subscribe({
-      next: (response) => {
-        const message = response.message || 'License saved successfully';
-        this.router.navigate(['/licenses']);
-      },
-      error: (error) => {
-        console.error("Error saving license:", error);
-      }
-    });
+    this.licenseService.saveLicense(licenseData)
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        })
+      )
+      .subscribe({
+        next: () => this.router.navigate(['/licenses']),
+        error: err => console.error(err)
+      });
   }
 
   addModule() {

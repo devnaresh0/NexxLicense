@@ -8,6 +8,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { LicenseState } from '../state/license.state';
 import { apiUrl } from 'src/environments/global';
+import { ErrorService } from '../services/error.service';
 
 export interface License {
   id: string;
@@ -38,13 +39,15 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   sortOrder: 'asc' = 'asc';
   sortBy: string = 'search';
   showDownloadButton: boolean = true; // Added download button visibility property
+  showConfirmation: boolean = false; // Controls confirmation dialog visibility
 
   constructor(
     private router: Router,
     private licenseService: LicenseService,
     private licenseState: LicenseState,
     private logoutService: LogoutService,
-    private http: HttpClient
+    private http: HttpClient,
+    private errorService: ErrorService
   ) { }
 
   ngOnInit() {
@@ -59,6 +62,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
         this.sortBy = state.sortBy;
         this.sortOrder = state.sortOrder;
       });
+
 
     this.loadLicenses();
     this.checkUpdate();
@@ -229,14 +233,30 @@ export class LicenseListComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']);
     }
   }
-  
+
   navigateTo(url: string) {
     this.router.navigate([url]);
   }
 
-  onDownload() {
-    console.log('Download button clicked');
-    alert("Update Started")
+  downloadUpdate() {
+    this.showConfirmation = true;
+  }
+
+  confirmRestart() {
+    this.showConfirmation = false;
+    console.log('Restart confirmed');
+    const username = localStorage.getItem('username');
+    const requestBody = {
+      username: username
+    };
+    this.http.post(`${apiUrl}/api/restart`, requestBody).subscribe({
+      next: () => console.log('Restart triggered'),
+      error: err => console.error('Restart failed', err)
+    });
+  }
+
+  cancelRestart() {
+    this.showConfirmation = false;
   }
 
   getPageNumbers(): (number | string)[] {
@@ -276,6 +296,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   }
 
   // Check for updates and control download button visibility
+  // In license-list.component.ts
   checkUpdate() {
     // Get parameters from localStorage
     const serialNumber = localStorage.getItem('serialNumber') || '1234';
@@ -284,18 +305,43 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     const currentVersion = localStorage.getItem('currentVersion') || '0';
 
     // Build the URL with parameters
-    const url = `${apiUrl}/client/check-update?serialNumber=${serialNumber}&domain=${domain}&appType=${appType}&currentVersion=${currentVersion}`;
+    const url = `${apiUrl}/client/check-update?serialNumber=${encodeURIComponent(serialNumber)}&domain=${encodeURIComponent(domain)}&appType=${encodeURIComponent(appType)}&currentVersion=${encodeURIComponent(currentVersion)}`;
 
-    // this.http.get(url).subscribe({
-    //   next: (response: any) => {
-    //     // Show download button only if response status is true
-    //     this.showDownloadButton = response.status === true;
-    //     console.log('Check update response:', response);
-    //   },
-    //   error: (error) => {
-    //     console.error('Check update failed:', error);
-    //     this.showDownloadButton = false; // Hide button on error
-    //   }
-    // });
+    this.http.get<any>(url).subscribe({
+      next: (response) => {
+        console.log('Check update response:', response);
+
+        // Show download button only if response has update: true
+        this.showDownloadButton = response.update === true;
+
+        // If update is available, trigger the backend download
+        if (response.update === true && response.fileId && response.fileName && response.hash) {
+          // Build the download URL
+          const downloadUrl = `${apiUrl}/onprem/download-file` +
+            `?serialNumber=${encodeURIComponent(serialNumber)}` +
+            `&domain=${encodeURIComponent(domain)}` +
+            `&fileId=${response.fileId}` +
+            `&fileName=${encodeURIComponent(response.fileName)}` +
+            `&hash=${response.hash}`;
+
+          console.log('Triggering backend download:', downloadUrl);
+
+          // Make the request with responseType: 'blob' and don't try to parse the response
+          this.http.get(downloadUrl, { responseType: 'blob' }).subscribe({
+            next: () => {
+              this.errorService.showError('Update downloaded successfully', 'success')
+              console.log('Backend download completed successfully');
+            },
+            error: (err) => {
+              console.error('Backend download failed:', err);
+            }
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Check update failed:', error);
+        this.showDownloadButton = false;
+      }
+    });
   }
 }

@@ -9,7 +9,7 @@
 .title-section h2 {
   margin: 0;
   font-size: 20px;
-  color: #333;
+  color: black;
   font-weight: 500;
 }
 
@@ -34,6 +34,11 @@
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s ease;
+}
+
+.build-row.upload-form {
+  background-color: #17a2b8;
+  color: #fff;
 }
 
 /* LOGOUT BUTTON */
@@ -70,7 +75,7 @@
   background: white;
   margin-bottom: 12px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Each field becomes compact */
@@ -78,12 +83,13 @@
   display: flex;
   flex-direction: column;
   min-width: 150px;
+  color: black; 
 }
 
 .form-field label {
   font-size: 12px;
   margin-bottom: 4px;
-  color: #333;
+  color: black;
   font-weight: 500;
 }
 
@@ -149,7 +155,7 @@ input[type="file"] {
   padding: 10px;
   background: white;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .radio-option {
@@ -169,7 +175,7 @@ input[type="file"] {
   margin-top: 20px;
   font-size: 18px;
   font-weight: 600;
-  color: #333;
+  color: black;
 }
 
 .customer-table {
@@ -181,16 +187,17 @@ input[type="file"] {
   overflow: hidden;
 }
 
-.customer-table th {
+.customer-table thead th {
   background: #17a2b8;
-  color: white;
-  padding: 8px;
+  color: #fff;
+  padding: 10px 12px;
   text-align: left;
   font-size: 13px;
+  font-weight: 600;
 }
 
 .customer-table td {
-  padding: 8px;
+  padding: 10px 12px;
   border-bottom: 1px solid #eee;
   font-size: 13px;
 }

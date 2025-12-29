@@ -9,7 +9,7 @@
 .title-section h2 {
   margin: 0;
   font-size: 20px;
-  color: #333;
+  color: black;
   font-weight: 500;
 }
 
@@ -40,6 +40,17 @@
 .btn-logout {
   background-color: #dc3545;
   color: #fff;
+}
+
+.btn-audit {
+  background-color: #007bff;
+  /* Bootstrap blue */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
 }
 
 .btn-logout:hover {
@@ -91,7 +102,7 @@ h3 {
   padding: 10px 12px;
   border-radius: 6px;
   margin-bottom: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .info-box p {
@@ -109,7 +120,7 @@ table {
   background-color: white;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   /* allow horizontal stretching without wrapping */
   table-layout: fixed;
@@ -130,7 +141,7 @@ th {
 td {
   border: 1px solid #e0e0e0;
   padding: 6px 8px;
-  color: #333;
+  color: black;
   word-wrap: break-word;
 }
 
@@ -176,34 +187,162 @@ hr {
   margin: 20px 0 10px 0;
 }
 
+/* Log Viewer Styles */
+.log-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.log-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.log-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.log-header h3 {
+  margin: 0;
+  color: black;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0 5px;
+}
+
+.close-btn:hover {
+  color: black;
+}
+
+.log-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  background: #f8f9fa;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: black;
+}
+
+/* Log button in table */
+.log-btn {
+  padding: 4px 8px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.log-btn:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.log-btn:disabled,
+.log-btn.disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Make sure the log content is properly formatted */
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 /* --------------------------------------------- */
 /* COLUMN WIDTHS (improves visual layout) */
 /* --------------------------------------------- */
-th:nth-child(1), td:nth-child(1) { width: 10%; }
-th:nth-child(2), td:nth-child(2) { width: 30%; }
-th:nth-child(3), td:nth-child(3) { width: 15%; }
-th:nth-child(4), td:nth-child(4) { width: 15%; }
-th:nth-child(5), td:nth-child(5) { width: 15%; }
-th:nth-child(6), td:nth-child(6) { width: 15%; }
+th:nth-child(1),
+td:nth-child(1) {
+  width: 10%;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  width: 30%;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 15%;
+}
+
+th:nth-child(4),
+td:nth-child(4) {
+  width: 15%;
+}
+
+th:nth-child(5),
+td:nth-child(5) {
+  width: 15%;
+}
+
+th:nth-child(6),
+td:nth-child(6) {
+  width: 15%;
+}
 
 /* for customer table with 6 columns */
 table.customer-table th:nth-child(1),
-table.customer-table td:nth-child(1) { width: 20%; }
+table.customer-table td:nth-child(1) {
+  width: 20%;
+}
 
 table.customer-table th:nth-child(2),
-table.customer-table td:nth-child(2) { width: 18%; }
+table.customer-table td:nth-child(2) {
+  width: 18%;
+}
 
 table.customer-table th:nth-child(3),
-table.customer-table td:nth-child(3) { width: 20%; }
+table.customer-table td:nth-child(3) {
+  width: 20%;
+}
 
 table.customer-table th:nth-child(4),
-table.customer-table td:nth-child(4) { width: 15%; }
+table.customer-table td:nth-child(4) {
+  width: 15%;
+}
 
 table.customer-table th:nth-child(5),
-table.customer-table td:nth-child(5) { width: 14%; }
+table.customer-table td:nth-child(5) {
+  width: 14%;
+}
 
 table.customer-table th:nth-child(6),
-table.customer-table td:nth-child(6) { width: 13%; }
+table.customer-table td:nth-child(6) {
+  width: 13%;
+}
 
 /* --------------------------------------------- */
 /* RESPONSIVE */
@@ -223,7 +362,8 @@ table.customer-table td:nth-child(6) { width: 13%; }
     font-size: 15px;
   }
 
-  td, th {
+  td,
+  th {
     font-size: 12px;
   }
 }

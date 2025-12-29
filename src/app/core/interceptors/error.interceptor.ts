@@ -24,7 +24,7 @@ export class ErrorInterceptor implements HttpInterceptor {
         // Show the error using the error service
         this.errorService.showError(errorMessage, 'error');
 
-        return throwError(() => error);
+        return throwError(error);
       })
     );
   }

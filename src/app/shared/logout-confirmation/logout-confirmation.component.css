@@ -22,7 +22,7 @@
 
 .modal-header h3 {
   margin: 0 0 15px 0;
-  color: #333;
+  color: black;
 }
 
 .modal-body {
@@ -47,7 +47,7 @@
 
 .btn-cancel {
   background-color: #f0f0f0;
-  color: #333;
+  color: black;
 }
 
 .btn-cancel:hover {

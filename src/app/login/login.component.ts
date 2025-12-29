@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../services/Auth.service';
 import { ErrorService } from '../services/error.service';
-import { environment } from '../../environments/environment';
 import { apiUrl } from 'src/environments/global';
 
 @Component({
@@ -20,9 +19,7 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
   currentStep: number = 1;
   username: string = '';
   showUsernameError: boolean = false;
-  showPasswordError: boolean = false;
-  FEversion: string = localStorage.getItem('FEversion') || '1.0.0';
-  BEversion: string = localStorage.getItem('BEversion') || '1.0.0';
+  currentVersion: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,23 +32,28 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
   ngOnInit(): void {
     this.initializeForm();
     this.fetchBackendVersion();
-    localStorage.setItem('FEversion', '1.0.0');
-    // this.checkExistingAuth();
+    localStorage.setItem('currentVersion', this.currentVersion);
+    setTimeout(() => {
+      console.log(this.currentVersion);
+      this.markFileAsExecuted();
+      this.updateLog();
+    }, 1000);
   }
 
   private fetchBackendVersion(): void {
-    this.http.get<{ version: string }>(`${apiUrl}/api/health`)
+    this.http.get<{ currentVersion: string }>(`${apiUrl}/api/health`)
       .subscribe({
         next: (response) => {
-          if (response && response.version) {
-            this.BEversion = response.version;
-            localStorage.setItem('BEversion', this.BEversion);
+          if (response && response.currentVersion) {
+            this.currentVersion = response.currentVersion;
+            console.log(this.currentVersion);
+            localStorage.setItem('currentVersion', this.currentVersion);
           }
         },
         error: (error) => {
           console.error('Failed to fetch backend version:', error);
           // Use default version if API call fails
-          this.BEversion = localStorage.getItem('BEversion') || '1.0.0';
+          this.currentVersion = localStorage.getItem('currentVersion') || '1.0.0';
         }
       });
   }
@@ -64,16 +66,6 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
       }
     });
   }
-
-  // private checkExistingAuth(): void {
-  //   const adminId = localStorage.getItem('adminId');
-  //   const username = localStorage.getItem('username');
-
-  //   if (adminId && username) {
-  //     this.errorService.showError(`Logging in as existing user ${username}`, 'success');
-  //     this.router.navigate(['/licenses']);
-  //   }
-  // }
 
   initializeForm(): void {
     this.loginForm = this.formBuilder.group({
@@ -102,7 +94,6 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
     const passwordControl = this.loginForm.get('password');
 
     if (passwordControl && passwordControl.valid) {
-      this.showPasswordError = false;
 
       this.authService.login(this.username, passwordControl.value).subscribe({
         next: (res) => {
@@ -113,18 +104,15 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
           } else {
             const errorMessage = res.message || 'Invalid Credentials';
             this.errorService.showError(errorMessage, 'error');
-            this.showPasswordError = true;
           }
         },
         error: (err) => {
           const errorMessage = (err.error && err.error.message) || 'An error occurred during login';
           this.errorService.showError(errorMessage, 'error');
-          this.showPasswordError = true;
         }
       });
     } else {
       this.errorService.showError('Please enter a valid password', 'error');
-      this.showPasswordError = true;
     }
   }
 
@@ -152,7 +140,6 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
   goBack(): void {
     this.previousStep = this.currentStep;
     this.currentStep = 1;
-    this.showPasswordError = false;
   }
 
   get isStep1(): boolean {
@@ -161,5 +148,50 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
   get isStep2(): boolean {
     return this.currentStep === 2;
+  }
+
+  private markFileAsExecuted(): void {
+    const request = {
+      serialNumber: localStorage.getItem('serialNumber') || '',
+      domain: localStorage.getItem('domain') || '',
+      appType: localStorage.getItem('appType') || 'NexxLicense',
+      currentVersion: localStorage.getItem('currentVersion') || '1.0.0'
+    };
+    console.log(request);
+
+    if (!request.serialNumber || !request.domain) {
+      console.warn('Missing required parameters for mark-executed API');
+      return;
+    }
+
+    this.http.post(`${apiUrl}/client/mark-executed`, request).subscribe({
+      next: () => {
+        console.log('File marked as executed successfully');
+      },
+      error: (error) => {
+        console.error('Failed to mark file as executed:', error);
+      }
+    });
+  }
+
+  private updateLog(): void {
+    const params = {
+      serialNumber: localStorage.getItem('serialNumber') || '',
+      domain: localStorage.getItem('domain') || '',
+      AppType: localStorage.getItem('appType') || 'NexxLicense',
+      currentVersion: localStorage.getItem('currentVersion') || '1.0.0'
+    };
+    if (!params.serialNumber || !params.domain) {
+      console.warn('Missing required parameters for update log API');
+      return;
+    }
+    this.http.get(`${apiUrl}/onprem/mark-updatelog`, { params }).subscribe({
+      next: () => {
+        console.log('Update log updated successfully');
+      },
+      error: (error) => {
+        console.error('Failed to update log:', error);
+      }
+    });
   }
 }

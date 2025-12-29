@@ -6,14 +6,32 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LogoutService } from '../services/logout.service';
 import { ErrorService } from "../services/error.service";
+import { createSHA256 } from 'hash-wasm';
+import { Subscription } from 'rxjs';
 
 export interface License {
-  id: string;
-  serialNumber: number;
+  id: number;
+  serialNumber: string;
   domain: string;
   customerName: string;
-  active: boolean;
+  apps?: LicenseApp[]; // backend returns an array of apps per license
+  active?: boolean;
+};
+
+interface LicenseApp {
+  appType: string | null;
+  currentVersion: string | null;
+  currentFileName: string | null;
 }
+
+interface GroupedLicense {
+  id: number;
+  serialNumber: string;
+  domain: string;
+  customerName: string;
+  apps: LicenseApp[];
+}
+
 
 @Component({
   selector: 'app-build-upload',
@@ -27,6 +45,7 @@ export class BuildUploadComponent implements OnInit {
 
   // license data
   licenses: License[] = [];
+  groupedLicenses: GroupedLicense[] = [];
   selectedLicenseIds: number[] = [];
   loadingLicenses = false;
   customerOption: string = 'all'; // 'all' or 'select'
@@ -60,7 +79,8 @@ export class BuildUploadComponent implements OnInit {
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],
       app_type: ['', Validators.required],
-      file: [null, Validators.required]
+      file: [null, Validators.required],
+      file_hash: ['', Validators.required]
     });
   }
 
@@ -76,17 +96,31 @@ export class BuildUploadComponent implements OnInit {
 
   // file change
   onFileChange(event: any, index: number) {
-    const file = event.target.files[0];
-    this.builds.at(index).patchValue({ file });
+    const file: File = event.target.files[0];
+    if (!file) {
+      return;
+    }
+    // hash async but do not block UI
+    this.hashFile(file).then(hash => {
+      const group = this.builds.at(index);
+      console.log(hash);
+      group.patchValue({
+        file: file,
+        file_hash: hash
+      });
+    }).catch(err => {
+      this.errorService.showError('Failed to hash file', 'error');
+    });
   }
 
   // fetch customers/licenses
   fetchLicenses() {
     this.loadingLicenses = true;
 
-    this.licenseService.getLicenses().subscribe({
-      next: (data) => {
+    this.licenseService.getLicensesWithVersion().subscribe({
+      next: (data: License[]) => {
         this.licenses = data;
+        this.groupedLicenses = this.groupLicenses(this.licenses);
         this.loadingLicenses = false;
       },
       error: () => {
@@ -94,13 +128,33 @@ export class BuildUploadComponent implements OnInit {
       }
     });
   }
+  private groupLicenses(list: any[]): GroupedLicense[] {
+    // Backend now returns each license with an `apps` array. Normalize and return directly.
+    if (!list || !list.length) {
+      return [];
+    }
+
+    return list.map((l: any) => ({
+      id: l.id,
+      serialNumber: l.serialNumber,
+      domain: l.domain,
+      customerName: l.customerName,
+      apps: (l.apps || []).map((a: any) => ({
+        appType: a.appType || null,
+        currentVersion: a.currentVersion || null,
+        currentFileName: a.currentFileName || null
+      }))
+    }));
+  }
 
   // toggle selection of customers
-  toggleLicenseSelection(licenseId: string, event: any) {
+  toggleLicenseSelection(licenseId: number, event: any) {
     if (event.target.checked) {
-      this.selectedLicenseIds.push(Number(licenseId));
+      if (!this.selectedLicenseIds.includes(licenseId)) {
+        this.selectedLicenseIds.push(licenseId);
+      }
     } else {
-      this.selectedLicenseIds = this.selectedLicenseIds.filter(id => id !== Number(licenseId));
+      this.selectedLicenseIds = this.selectedLicenseIds.filter(id => id !== licenseId);
     }
   }
 
@@ -111,39 +165,38 @@ export class BuildUploadComponent implements OnInit {
     }
   }
 
-  // submit final payload
   submit() {
-    // Mark all form controls as touched to trigger validation messages
     this.markFormGroupTouched(this.form);
 
-    // Check if form is invalid
     if (this.form.invalid) {
       this.errorService.showError('Please fill in all required fields', 'error');
       return;
     }
 
-    // Validate customer selection
-    if (this.customerOption === 'select' && this.selectedLicenseIds.length === 0) {
-      this.errorService.showError('Please select at least one customer', 'error');
-      return;
+    // Ensure hashes exist
+    for (var i = 0; i < this.builds.length; i++) {
+      if (!this.builds.at(i).value.file_hash) {
+        this.errorService.showError('Please wait for file hashing to finish', 'error');
+        return;
+      }
     }
 
-    // Validate dates
-    const invalidDates = this.builds.controls.some(group => {
-      const startDateControl = group.get('start_date');
-      const endDateControl = group.get('end_date');
-      const startDate = startDateControl ? new Date(startDateControl.value) : null;
-      const endDate = endDateControl ? new Date(endDateControl.value) : null;
-      return endDate < startDate;
+    // PRECHECK FIRST
+    this.precheckUpload((ok, msg) => {
+      if (!ok) {
+        this.errorService.showError(msg || 'Upload rejected', 'error');
+        return;
+      }
+
+      // ONLY NOW do actual upload
+      this.performUpload();
     });
+  }
 
-    if (invalidDates) {
-      this.errorService.showError('End date cannot be before start date', 'error');
-      return;
-    }
+  // submit final payload
+  private performUpload() {
 
     const formData = new FormData();
-
     // append builds
     this.builds.controls.forEach((group, i) => {
       const val = group.value;
@@ -152,6 +205,7 @@ export class BuildUploadComponent implements OnInit {
       formData.append(`builds[${i}][start_date]`, val.start_date);
       formData.append(`builds[${i}][end_date]`, val.end_date);
       formData.append(`builds[${i}][app_type]`, val.app_type);
+      formData.append(`builds[${i}][file_hash]`, val.file_hash);
       formData.append(`builds[${i}][file]`, val.file);
     });
 
@@ -183,12 +237,12 @@ export class BuildUploadComponent implements OnInit {
         if (event.type === HttpEventType.UploadProgress) {
           // Calculate and update progress
           const progress = Math.round(100 * event.loaded / (event.total || 1));
-          this.errorService.showError(`Uploading... ${progress}% complete`, 'info');
-          this.router.navigate(['/build-list']);
+          this.errorService.showError(`Uploading... ${progress}%`, 'info');
         } else if (event.type === HttpEventType.Response) {
           // Show success message
           this.errorService.showError('Builds uploaded successfully!', 'success');
           console.log("Upload success:", event.body);
+          this.router.navigate(['/build-list']);
         }
       },
       error: (err) => {
@@ -198,6 +252,7 @@ export class BuildUploadComponent implements OnInit {
       }
     });
   }
+
   // helper method to mark all form controls as touched
   private markFormGroupTouched(formGroup: FormGroup | FormArray) {
     Object.keys(formGroup.controls).forEach(key => {
@@ -223,4 +278,45 @@ export class BuildUploadComponent implements OnInit {
       this.router.navigate(['/login']);
     }
   }
+  private async hashFile(file: File): Promise<string> {
+    const hasher = await createSHA256();
+    const chunkSize = 4 * 1024 * 1024; // 4MB
+    var offset = 0;
+
+    while (offset < file.size) {
+      const slice = file.slice(offset, offset + chunkSize);
+      const buffer = await (slice as any).arrayBuffer();
+      hasher.update(new Uint8Array(buffer));
+      offset += chunkSize;
+    }
+
+    return hasher.digest('hex');
+  }
+
+  private precheckUpload(callback: (ok: boolean, msg?: string) => void): void {
+    var payload = {
+      builds: this.builds.controls.map(b => ({
+        version: b.value.version,
+        appType: b.value.app_type,
+        fileHash: b.value.file_hash
+      })),
+      licenseIds:
+        this.customerOption === 'all'
+          ? this.licenses.map(l => l.id)
+          : this.selectedLicenseIds
+    };
+
+    this.http.post(apiUrl + '/api/precheck-builds', payload)
+      .subscribe(
+        (res: any) => {
+          if (res && res.allowed) {
+            callback(true);
+          } else {
+            callback(false, res.message || 'Precheck failed');
+          }
+        },
+        () => callback(false, 'Precheck request failed')
+      );
+  }
+
 }

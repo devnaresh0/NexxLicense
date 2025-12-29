@@ -56,7 +56,6 @@
           class="form-input"
           placeholder="Enter Password"
           formControlName="password"
-          [class.error]="showPasswordError"
           (keydown.enter)="$event.preventDefault(); onLogin()"
         />
         <div class="input-icon">
@@ -64,16 +63,12 @@
         </div>
       </div>
 
-      <div *ngIf="showPasswordError" class="error-message">
-        This field is problematic
-      </div>
-
       <button type="submit" class="btn-primary">Sign In</button>
     </form>
 
     <!-- Footer -->
     <div class="footer">
-      <div class="copyright">2025 - NexxLicense v{{BEversion}}</div>
+      <div class="copyright">2025 - NexxLicense v{{currentVersion}}</div>
       <div class="description">NexxLicense - License Application</div>
     </div>
   </div>
