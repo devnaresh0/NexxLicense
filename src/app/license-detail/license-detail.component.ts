@@ -222,7 +222,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     };
 
     // Get adminId from localStorage or use a default value
-    const adminId = parseInt(localStorage.getItem('adminId') || '1', 10);
+    const adminId = parseInt(sessionStorage.getItem('adminId') || '1', 10);
 
     // Create the final payload with additional fields
     const licenseData = {
@@ -388,8 +388,8 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   async onLogout() {
     const confirmed = await this.logoutService.showConfirmation();
     if (confirmed) {
-      localStorage.removeItem('adminId');
-      localStorage.removeItem('username');
+      sessionStorage.removeItem('adminId');
+      sessionStorage.removeItem('username');
       this.router.navigate(['/login']);
     }
   }

@@ -24,7 +24,7 @@ export class ErrorService {
     this.errorSubject.next({ message, type });
 
     // Auto-hide after a delay (3 seconds for success/info/warning, 5 seconds for errors)
-    const delay = type === 'error' ? 5000 : 3000;
+    const delay = type === 'error' ? 7000 : 5000;
     this.timeoutId = setTimeout(() => {
       this.clearError();
       this.timeoutId = null;

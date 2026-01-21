@@ -32,9 +32,8 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
   ngOnInit(): void {
     this.initializeForm();
     this.fetchBackendVersion();
-    localStorage.setItem('currentVersion', this.currentVersion);
+    sessionStorage.setItem('currentVersion', this.currentVersion);
     setTimeout(() => {
-      console.log(this.currentVersion);
       this.markFileAsExecuted();
       this.updateLog();
     }, 1000);
@@ -46,8 +45,7 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
         next: (response) => {
           if (response && response.currentVersion) {
             this.currentVersion = response.currentVersion;
-            console.log(this.currentVersion);
-            localStorage.setItem('currentVersion', this.currentVersion);
+            sessionStorage.setItem('currentVersion', this.currentVersion);
           }
         },
         error: (error) => {
@@ -98,8 +96,10 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
       this.authService.login(this.username, passwordControl.value).subscribe({
         next: (res) => {
           if (res.success) {
-            localStorage.setItem('adminId', res.adminId);
-            localStorage.setItem('username', res.username);
+            sessionStorage.setItem('adminId', res.adminId);
+            sessionStorage.setItem('username', res.username);
+            sessionStorage.setItem('token', res.token);
+            sessionStorage.setItem('tokenExpiry', (Date.now() + 24 * 60 * 60 * 1000).toString());
             this.router.navigate(['/intro']);
           } else {
             const errorMessage = res.message || 'Invalid Credentials';

@@ -83,7 +83,7 @@
   display: flex;
   flex-direction: column;
   min-width: 150px;
-  color: black; 
+  color: black;
 }
 
 .form-field label {
@@ -170,6 +170,32 @@ input[type="file"] {
   cursor: pointer;
 }
 
+.table-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.btn-export {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-export[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.table-checkbox input {
+  transform: scale(1.3);
+}
+
 /* ===== CUSTOMER TABLE ===== */
 .customer-section-title {
   margin-top: 20px;
@@ -194,6 +220,12 @@ input[type="file"] {
   text-align: left;
   font-size: 13px;
   font-weight: 600;
+}
+
+.parse-error {
+  color: black;
+  font-size: 12px;
+  margin-top: 6px;
 }
 
 .customer-table td {

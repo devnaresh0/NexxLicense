@@ -27,6 +27,7 @@ import { IntroComponent } from './intro/intro.componenet';
 import { BuildListComponent } from './build-list/build-list.component';
 import { BuildUploadComponent } from './build-upload/build-upload.component';
 import { BuildInfoComponent } from './build-info/build-info.component';
+import { TokenInterceptor } from './core/interceptors/token.interceptor';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -111,12 +112,17 @@ const routes: Routes = [
     LoadingService,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: LoadingInterceptor,
+      useClass: TokenInterceptor,
       multi: true
     },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
       multi: true
     }
   ],

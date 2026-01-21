@@ -14,9 +14,10 @@
   <form class="" [formGroup]="form" (ngSubmit)="submit()">
     <div formArrayName="builds">
       <div class="build-row upload-form" *ngFor="let b of builds.controls; let i = index" [formGroupName]="i">
+
         <div class="form-field">
-          <label>Version</label>
-          <input type="text" formControlName="version" />
+          <label>File</label>
+          <input type="file" (change)="onFileChange($event, i)" />
         </div>
 
         <div class="form-field">
@@ -31,18 +32,12 @@
 
         <div class="form-field">
           <label>Type</label>
-          <select formControlName="app_type">
-            <option value="NexxRetail">NexxRetail</option>
-            <option value="NexxLicense">NexxLicense</option>
-            <option value="Pos">Pos</option>
-            <option value="Massenger">Massenger</option>
-            <option value="ActiveMQ">ActiveMQ</option>
-          </select>
+          <input type="text" formControlName="app_type" readonly />
         </div>
 
         <div class="form-field">
-          <label>File</label>
-          <input type="file" (change)="onFileChange($event, i)" />
+          <label>Version</label>
+          <input type="text" formControlName="version" readonly />
         </div>
 
         <button type="button" class="btn-remove" *ngIf="builds.length > 1" (click)="removeBuild(i)">
@@ -73,6 +68,10 @@
         [checked]="customerOption === 'select'">
       Select Specific Customers
     </label>
+    <button class="btn-export" *ngIf="customerOption === 'select'" (click)="exportCSV()"
+      [disabled]="downloadingCsv || loadingLicenses">
+      {{ downloadingCsv ? 'Downloading...' : 'Export CSV' }}
+    </button>
   </div>
 
   <div *ngIf="loadingLicenses">Loading licenses...</div>
@@ -91,8 +90,11 @@
     <tbody>
       <tr *ngFor="let license of groupedLicenses">
         <td>
-          <input type="checkbox" [checked]="selectedLicenseIds.includes(license.id)"
-            (change)="toggleLicenseSelection(license.id, $event)" />
+          <label class="table-checkbox">
+
+            <input type="checkbox" [checked]="selectedLicenseIds.includes(license.id)"
+              (change)="toggleLicenseSelection(license.id, $event)" />
+          </label>
         </td>
         <td>{{ license.domain }}</td>
         <td>{{ license.customerName }}</td>

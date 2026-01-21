@@ -13,4 +13,12 @@ export class BuildInfoService {
   getBuildInfo(id: number): Observable<any> {
     return this.http.get(`${apiUrl}/admin/build/info/${id}`);
   }
+
+  markCancelled(licenseId: number, fileId: number): Observable<any> {
+    return this.http.post(`${apiUrl}/client/mark-cancelled`, { licenseId, fileId });
+  }
+
+  cancelUploadedBuild(id: number) {
+    return this.http.post(`${apiUrl}/api/uploaded-build-cancel`, null, { params: { id: String(id) } });
+  }
 }

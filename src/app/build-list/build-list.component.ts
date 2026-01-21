@@ -59,8 +59,8 @@ export class BuildListComponent implements OnInit {
     const confirmed = await this.logoutService.showConfirmation();
     if (confirmed) {
       console.log('logout click');
-      localStorage.removeItem('adminId');
-      localStorage.removeItem('username');
+      sessionStorage.removeItem('adminId');
+      sessionStorage.removeItem('username');
       this.router.navigate(['/login']);
     }
   }

@@ -21,12 +21,12 @@ export class AuthService {
 
   logout(): void {
     // Remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('currentUser');
   }
 
   hasEditAccess(): boolean {
     // Check if user has edit access
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     return currentUser && currentUser.role === 'admin'; // Adjust role check as per your requirements
   }
 }

@@ -60,6 +60,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     // Fallback to status-based messages
     switch (error.status) {
+
       case 400:
         return 'Bad Request';
       case 401:

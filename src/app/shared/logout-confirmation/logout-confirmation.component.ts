@@ -19,8 +19,8 @@ export class LogoutConfirmationComponent implements OnDestroy {
         this.isOpen = show;
         // Read user info from localStorage every time the dialog is shown
         if (show) {
-          this.username = localStorage.getItem('username');
-          this.adminId = localStorage.getItem('adminId');
+          this.username = sessionStorage.getItem('username');
+          this.adminId = sessionStorage.getItem('adminId');
         }
       },
       error: (error) => {

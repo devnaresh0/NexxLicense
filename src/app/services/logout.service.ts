@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-                    import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,10 +20,17 @@ export class LogoutService {
   }
 
   confirmLogout(confirm: boolean) {
+    if (confirm) {
+      this.clearSession(); // Clear all sessionStorage
+    }
     if (this.resolvePromise) {
       this.resolvePromise(confirm);
       this.resolvePromise = null;
     }
     this.showConfirmSubject.next(false);
+  }
+
+  clearSession() {
+    sessionStorage.clear();
   }
 }

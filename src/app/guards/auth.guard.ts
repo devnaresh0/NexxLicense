@@ -6,19 +6,34 @@ import { ErrorService } from '../services/error.service';
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
+
   constructor(
     private router: Router,
     private errorService: ErrorService
-  ) {}
+  ) { }
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    const adminId = localStorage.getItem('adminId');
-    const username = localStorage.getItem('username');
+    console.log('🔍 AuthGuard running for route:', state.url);
 
-    if (!adminId || !username) {
+    const token = sessionStorage.getItem('token');
+    const expiry = sessionStorage.getItem('tokenExpiry');
+
+    // If token or expiry is missing → force logout
+    if (!token || !expiry) {
+      this.errorService.showError('Session expired. Please login again.');
+      this.router.navigate(['/login']);
+      return false;
+    }
+
+    // Check if token is expired
+    const now = Date.now();
+    const expireTime = parseInt(expiry, 10);
+
+    if (now > expireTime) {
+      sessionStorage.clear();
       this.errorService.showError('Session expired. Please login again.');
       this.router.navigate(['/login']);
       return false;
@@ -27,3 +42,4 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 }
+

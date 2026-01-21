@@ -228,8 +228,8 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     const confirmed = await this.logoutService.showConfirmation();
     if (confirmed) {
       console.log('logut click');
-      localStorage.removeItem('adminId');
-      localStorage.removeItem('username');
+      sessionStorage.removeItem('adminId');
+      sessionStorage.removeItem('username');
       this.router.navigate(['/login']);
     }
   }
@@ -245,7 +245,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   confirmRestart() {
     this.showConfirmation = false;
     console.log('Restart confirmed');
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     const requestBody = {
       username: username
     };
@@ -311,9 +311,6 @@ export class LicenseListComponent implements OnInit, OnDestroy {
       next: (response) => {
         console.log('Check update response:', response);
 
-        // Show download button only if response has update: true
-        this.showDownloadButton = response.update === true;
-
         // If update is available, trigger the backend download
         if (response.update === true && response.fileId && response.fileName && response.hash) {
           // Build the download URL
@@ -331,6 +328,8 @@ export class LicenseListComponent implements OnInit, OnDestroy {
             next: () => {
               this.errorService.showError('Update downloaded successfully', 'success')
               console.log('Backend download completed successfully');
+              // Show download button only if response has update: true
+              this.showDownloadButton = response.update === true;
             },
             error: (err) => {
               console.error('Backend download failed:', err);

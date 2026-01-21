@@ -7,14 +7,13 @@ import { Router } from '@angular/router';
 import { LogoutService } from '../services/logout.service';
 import { ErrorService } from "../services/error.service";
 import { createSHA256 } from 'hash-wasm';
-import { Subscription } from 'rxjs';
 
 export interface License {
   id: number;
   serialNumber: string;
   domain: string;
   customerName: string;
-  apps?: LicenseApp[]; // backend returns an array of apps per license
+  apps?: LicenseApp[];
   active?: boolean;
 };
 
@@ -42,13 +41,15 @@ interface GroupedLicense {
 export class BuildUploadComponent implements OnInit {
 
   form: FormGroup;
-
   // license data
   licenses: License[] = [];
   groupedLicenses: GroupedLicense[] = [];
   selectedLicenseIds: number[] = [];
   loadingLicenses = false;
   customerOption: string = 'all'; // 'all' or 'select'
+  downloadingCsv = false;
+  // parse errors per build row (empty string = no error)
+  parseErrors: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -63,6 +64,9 @@ export class BuildUploadComponent implements OnInit {
     this.form = this.fb.group({
       builds: this.fb.array([this.buildGroup()])
     });
+
+    // initialize parse errors for the initial build row
+    this.parseErrors = [''];
 
     this.fetchLicenses();
   }
@@ -87,23 +91,44 @@ export class BuildUploadComponent implements OnInit {
   // add file block
   addBuild() {
     this.builds.push(this.buildGroup());
+    this.parseErrors.push('');
   }
 
   // remove file block
   removeBuild(i: number) {
     this.builds.removeAt(i);
+    this.parseErrors.splice(i, 1);
   }
 
   // file change
   onFileChange(event: any, index: number) {
     const file: File = event.target.files[0];
+    const group = this.builds.at(index);
+
+    // reset previous parse error
+    this.parseErrors[index] = '';
+
     if (!file) {
       return;
     }
+
+    // try to extract app type + version from filename immediately
+    const parsed = this.parseFileName(file.name);
+    if (parsed) {
+      group.patchValue({
+        app_type: parsed.appType,
+        version: parsed.version
+      });
+      this.parseErrors[index] = '';
+    } else {
+      // not recognized -> clear fields and show a warning
+      group.patchValue({ app_type: '', version: '' });
+      this.parseErrors[index] = 'Could not detect app type/version from filename. Rename file to match expected patterns.';
+      this.errorService.showError(`Could not detect type/version from filename: ${file.name}`, 'error');
+    }
+
     // hash async but do not block UI
     this.hashFile(file).then(hash => {
-      const group = this.builds.at(index);
-      console.log(hash);
       group.patchValue({
         file: file,
         file_hash: hash
@@ -167,12 +192,20 @@ export class BuildUploadComponent implements OnInit {
 
   submit() {
     this.markFormGroupTouched(this.form);
-
     if (this.form.invalid) {
       this.errorService.showError('Please fill in all required fields', 'error');
       return;
     }
-
+    // when "Select Specific Customers" is chosen, require at least one customer selected
+    if (this.customerOption === 'select' && this.selectedLicenseIds.length === 0) {
+      this.errorService.showError('Please fill in all required customers fields', 'error');
+      return;
+    }
+    // ensure filename parsing succeeded for all rows
+    if (this.parseErrors.some(e => !!e)) {
+      this.errorService.showError('Please fix filename parsing errors before submitting', 'error');
+      return;
+    }
     // Ensure hashes exist
     for (var i = 0; i < this.builds.length; i++) {
       if (!this.builds.at(i).value.file_hash) {
@@ -223,7 +256,7 @@ export class BuildUploadComponent implements OnInit {
     }
 
     // append uploaded by from localStorage
-    const uploadedBy = localStorage.getItem('username');
+    const uploadedBy = sessionStorage.getItem('username');
     if (uploadedBy) {
       formData.append('uploadedBy', uploadedBy);
     }
@@ -273,11 +306,35 @@ export class BuildUploadComponent implements OnInit {
     const confirmed = await this.logoutService.showConfirmation();
     if (confirmed) {
       console.log('logout click');
-      localStorage.removeItem('adminId');
-      localStorage.removeItem('username');
+      sessionStorage.removeItem('adminId');
+      sessionStorage.removeItem('username');
       this.router.navigate(['/login']);
     }
   }
+
+  /**
+   * Try to parse filename to determine app type and version.
+  */
+  private parseFileName(fileName: string): { appType: string, version: string } | null {
+    const name = fileName.replace(/\.[^/.]+$/, ''); // strip extension
+
+    // Strict anchored patterns: prefix + '_' + version (digits with optional dots) and end anchored
+    let m = /^V_(\d+(?:\.\d+)*)$/i.exec(name);
+    if (m) return { appType: 'NexxRetail', version: m[1] };
+
+    m = /^NexxLicense_(\d+(?:\.\d+)*)$/i.exec(name);
+    if (m) return { appType: 'NexxLicense', version: m[1] };
+
+    m = /^NL_(\d+(?:\.\d+)*)$/i.exec(name);
+    if (m) return { appType: 'Pos', version: m[1] };
+
+    m = /^NM_(\d+(?:\.\d+)*)$/i.exec(name);
+    if (m) return { appType: 'Massenger', version: m[1] };
+
+    // strict matching only; do not attempt loose fallbacks
+    return null;
+  }
+
   private async hashFile(file: File): Promise<string> {
     const hasher = await createSHA256();
     const chunkSize = 4 * 1024 * 1024; // 4MB
@@ -317,6 +374,36 @@ export class BuildUploadComponent implements OnInit {
         },
         () => callback(false, 'Precheck request failed')
       );
+  }
+
+  exportCSV() {
+    if (this.downloadingCsv) return;
+    this.downloadingCsv = true;
+
+    // endpoint: http://localhost:9090/NexxLicense/licenses/license-version?format=csv
+    const url = apiUrl + '/licenses/license-version';
+
+    this.http.get(url, { params: { format: 'csv' }, responseType: 'blob' }).subscribe({
+      next: (blob: Blob) => {
+        const filename = 'license_versions.csv';
+        const objectUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(objectUrl);
+
+        this.errorService.showError('CSV downloaded', 'success');
+        this.downloadingCsv = false;
+      },
+      error: (err) => {
+        console.error('CSV download failed', err);
+        this.errorService.showError('Failed to download CSV', 'error');
+        this.downloadingCsv = false;
+      }
+    });
   }
 
 }

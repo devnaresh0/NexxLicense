@@ -50,6 +50,7 @@
       <th>App Type</th>
       <th>Size</th>
       <th>Version</th>
+      <th>Action</th>
     </tr>
 
     <tr *ngFor="let f of data.files">
@@ -58,6 +59,10 @@
       <td>{{ f.appType }}</td>
       <td>{{ f.fileSize | number }}</td>
       <td>{{ f.version }}</td>
+      <button class="cancel-btn" (click)="openFileCancelConfirm(f); $event.stopPropagation()"
+        [disabled]="f.status === 'CANCELLED' || f.cancelled" [class.disabled]="f.status === 'CANCELLED' || f.cancelled">
+        Cancel
+      </button>
     </tr>
   </table>
 
@@ -74,7 +79,7 @@
       <th>Status</th>
       <th>Downloaded At</th>
       <th>Executed At</th>
-      <th>Logs</th>
+      <th>Action</th>
     </tr>
 
     <!-- Add this right before the table -->
@@ -90,6 +95,44 @@
       </div>
     </div>
 
+    <div class="cancel-viewer" *ngIf="selectedCancel !== null" (click)="closeCancelConfirm()">
+      <div class="log-content" (click)="$event.stopPropagation()">
+        <div class="log-header">
+          <h3>Disable Build</h3>
+          <button class="close-btn" (click)="closeCancelConfirm()">&times;</button>
+        </div>
+        <div class="log-body">
+          <p>Do you want to disable the <strong>{{ selectedCancel?.fileName }}</strong> build for <strong>{{
+              selectedCancel?.customerName }}</strong>?</p>
+          <div class="confirm-actions">
+            <button class="btn-yes" (click)="confirmCancel()" [disabled]="cancelInProgress"
+              [class.disabled]="cancelInProgress">{{ cancelInProgress ? 'Please wait...' : 'Yes' }}</button>
+            <button class="btn-no" (click)="closeCancelConfirm()" [disabled]="cancelInProgress"
+              [class.disabled]="cancelInProgress">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- File cancel confirmation modal (reuses cancel-viewer styles) -->
+    <div class="cancel-viewer" *ngIf="selectedFileCancel !== null" (click)="closeFileCancelConfirm()">
+      <div class="log-content" (click)="$event.stopPropagation()">
+        <div class="log-header">
+          <h3>Disable Build</h3>
+          <button class="close-btn" (click)="closeFileCancelConfirm()">&times;</button>
+        </div>
+        <div class="log-body">
+          <p>Do you want to disable the <strong>{{ selectedFileCancel?.fileName }}</strong> build?</p>
+          <div class="confirm-actions">
+            <button class="btn-yes" (click)="confirmFileCancel()" [disabled]="cancelFileInProgress"
+              [class.disabled]="cancelFileInProgress">{{ cancelFileInProgress ? 'Please wait...' : 'Yes' }}</button>
+            <button class="btn-no" (click)="closeFileCancelConfirm()" [disabled]="cancelFileInProgress"
+              [class.disabled]="cancelFileInProgress">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <ng-container *ngFor="let c of data.customers">
       <tr *ngFor="let st of c.fileStatuses">
         <td>{{ c.customerName }}</td>
@@ -98,20 +141,24 @@
         <td>{{ st.status }}</td>
         <td>
           {{
-            st.downloadedAt ? (st.downloadedAt | date : "dd MMM, HH:mm") : "-"
+          st.downloadedAt ? (st.downloadedAt | date : "dd MMM, HH:mm") : "-"
           }}
         </td>
         <td>
           {{ st.executedAt ? (st.executedAt | date : "dd MMM, HH:mm") : "-" }}
         </td>
-        <button
-          class="log-btn"
-          (click)="showLogs(st.updateLog); $event.stopPropagation()"
-          [disabled]="!st.updateLog"
-          [class.disabled]="!st.updateLog"
-        >
-          Log
-        </button>
+        <td>
+          <div class="action-buttons">
+            <button class="log-btn" (click)="showLogs(st.updateLog); $event.stopPropagation()"
+              [disabled]="!st.updateLog" [class.disabled]="!st.updateLog">
+              Log
+            </button>
+            <button class="cancel-btn" (click)="openCancelConfirm(c, st); $event.stopPropagation()"
+              [disabled]="st.status === 'CANCELLED'" [class.disabled]="st.status === 'CANCELLED'">
+              Cancel
+            </button>
+          </div>
+        </td>
       </tr>
     </ng-container>
   </table>
