@@ -79,7 +79,10 @@
   transition: background-color 0.3s ease;
 }
 
+
 .btn-audit {
+  background-color: #007bff;
+  /* Bootstrap blue */
   background-color: #007bff;
   /* Bootstrap blue */
   color: white;
@@ -91,6 +94,8 @@
 }
 
 .btn-audit:hover {
+  background-color: #0056b3;
+  /* darker blue on hover */
   background-color: #0056b3;
   /* darker blue on hover */
 }
