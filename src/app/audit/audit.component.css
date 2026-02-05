@@ -96,6 +96,7 @@
 
 table.details-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   table-layout: fixed;
   background-color: white;
@@ -107,10 +108,11 @@ table.details-table {
   position: sticky;
   top: 0;
   z-index: 10;
+  width: 100%;
 }
 
 .table-header th {
-  padding: 10px 12px;
+  padding: 5px 7px;
   text-align: left;
   font-weight: 500;
   font-size: 12px;
@@ -135,7 +137,7 @@ table.details-table {
 }
 
 .table-row td {
-  padding: 10px 12px;
+  padding: 5px 7px;
   color: black;
   font-size: 12px;
   border-bottom: 1.5px solid #f0f0f0;
@@ -155,49 +157,48 @@ table.details-table {
 }
 
 /* Set specific column widths */
-th:nth-child(1),
+/* th:nth-child(1),
 td:nth-child(1) {
   width: 2%;
-}
+} */
 /* # */
 th:nth-child(1),
 td:nth-child(1) {
-  width: 0.5%;
+  width: 3%;
 }
 
 /* Action */
 th:nth-child(2),
 td:nth-child(2) {
-  width: 4%;
+  width: 15%;
 }
 
 /* User */
 th:nth-child(3),
 td:nth-child(3) {
-  width: 6%;
-}
-
-/* Customer (includes Domain, Customer Name, Serial Number, Status) */
-th:nth-child(4),
-td:nth-child(4) {
-  width: 10%;
+  width: 30%;
 }
 
 /* Modules */
+th:nth-child(4),
+td:nth-child(4) {
+  width: 50%;
+  /* Make this the biggest */
+}
+
 th:nth-child(5),
 td:nth-child(5) {
-  width: 35%;
+  width: 7%;
 }
 
-/* Timestamp */
-th:nth-child(6),
-td:nth-child(6) {
-  width: 5%;
+.separator {
+  margin: 0 8px;
+  color: black;
+  font-weight: bold;
 }
-
 
 Timestamp .module-list {
-  padding-left: 20px;
+  /* padding-left: 10px; */
   margin: 0;
   list-style-type: disc;
 }
@@ -229,28 +230,28 @@ Timestamp .module-list {
     width: calc(100% + 20px);
     border-radius: 0;
   }
-  
+
   table.details-table {
     min-width: 900px;
   }
-  
+
   .header {
     flex-direction: row;
     align-items: center;
     gap: 15px;
   }
-  
+
   .header-actions {
     flex-wrap: wrap;
     gap: 6px;
     justify-content: flex-end;
   }
-  
+
   .btn-action {
     padding: 5px 10px;
     font-size: 11px;
   }
-  
+
   .title-section h2 {
     font-size: 14px;
   }
@@ -262,7 +263,7 @@ Timestamp .module-list {
     padding: 8px;
     font-size: 13px;
   }
-  
+
   .header {
     padding: 10px 12px;
     margin: 0 -8px 15px;
@@ -270,50 +271,50 @@ Timestamp .module-list {
     border-radius: 0;
     flex-wrap: wrap;
   }
-  
+
   .title-section h2 {
     font-size: 13px;
     margin-bottom: 4px;
   }
-  
+
   .header-actions {
     flex-direction: row;
     gap: 5px;
     flex-wrap: wrap;
   }
-  
+
   .btn-action {
     width: auto;
     margin: 0;
     padding: 4px 8px;
     font-size: 10px;
   }
-  
+
   .subtitle {
     font-size: 11px;
   }
-  
+
   .audit-header {
     margin: 0 -8px 10px;
     padding: 8px 12px;
     border-radius: 0;
   }
-  
+
   .table-container {
     margin: 0 -8px 15px;
     width: calc(100% + 16px);
   }
-  
+
   table.details-table {
     min-width: 1000px;
   }
-  
+
   .table-header th,
   .table-row td {
     padding: 8px 6px;
     font-size: 12px;
   }
-  
+
   .module-list {
     padding-left: 15px;
   }
@@ -325,33 +326,33 @@ Timestamp .module-list {
     padding: 4px;
     font-size: 12px;
   }
-  
+
   .header {
     padding: 8px 10px;
     margin: 0 -4px 10px;
     width: calc(100% + 8px);
   }
-  
+
   .title-section h2 {
     font-size: 14px;
   }
-  
+
   .audit-header {
     font-size: 13px;
     padding: 6px 10px;
   }
-  
+
   .table-container {
     margin: 0 -5px 12px;
     width: calc(100% + 10px);
   }
-  
+
   .table-header th,
   .table-row td {
     padding: 6px 4px;
     font-size: 11px;
   }
-  
+
   .module-list {
     padding-left: 12px;
     font-size: 10px;

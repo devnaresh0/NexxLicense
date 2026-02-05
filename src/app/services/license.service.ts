@@ -7,7 +7,7 @@ import { ErrorService } from './error.service';
 import { apiUrl } from 'src/environments/global';
 
 export interface License {
-  id: string;
+  id: number;
   serialNumber: number | null;
   domain: string;
   customerName: string;
@@ -28,6 +28,7 @@ export interface LicenseHeader {
   domain: string;
   customerName: string;
   active: boolean;
+  parentDomainId: number | null;
 }
 
 export interface LicenseDetail {
@@ -57,14 +58,21 @@ export class LicenseService {
   ) { }
 
   // Get all licenses
-  getLicenses(): Observable<License[]> {
+  getLicenses(): Observable<LicenseHeader[]> {
     return this.http.get<any[]>(`${apiUrl}/licenses`).pipe(
-      catchError(this.handleError<License[]>('getLicenses', []))
+      catchError(this.handleError<LicenseHeader[]>('getLicenses', []))
     );
   }
 
+ // Get all licenses
+  getParentDomains(): Observable<License[]> {
+    return this.http.get<any[]>(`${apiUrl}/licenses/parent-domains`).pipe(
+      catchError(this.handleError<License[]>('getParentDomains', []))
+    );
+  } 
+
   getLicensesWithVersion() {
-    return this.http.get<any[]>(`${apiUrl}/licenses/license-version`).pipe(
+    return this.http.get<any[]>(`${apiUrl}/licenses/version`).pipe(
       catchError(this.handleError<any[]>('getLicensesWithVersion', []))
     );
   }
@@ -80,7 +88,7 @@ export class LicenseService {
   getLicenseDetails(id: string): Observable<LicenseDetail> {
     return this.http.get<LicenseDetail>(`${apiUrl}/licenses/${id}`)
       .pipe(
-        catchError(this.handleError<LicenseDetail>('getLicense'))
+        catchError(this.handleError<LicenseDetail>('getLicenseDetails'))
       );
   }
 
@@ -156,6 +164,15 @@ export class LicenseService {
     if (!license.header.customerName || license.header.customerName.trim() === '') {
       errors.push('Customer name is required');
     }
+    if (!(license.header.parentDomainId === null)) {
+
+      if (license.header.parentDomainId <= 0) {
+        errors.push('Please select a parent domain (or NULL)');
+      }
+      if (license.header.parentDomainId === undefined) {
+        errors.push('Parent domain selection is required (can be NULL but not empty)');
+      }
+    }
 
     license.modules.forEach((module: LicenseModule, index: number) => {
       if (!module.module || module.module.trim() === '') {
@@ -183,7 +200,6 @@ export class LicenseService {
         }
       }
     });
-
 
     return {
       isValid: errors.length === 0,

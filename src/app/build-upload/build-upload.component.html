@@ -13,8 +13,11 @@
 <div class="container">
   <form class="" [formGroup]="form" (ngSubmit)="submit()">
     <div formArrayName="builds">
-      <div class="build-row upload-form" *ngFor="let b of builds.controls; let i = index" [formGroupName]="i">
-
+      <div
+        class="build-row upload-form"
+        *ngFor="let b of builds.controls; let i = index"
+        [formGroupName]="i"
+      >
         <div class="form-field">
           <label>File</label>
           <input type="file" (change)="onFileChange($event, i)" />
@@ -40,7 +43,12 @@
           <input type="text" formControlName="version" readonly />
         </div>
 
-        <button type="button" class="btn-remove" *ngIf="builds.length > 1" (click)="removeBuild(i)">
+        <button
+          type="button"
+          class="btn-remove"
+          *ngIf="builds.length > 1"
+          (click)="removeBuild(i)"
+        >
           ✕
         </button>
       </div>
@@ -59,58 +67,89 @@
 
   <div class="customer-selection">
     <label class="radio-option">
-      <input type="radio" name="customerOption" value="all" (change)="onCustomerOptionChange('all')"
-        [checked]="customerOption === 'all'">
+      <input
+        type="radio"
+        name="customerOption"
+        value="all"
+        (change)="onCustomerOptionChange('all')"
+        [checked]="customerOption === 'all'"
+      />
       Send to All Customers
     </label>
     <label class="radio-option">
-      <input type="radio" name="customerOption" value="select" (change)="onCustomerOptionChange('select')"
-        [checked]="customerOption === 'select'">
+      <input
+        type="radio"
+        name="customerOption"
+        value="select"
+        (change)="onCustomerOptionChange('select')"
+        [checked]="customerOption === 'select'"
+      />
       Select Specific Customers
     </label>
-    <button class="btn-export" *ngIf="customerOption === 'select'" (click)="exportCSV()"
-      [disabled]="downloadingCsv || loadingLicenses">
-      {{ downloadingCsv ? 'Downloading...' : 'Export CSV' }}
+    <button
+      class="btn-export"
+      *ngIf="customerOption === 'select'"
+      (click)="exportCSV()"
+      [disabled]="downloadingCsv || loadingLicenses"
+    >
+      {{ downloadingCsv ? "Downloading..." : "Export CSV" }}
     </button>
   </div>
 
   <div *ngIf="loadingLicenses">Loading licenses...</div>
 
   <!-- show table only when selecting specific customers -->
-  <table class="customer-table" *ngIf="!loadingLicenses && groupedLicenses.length && customerOption === 'select'">
-    <thead>
-      <tr>
-        <th>Select</th>
-        <th>Domain</th>
-        <th>Customer Name</th>
-        <th>App Type</th>
-        <th>Current Version</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let license of groupedLicenses">
-        <td>
-          <label class="table-checkbox">
+  <div class="table-scroll-container">
+    <table
+      class="customer-table"
+      *ngIf="
+        !loadingLicenses &&
+        groupedLicenses.length &&
+        customerOption === 'select'
+      "
+    >
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>Domain</th>
+          <th>Customer Name</th>
+          <th>ActiveMQ Version</th>
+          <th>NexxLicense Version</th>
+          <th>Massenger Version</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let license of groupedLicenses">
+          <td>
+            <label class="table-checkbox">
+              <input
+                type="checkbox"
+                [checked]="selectedLicenseIds.includes(license.id)"
+                (change)="toggleLicenseSelection(license.id, $event)"
+              />
+            </label>
+          </td>
+          <td>{{ license.domain }}</td>
+          <td>{{ license.customerName }}</td>
+          <td>
+            {{ getAppVersion(license.apps, "ActiveMQ") || "-" }}
+          </td>
+          <td>
+            {{ getAppVersion(license.apps, "NexxLicense") || "-" }}
+          </td>
+          <td>
+            {{ getAppVersion(license.apps, "Massenger") || "-" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-            <input type="checkbox" [checked]="selectedLicenseIds.includes(license.id)"
-              (change)="toggleLicenseSelection(license.id, $event)" />
-          </label>
-        </td>
-        <td>{{ license.domain }}</td>
-        <td>{{ license.customerName }}</td>
-        <td>
-          <div *ngFor="let app of license.apps; let idx = index">
-            {{ app.appType || '-' }}
-          </div>
-        </td>
-        <td>
-          <div *ngFor="let app of license.apps; let idx = index">
-            {{ app.currentVersion || '-' }}
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div *ngIf="!loadingLicenses && customerOption === 'select' && !groupedLicenses.length">No licenses found.</div>
+  <div
+    *ngIf="
+      !loadingLicenses && customerOption === 'select' && !groupedLicenses.length
+    "
+  >
+    No licenses found.
+  </div>
 </div>

@@ -1,9 +1,9 @@
 // license-detail.component.ts
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
 import { Subject, throwError } from 'rxjs';
 import { takeUntil, switchMap, finalize } from 'rxjs/operators';
 import { ActivatedRoute, Router } from "@angular/router";
-import { LicenseService, ModuleResponse } from "../services/license.service";
+import { License, LicenseService, ModuleResponse } from "../services/license.service";
 import { LogoutService } from "../services/logout.service";
 import { from } from "rxjs";
 import { ErrorService } from "../services/error.service";
@@ -22,17 +22,20 @@ export interface LicenseHeader {
   domain: string;
   customerName: string;
   active: boolean;
+  parentDomainId: number | null;
+  parentDomainName?: string | null;
 }
 
 @Component({
   selector: "app-license-detail",
   templateUrl: "./license-detail.component.html",
   styleUrls: ["./license-detail.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class LicenseDetailComponent implements OnInit, OnDestroy {
 
-  licenseId: string;
+  licenseId: number;
   isEditMode: boolean = false;
   isNewLicense: boolean = false;
   licenseModules: LicenseModule[] = [];
@@ -40,7 +43,9 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   prevModules: LicenseModule[];
   originalLicenseData: any;
   availableModules: ModuleResponse[] = [];
+  availableLicenses: License[];
   isSaving: boolean = false;
+  selectedParentName: string = '';
 
   private destroy$ = new Subject<void>();
 
@@ -49,6 +54,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     domain: "",
     customerName: "",
     active: true,
+    parentDomainId: 0
   };
 
   constructor(
@@ -56,8 +62,8 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private licenseService: LicenseService,
     private errorService: ErrorService,
+    private logoutService: LogoutService,
     private cdr: ChangeDetectorRef,
-    private logoutService: LogoutService
   ) { }
 
   ngOnInit() {
@@ -79,6 +85,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
           this.loadLicense();
         }
         this.loadModules();
+        this.loadAllLicenses();
       });
   }
 
@@ -88,7 +95,9 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       domain: "",
       customerName: "",
       active: true,
+      parentDomainId: 0
     };
+    this.selectedParentName = "";
     this.loadModules();
     this.licenseModules = [];
   }
@@ -110,6 +119,22 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       );
   }
 
+  loadAllLicenses() {
+    this.licenseService.getParentDomains()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (data) => {
+          console.log('Parent Licenses loaded:', data.length, data);
+          this.availableLicenses = data;
+          this.cdr.markForCheck();
+        },
+        (error) => {
+          console.error('Error loading licenses:', error);
+          this.cdr.markForCheck();
+        }
+      );
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -123,13 +148,14 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         switchMap((modules: ModuleResponse[]) => {
           this.availableModules = modules;
           // Now load the license details
-          return this.licenseService.getLicenseDetails(this.licenseId);
+          return this.licenseService.getLicenseDetails(this.licenseId.toString());
         })
       )
       .subscribe({
         next: (data: any) => {
           console.log('License data loaded:', data);
           this.licenseHeader = { ...data.header };
+          this.selectedParentName = data.header.parentDomainName || null;
 
           // Map the modules to ensure we have the correct module names
           this.licenseModules = (data.modules || []).map((module: any) => {
@@ -154,7 +180,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
           this.prevModules = this.licenseModules.map(m => ({ ...m }));
 
           // Force change detection to update the view
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error('Error loading license:', error);
@@ -186,10 +212,8 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   onSave() {
-
     if (this.isSaving) return;   // hard guard
     this.isSaving = true;
-
     // Convert empty string to null for serialNumber
     const header = {
       ...this.licenseHeader,
@@ -227,7 +251,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     // Create the final payload with additional fields
     const licenseData = {
       adminId: adminId,
-      id: this.licenseId ? parseInt(this.licenseId, 10) : null,
+      id: this.licenseId ? this.licenseId : null,
       oldData: null,
       newData: JSON.stringify({
         ...baseLicenseData.header,
@@ -237,11 +261,11 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     };
 
     const validation = this.licenseService.validateLicense(licenseData);
-    console.log(JSON.stringify(licenseData));
     if (!validation.isValid) {
       // Show validation errors in a popup
       const errorMessage = validation.errors.join('\n');
       this.errorService.showError(errorMessage, 'error');
+      this.isSaving = false;
       return;
     }
 
@@ -269,6 +293,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       endDate: this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)), // 30 days from now
     };
     this.licenseModules.push(newModule);
+    this.cdr.markForCheck();
   }
 
   removeModule(moduleId: number) {
@@ -276,6 +301,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       this.licenseModules = this.licenseModules.filter(
         (m) => m.id !== moduleId
       );
+      this.cdr.markForCheck(); // ✅ Trigger change detection
     }
   }
 
@@ -286,6 +312,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         ...this.licenseModules[moduleIndex],
         [field]: value
       };
+      this.cdr.markForCheck();
     }
   }
 
@@ -298,6 +325,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   onHeaderFieldChange(field: string, value: any) {
     if (this.licenseHeader) {
       (this.licenseHeader as any)[field] = value;
+      this.cdr.markForCheck();
     }
   }
 
@@ -325,6 +353,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         module.module === "Select Module" ||
         module.numberOfUsers <= 0
     );
+    console.log(this.licenseHeader);
 
     // Check if any modules exist
     const hasModules = this.licenseModules.length > -1;
@@ -360,7 +389,6 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         }))
       );
       const modulesChanged = currentModules !== previousModules;
-
       // Return true if either header or modules changed and form is valid
       return (
         (headerChanged || modulesChanged) &&
@@ -377,9 +405,37 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     return this.isEditMode || this.isNewLicense;
   }
 
-  /**
-   * Compares modules for the select element
-   */
+  isNewPage() {
+    return this.isNewLicense;
+  }
+
+  onParentSelected() {
+    // If NULL selected → clear both parent and serial
+    if (!this.selectedParentName || this.selectedParentName === 'NULL') {
+      this.licenseHeader.parentDomainId = null;
+      this.licenseHeader.serialNumber = null;
+      return;
+    }
+
+    const match = this.availableLicenses.find(
+      l => l.domain.toLowerCase() === this.selectedParentName.toLowerCase()
+    );
+
+    if (match) {
+      this.licenseHeader.parentDomainId = match.id;          // set parent
+      this.licenseHeader.serialNumber = match.serialNumber;  // auto-fill serial
+    } else {
+      // Typed custom value not in list
+      this.licenseHeader.parentDomainId = null;
+      this.licenseHeader.serialNumber = null;
+    }
+  }
+
+  isSerialLocked(): boolean {
+    return !!this.licenseHeader.parentDomainId || !!this.licenseHeader.parentDomainName;
+  }
+
+  // Compares modules for the select element
   compareModules(module1: any, module2: any): boolean {
     return module1 && module2 ? module1 === module2 : module1 === module2;
   }

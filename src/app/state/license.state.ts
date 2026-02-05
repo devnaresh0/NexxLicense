@@ -16,7 +16,7 @@ const initialState: LicenseListState = {
   selectedFilter: 'All',
   currentPage: 1,
   itemsPerPage: 10,
-  sortBy: 'search',
+  sortBy: 'id',
   sortOrder: 'asc'
 };
 

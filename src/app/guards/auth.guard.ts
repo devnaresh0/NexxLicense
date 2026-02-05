@@ -16,7 +16,6 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    console.log('🔍 AuthGuard running for route:', state.url);
 
     const token = sessionStorage.getItem('token');
     const expiry = sessionStorage.getItem('tokenExpiry');

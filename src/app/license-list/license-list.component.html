@@ -65,9 +65,10 @@
           [ngModel]="sortBy"
           (ngModelChange)="onSortChange($event)"
         >
-          <option value="search">Search</option>
+          <option value="id">ID</option>
           <option value="domain">Domain</option>
-          <option value="customer">Customer</option>
+          <option value="customerName">Customer</option>
+          <option value="parentChild">Parent Child</option>
         </select>
       </div>
     </div>
@@ -80,6 +81,7 @@
           <th>#</th>
           <th>Domain</th>
           <th>Customer</th>
+          <th>Parent Domain</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
@@ -92,6 +94,7 @@
           <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
           <td>{{ license.domain }}</td>
           <td>{{ license.customerName }}</td>
+          <td>{{ license.parentDomainName || "None" }}</td>
           <td>
             <span class="status-badge" [class.active]="license.active === true">
               {{ license.active ? "Active" : "Inactive" }}
@@ -125,7 +128,7 @@
     </div>
     <div class="page-info">Page {{ currentPage }} of {{ totalPages }}</div>
   </div>
-  
+
   <!-- Confirmation Dialog -->
   <div class="confirmation-dialog" *ngIf="showConfirmation">
     <div class="dialog-content">

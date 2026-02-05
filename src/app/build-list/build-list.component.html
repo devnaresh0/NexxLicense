@@ -40,8 +40,8 @@
         <tbody>
           <tr *ngFor="let s of paginatedSessions">
             <td>{{ s.id }}</td>
-            <td class="comma-list">{{ s.builds.join(", ") }}</td>
-            <td class="comma-list">{{ s.domains.join(", ") }}</td>
+            <td class="comma-list">{{ s.builds }}</td>
+            <td class="comma-list">{{ s.domains }}</td>
             <td>{{ s.uploadedAt | date : "dd MMM yyyy, HH:mm" }}</td>
             <td>{{ s.uploadedBy }}</td>
             <td>

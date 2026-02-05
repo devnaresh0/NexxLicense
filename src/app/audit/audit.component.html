@@ -8,12 +8,16 @@
       <button class="btn-action btn-back" (click)="onBack()">Back</button>
       <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
       <button class="btn-action btn-list" (click)="onList()">List</button>
-      <button class="btn-action btn-reset" (click)="onReset()" *ngIf="canEdit()">
+      <button
+        class="btn-action btn-reset"
+        (click)="onReset()"
+        *ngIf="canEdit()"
+      >
         Reset
       </button>
     </div>
   </div>
-  
+
   <div class="audit-header">
     <p class="audit-title">Audit Trail for {{ domain }}</p>
   </div>
@@ -25,7 +29,6 @@
       <thead>
         <tr class="table-header">
           <th>#</th>
-          <th>Action</th>
           <th>User</th>
           <th>Customer</th>
           <th>Modules</th>
@@ -42,49 +45,65 @@
         >
           <td>{{ i + 1 }}</td>
           <td>
-            <span
-              class="action-badge"
-              [class.create]="a.action === 'CREATE'"
-              [class.update]="a.action === 'UPDATE'"
-              [class.delete]="a.action === 'DELETE'"
-            >
-              {{ a.action }}
-            </span>
-          </td>
-          <td>
             <div class="admin-info">
               <span class="admin-name">{{ a.adminName }}</span>
               <span class="admin-id"> (ID: {{ a.adminId }})</span>
             </div>
+            <p>
+              <span
+                class="action-badge"
+                [class.create]="a.action === 'CREATE'"
+                [class.update]="a.action === 'UPDATE'"
+                [class.delete]="a.action === 'DELETE'"
+              >
+                Action - {{ a.action }}
+              </span>
+            </p>
           </td>
-       <td>
-  <p><b>Domain - </b>{{ parseJson(a.newData)?.domain }}</p>
-  <p><b>Customer Name - </b>{{ parseJson(a.newData)?.customerName || "—" }}</p>
-  <p><b>Serial Number - </b>{{ parseJson(a.newData)?.serialNumber || "—" }}</p>
-  <p>
-    <b>Status - </b>
-    <span
-      class="status-badge"
-      [class.active]="parseJson(a.newData)?.active"
-      [class.inactive]="!parseJson(a.newData)?.active"
-    >
-      {{ parseJson(a.newData)?.active ? "Active" : "Inactive" }}
-    </span>
-  </p>
-</td>
+          <td>
+            <p><b>Domain - </b>{{ parseJson(a.newData)?.domain }}</p>
+            <p>
+              <b>Serial Number - </b
+              >{{ parseJson(a.newData)?.serialNumber || "—" }}
+            </p>
+            <p>
+              <b>Parent - </b
+              >{{ parseJson(a.newData)?.parentDomainName || "—" }}
+              <span class="parent-id"
+                >(ID: {{ parseJson(a.newData)?.parentDomainId || "—" }})</span
+              >
+            </p>
+            <p>
+              <b>Customer Name - </b
+              >{{ parseJson(a.newData)?.customerName || "—" }}
+            </p>
+            <p>
+              <b>Status - </b>
+              <span
+                class="status-badge"
+                [class.active]="parseJson(a.newData)?.active"
+                [class.inactive]="!parseJson(a.newData)?.active"
+              >
+                {{ parseJson(a.newData)?.active ? "Active" : "Inactive" }}
+              </span>
+            </p>
+          </td>
 
           <td>
             <div class="changes-container">
               <div class="modules-summary">
                 <ul class="module-list">
                   <li *ngFor="let m of parseJson(a.newData)?.modules">
-                    <strong>{{ m.moduleName }}</strong> ({{ m.numberOfUsers }}
-                    users)
-                    <span class="date-range">
-                      [<strong>Date Range:</strong>
-                      {{ m.startDate | date : "dd MMM yyyy" }} -
-                      {{ m.endDate | date : "dd MMM yyyy" }}]
-                    </span>
+                    <p>
+                      <strong>{{ m.moduleName }}</strong> ({{ m.numberOfUsers }}
+                      users)
+                      <span class="separator"> | </span>
+                      <span class="date-range">
+                        <strong>Date:</strong>
+                        {{ m.startDate | date : "dd MMM yyyy" }} -
+                        {{ m.endDate | date : "dd MMM yyyy" }}
+                      </span>
+                    </p>
                   </li>
                   <li *ngIf="!parseJson(a.newData)?.modules?.length">
                     No modules

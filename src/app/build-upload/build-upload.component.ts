@@ -226,6 +226,12 @@ export class BuildUploadComponent implements OnInit {
     });
   }
 
+  // Helper method to get version for specific app type
+  getAppVersion(apps: any[], appType: string): string {
+    const app = apps.find(app => app.appType === appType);
+    return app ? app.currentVersion : null;
+  }
+
   // submit final payload
   private performUpload() {
 
@@ -380,8 +386,7 @@ export class BuildUploadComponent implements OnInit {
     if (this.downloadingCsv) return;
     this.downloadingCsv = true;
 
-    // endpoint: http://localhost:9090/NexxLicense/licenses/license-version?format=csv
-    const url = apiUrl + '/licenses/license-version';
+    const url = apiUrl + '/licenses/version';
 
     this.http.get(url, { params: { format: 'csv' }, responseType: 'blob' }).subscribe({
       next: (blob: Blob) => {

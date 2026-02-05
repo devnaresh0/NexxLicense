@@ -6,7 +6,7 @@ import { ErrorService } from "./error.service";
 export class IdleService {
 
   private timeout: any;
-  private idleLimit = 15 * 60 * 1000; // 15 minutes
+  private idleLimit = 30 * 60 * 1000;
 
   constructor(private router: Router, private errorService: ErrorService) {
     this.start();

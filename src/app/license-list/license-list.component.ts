@@ -11,11 +11,13 @@ import { apiUrl } from 'src/environments/global';
 import { ErrorService } from '../services/error.service';
 
 export interface License {
-  id: string;
+  id: number;
   serialNumber: number;
   domain: string;
   customerName: string;
   active: boolean;
+  parentDomainId: number | null;
+  parentDomainName?: string | null;
 }
 
 @Component({
@@ -37,7 +39,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 10;
   totalPages: number = 1;
   sortOrder: 'asc' = 'asc';
-  sortBy: string = 'search';
+  sortBy: string = 'id';
   showDownloadButton: boolean = true; // Added download button visibility property
   showConfirmation: boolean = false; // Controls confirmation dialog visibility
 
@@ -133,7 +135,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     }
 
     // Apply sorting with current sort order
-    // filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
+    filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
 
     this.filteredLicenses = filtered;
     this.calculateTotalPages();
@@ -171,28 +173,57 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     this.updateState();
   }
 
-  // //Sort licenses based on selected field
-  // private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
-  //   if (sortBy === 'search') {
-  //     return [...licenses];
-  //   }
-  //   return [...licenses].sort((a, b) => {
-  //     let valueA = a[sortBy as keyof License];
-  //     let valueB = b[sortBy as keyof License];
+  //Sort licenses based on selected field
+  private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
+    if (sortBy === 'id') {
+      return [...licenses].sort((a, b) => a.id - b.id);  // Sort by ID numerically
+    }
 
-  //     // Convert to string for case-insensitive comparison
-  //     const strA = String(valueA).toLowerCase();
-  //     const strB = String(valueB).toLowerCase();
+    if (sortBy === 'parentChild') {
+      return this.sortByParentChild(licenses);
+    }
 
-  //     if (strA < strB) {
-  //       return direction === 'asc' ? -1 : 1;
-  //     }
-  //     if (strA > strB) {
-  //       return direction === 'asc' ? 1 : -1;
-  //     }
-  //     return 0;
-  //   });
-  // }
+    return [...licenses].sort((a, b) => {
+      let valueA = a[sortBy as keyof License];
+      let valueB = b[sortBy as keyof License];
+
+      const strA = String(valueA).toLowerCase();
+      const strB = String(valueB).toLowerCase();
+
+      if (strA < strB) {
+        return direction === 'asc' ? -1 : 1;
+      }
+      if (strA > strB) {
+        return direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // New method for parent-child sorting
+  private sortByParentChild(licenses: License[]): License[] {
+    const parents = licenses.filter(license => license.parentDomainId === null);
+    const children = licenses.filter(license => license.parentDomainId !== null);
+
+    const sorted: License[] = [];
+
+    // Sort parents alphabetically by domain
+    parents.sort((a, b) => a.domain.localeCompare(b.domain));
+
+    // For each parent, add the parent then its children
+    parents.forEach(parent => {
+      sorted.push(parent);
+
+      // Find children of this parent and sort them alphabetically
+      const parentChildren = children
+        .filter(child => child.parentDomainId === parent.id)
+        .sort((a, b) => a.domain.localeCompare(b.domain));
+
+      sorted.push(...parentChildren);
+    });
+
+    return sorted;
+  }
 
   //Go to specific page
   goToPage(page: number | string) {
