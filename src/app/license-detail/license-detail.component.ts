@@ -148,7 +148,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
         switchMap((modules: ModuleResponse[]) => {
           this.availableModules = modules;
           // Now load the license details
-          return this.licenseService.getLicenseDetails(this.licenseId.toString());
+          return this.licenseService.getLicenseDetails(this.licenseId);
         })
       )
       .subscribe({
@@ -255,7 +255,9 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       oldData: null,
       newData: JSON.stringify({
         ...baseLicenseData.header,
-        modules: baseLicenseData.modules
+        modules: baseLicenseData.modules,
+        parentDomainId: this.licenseHeader.parentDomainId,
+        parentDomainName: this.selectedParentName
       }),
       ...baseLicenseData // Keep the original structure for backward compatibility
     };
@@ -411,11 +413,11 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
 
   onParentSelected() {
     // If NULL selected → clear both parent and serial
-    if (!this.selectedParentName || this.selectedParentName === 'NULL') {
-      this.licenseHeader.parentDomainId = null;
-      this.licenseHeader.serialNumber = null;
-      return;
-    }
+    // if (!this.selectedParentName || this.selectedParentName === 'NULL') {
+    //   this.licenseHeader.parentDomainId = null;
+    //   this.licenseHeader.serialNumber = null;
+    //   return;
+    // }
 
     const match = this.availableLicenses.find(
       l => l.domain.toLowerCase() === this.selectedParentName.toLowerCase()

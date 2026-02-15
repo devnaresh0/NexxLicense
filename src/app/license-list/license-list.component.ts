@@ -40,8 +40,8 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   totalPages: number = 1;
   sortOrder: 'asc' = 'asc';
   sortBy: string = 'id';
-  showDownloadButton: boolean = true; // Added download button visibility property
-  showConfirmation: boolean = false; // Controls confirmation dialog visibility
+  //showDownloadButton: boolean = false; // Added download button visibility property
+  // showConfirmation: boolean = false; // Controls confirmation dialog visibility
 
   constructor(
     private router: Router,
@@ -67,7 +67,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
 
 
     this.loadLicenses();
-    this.checkUpdate();
+    // this.checkUpdate();
   }
 
   ngOnDestroy() {
@@ -269,26 +269,26 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     this.router.navigate([url]);
   }
 
-  downloadUpdate() {
-    this.showConfirmation = true;
-  }
+  // downloadUpdate() {
+  //   this.showConfirmation = true;
+  // }
 
-  confirmRestart() {
-    this.showConfirmation = false;
-    console.log('Restart confirmed');
-    const username = sessionStorage.getItem('username');
-    const requestBody = {
-      username: username
-    };
-    this.http.post(`${apiUrl}/api/restart`, requestBody).subscribe({
-      next: () => console.log('Restart triggered'),
-      error: err => console.error('Restart failed', err)
-    });
-  }
+  // confirmRestart() {
+  //   this.showConfirmation = false;
+  //   console.log('Restart confirmed');
+  //   const username = sessionStorage.getItem('username');
+  //   const requestBody = {
+  //     username: username
+  //   };
+  //   this.http.post(`${apiUrl}/api/restart`, requestBody).subscribe({
+  //     next: () => console.log('Restart triggered'),
+  //     error: err => console.error('Restart failed', err)
+  //   });
+  // }
 
-  cancelRestart() {
-    this.showConfirmation = false;
-  }
+  // cancelRestart() {
+  //   this.showConfirmation = false;
+  // }
 
   getPageNumbers(): (number | string)[] {
     const pages: (number | string)[] = [];
@@ -328,50 +328,50 @@ export class LicenseListComponent implements OnInit, OnDestroy {
 
   // Check for updates and control download button visibility
   // In license-list.component.ts
-  checkUpdate() {
-    // Get parameters from localStorage
-    const serialNumber = localStorage.getItem('serialNumber') || '1234';
-    const domain = localStorage.getItem('domain') || 'harsh';
-    const appType = localStorage.getItem('appType') || 'backend';
-    const currentVersion = localStorage.getItem('currentVersion') || '0';
+  // checkUpdate() {
+  //   // Get parameters from localStorage
+  //   const serialNumber = localStorage.getItem('serialNumber') || '1234';
+  //   const domain = localStorage.getItem('domain') || 'harsh';
+  //   const appType = localStorage.getItem('appType') || 'backend';
+  //   const currentVersion = localStorage.getItem('currentVersion') || '0';
 
-    // Build the URL with parameters
-    const url = `${apiUrl}/client/check-update?serialNumber=${encodeURIComponent(serialNumber)}&domain=${encodeURIComponent(domain)}&appType=${encodeURIComponent(appType)}&currentVersion=${encodeURIComponent(currentVersion)}`;
+  //   // Build the URL with parameters
+  //   const url = `${apiUrl}/client/check-update?serialNumber=${encodeURIComponent(serialNumber)}&domain=${encodeURIComponent(domain)}&appType=${encodeURIComponent(appType)}&currentVersion=${encodeURIComponent(currentVersion)}`;
 
-    this.http.get<any>(url).subscribe({
-      next: (response) => {
-        console.log('Check update response:', response);
+  //   this.http.get<any>(url).subscribe({
+  //     next: (response) => {
+  //       console.log('Check update response:', response);
 
-        // If update is available, trigger the backend download
-        if (response.update === true && response.fileId && response.fileName && response.hash) {
-          // Build the download URL
-          const downloadUrl = `${apiUrl}/onprem/download-file` +
-            `?serialNumber=${encodeURIComponent(serialNumber)}` +
-            `&domain=${encodeURIComponent(domain)}` +
-            `&fileId=${response.fileId}` +
-            `&fileName=${encodeURIComponent(response.fileName)}` +
-            `&hash=${response.hash}`;
+  //       // If update is available, trigger the backend download
+  //       if (response.update === true && response.fileId && response.fileName && response.hash) {
+  //         // Build the download URL
+  //         const downloadUrl = `${apiUrl}/onprem/download-file` +
+  //           `?serialNumber=${encodeURIComponent(serialNumber)}` +
+  //           `&domain=${encodeURIComponent(domain)}` +
+  //           `&fileId=${response.fileId}` +
+  //           `&fileName=${encodeURIComponent(response.fileName)}` +
+  //           `&hash=${response.hash}`;
 
-          console.log('Triggering backend download:', downloadUrl);
+  //         console.log('Triggering backend download:', downloadUrl);
 
-          // Make the request with responseType: 'blob' and don't try to parse the response
-          this.http.get(downloadUrl, { responseType: 'blob' }).subscribe({
-            next: () => {
-              this.errorService.showError('Update downloaded successfully', 'success')
-              console.log('Backend download completed successfully');
-              // Show download button only if response has update: true
-              this.showDownloadButton = response.update === true;
-            },
-            error: (err) => {
-              console.error('Backend download failed:', err);
-            }
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Check update failed:', error);
-        this.showDownloadButton = false;
-      }
-    });
-  }
+  //         // Make the request with responseType: 'blob' and don't try to parse the response
+  //         this.http.get(downloadUrl, { responseType: 'blob' }).subscribe({
+  //           next: () => {
+  //             this.errorService.showError('Update downloaded successfully', 'success')
+  //             console.log('Backend download completed successfully');
+  //             // Show download button only if response has update: true
+  //             this.showDownloadButton = response.update === true;
+  //           },
+  //           error: (err) => {
+  //             console.error('Backend download failed:', err);
+  //           }
+  //         });
+  //       }
+  //     },
+  //     error: (error) => {
+  //       console.error('Check update failed:', error);
+  //       this.showDownloadButton = false;
+  //     }
+  //   });
+  // }
 }

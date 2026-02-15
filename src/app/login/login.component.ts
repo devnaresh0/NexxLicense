@@ -33,10 +33,10 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.initializeForm();
     this.fetchBackendVersion();
     sessionStorage.setItem('currentVersion', this.currentVersion);
-    setTimeout(() => {
-      this.markFileAsExecuted();
-      this.updateLog();
-    }, 1000);
+    // setTimeout(() => {
+    // this.markFileAsExecuted();
+    // this.updateLog();
+    // }, 1000);
   }
 
   private fetchBackendVersion(): void {
@@ -150,48 +150,48 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
     return this.currentStep === 2;
   }
 
-  private markFileAsExecuted(): void {
-    const request = {
-      serialNumber: localStorage.getItem('serialNumber') || '',
-      domain: localStorage.getItem('domain') || '',
-      appType: localStorage.getItem('appType') || 'NexxLicense',
-      currentVersion: localStorage.getItem('currentVersion') || '1.0.0'
-    };
-    console.log(request);
+  // private markFileAsExecuted(): void {
+  //   const request = {
+  //     serialNumber: localStorage.getItem('serialNumber') || '',
+  //     domain: localStorage.getItem('domain') || '',
+  //     appType: localStorage.getItem('appType') || 'NexxLicense',
+  //     currentVersion: localStorage.getItem('currentVersion') || '1.0.0'
+  //   };
+  //   console.log(request);
 
-    if (!request.serialNumber || !request.domain) {
-      console.warn('Missing required parameters for mark-executed API');
-      return;
-    }
+  //   if (!request.serialNumber || !request.domain) {
+  //     console.warn('Missing required parameters for mark-executed API');
+  //     return;
+  //   }
 
-    this.http.post(`${apiUrl}/client/mark-executed`, request).subscribe({
-      next: () => {
-        console.log('File marked as executed successfully');
-      },
-      error: (error) => {
-        console.error('Failed to mark file as executed:', error);
-      }
-    });
-  }
+  //   this.http.post(`${apiUrl}/client/mark-executed`, request).subscribe({
+  //     next: () => {
+  //       console.log('File marked as executed successfully');
+  //     },
+  //     error: (error) => {
+  //       console.error('Failed to mark file as executed:', error);
+  //     }
+  //   });
+  // }
 
-  private updateLog(): void {
-    const params = {
-      serialNumber: localStorage.getItem('serialNumber') || '',
-      domain: localStorage.getItem('domain') || '',
-      AppType: localStorage.getItem('appType') || 'NexxLicense',
-      currentVersion: localStorage.getItem('currentVersion') || '1.0.0'
-    };
-    if (!params.serialNumber || !params.domain) {
-      console.warn('Missing required parameters for update log API');
-      return;
-    }
-    this.http.get(`${apiUrl}/onprem/mark-updatelog`, { params }).subscribe({
-      next: () => {
-        console.log('Update log updated successfully');
-      },
-      error: (error) => {
-        console.error('Failed to update log:', error);
-      }
-    });
-  }
+  // private updateLog(): void {
+  //   const params = {
+  //     serialNumber: localStorage.getItem('serialNumber') || '',
+  //     domain: localStorage.getItem('domain') || '',
+  //     AppType: localStorage.getItem('appType') || 'NexxLicense',
+  //     currentVersion: localStorage.getItem('currentVersion') || '1.0.0'
+  //   };
+  //   if (!params.serialNumber || !params.domain) {
+  //     console.warn('Missing required parameters for update log API');
+  //     return;
+  //   }
+  //   this.http.get(`${apiUrl}/onprem/mark-updatelog`, { params }).subscribe({
+  //     next: () => {
+  //       console.log('Update log updated successfully');
+  //     },
+  //     error: (error) => {
+  //       console.error('Failed to update log:', error);
+  //     }
+  //   });
+  // }
 }

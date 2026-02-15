@@ -85,7 +85,7 @@ export class LicenseService {
   }
 
   // Get license by ID
-  getLicenseDetails(id: string): Observable<LicenseDetail> {
+  getLicenseDetails(id: number): Observable<LicenseDetail> {
     return this.http.get<LicenseDetail>(`${apiUrl}/licenses/${id}`)
       .pipe(
         catchError(this.handleError<LicenseDetail>('getLicenseDetails'))
