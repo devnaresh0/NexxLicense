@@ -491,6 +491,33 @@ table {
   /* clean, no double borders */
   width: 100%;
 }
+/* show the date input in dd-mmm-yyyy format */
+.date-cell {
+  position: relative;
+}
+
+.date-hidden-text {
+  position: relative;
+  color: transparent;        /* hide text only */
+  background: transparent;
+}
+
+.date-hidden-text::-webkit-datetime-edit {
+  color: transparent;        /* Chrome/Safari */
+}
+
+.date-hidden-text::-webkit-calendar-picker-indicator {
+  opacity: 1;                /* keep icon visible */
+  cursor: pointer;
+}
+
+.formatted-date {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-70%);
+  pointer-events: none;
+}
 
 @media (max-width: 800px) {
   .license-detail-container {

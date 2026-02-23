@@ -160,29 +160,36 @@
                 [class.readonly]="!canEdit()"
               />
             </td>
-            <td>
+            <td class="date-cell">
               <input
                 type="date"
                 [value]="module.startDate | date : 'yyyy-MM-dd'"
                 (input)="
                   onDateChange(module.id, 'startDate', $event.target.value)
                 "
-                class="form-input date-input"
+                class="date-hidden-text"
                 [readonly]="!canEdit()"
-                [class.readonly]="!canEdit()"
               />
+              <!-- show the date in dd-mmm-yyyy format -->
+              <span class="formatted-date">
+                {{ module.startDate | date : "dd-MMM-yyyy" }}
+              </span>
             </td>
-            <td>
+            <td class="date-cell">
               <input
                 type="date"
+                [min]="module.startDate | date : 'yyyy-MM-dd'"
                 [value]="module.endDate | date : 'yyyy-MM-dd'"
                 (input)="
                   onDateChange(module.id, 'endDate', $event.target.value)
                 "
-                class="form-input date-input"
+                class="date-hidden-text"
                 [readonly]="!canEdit()"
-                [class.readonly]="!canEdit()"
               />
+
+              <span class="formatted-date">
+                {{ module.endDate | date : "dd-MMM-yyyy" }}
+              </span>
             </td>
             <td *ngIf="canEdit()">
               <div class="action-buttons">
@@ -193,6 +200,13 @@
                   title="Remove Module"
                 >
                   -
+                </button>
+                <button
+                  class="btn-add"
+                  (click)="addModule()"
+                  *ngIf="canEdit()"
+                >
+                  +
                 </button>
               </div>
             </td>

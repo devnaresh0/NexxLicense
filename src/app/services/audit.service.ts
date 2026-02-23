@@ -10,8 +10,7 @@ export interface LicenseAudit {
   adminName: string;
   licenseId: number;
   action: 'CREATE' | 'UPDATE' | 'DELETE';
-  oldData: string | null;
-  newData: string | null;
+  newData: string;
   timestamp: string;
 }
 

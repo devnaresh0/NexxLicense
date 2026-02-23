@@ -23,14 +23,33 @@
           <input type="file" (change)="onFileChange($event, i)" />
         </div>
 
-        <div class="form-field">
+        <div class="form-field date-cell">
           <label>Start</label>
-          <input type="date" formControlName="start_date" />
+
+          <input
+            type="date"
+            formControlName="start_date"
+            class="date-hidden-text"
+          />
+
+          <span class="formatted-date">
+            {{ b.get("start_date")?.value | date : "dd-MMM-yyyy" }}
+          </span>
         </div>
 
-        <div class="form-field">
+        <div class="form-field date-cell">
           <label>End</label>
-          <input type="date" formControlName="end_date" />
+
+          <input
+            type="date"
+            formControlName="end_date"
+            class="date-hidden-text"
+            [min]="b.get('start_date')?.value"
+          />
+
+          <span class="formatted-date">
+            {{ b.get("end_date")?.value | date : "dd-MMM-yyyy" }}
+          </span>
         </div>
 
         <div class="form-field">
@@ -114,7 +133,7 @@
           <th>Domain</th>
           <th>Customer Name</th>
           <th>ActiveMQ Version</th>
-          <th>NexxLicense Version</th>
+          <th>NexxRetail Version</th>
           <th>Massenger Version</th>
         </tr>
       </thead>
@@ -135,7 +154,7 @@
             {{ getAppVersion(license.apps, "ActiveMQ") || "-" }}
           </td>
           <td>
-            {{ getAppVersion(license.apps, "NexxLicense") || "-" }}
+            {{ getAppVersion(license.apps, "NexxRetail") || "-" }}
           </td>
           <td>
             {{ getAppVersion(license.apps, "Massenger") || "-" }}

@@ -1,8 +1,8 @@
 <div class="table-scale">
   <div class="header">
     <div class="title-section">
-      <h2>Build Sessions</h2>
-      <p class="subtitle">Allows to Issue/View Build Sessions</p>
+      <h2>Build Sessions Table</h2>
+      <span class="subtitle">Allows to Issue/View Build Sessions</span>
     </div>
     <div class="header-actions">
       <button class="btn-action btn-logout" (click)="onLogout()">Logout</button>
@@ -23,7 +23,6 @@
     <div *ngIf="!loading && sessions.length === 0" class="no-data-box">
       <p>No build sessions found.</p>
     </div>
-    <div>Session table</div>
     <div *ngIf="!loading && sessions.length > 0" class="table-wrapper">
       <table class="session-table">
         <thead>

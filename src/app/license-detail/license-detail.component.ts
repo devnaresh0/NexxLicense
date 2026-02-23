@@ -67,6 +67,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.loadAllLicenses();
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
@@ -84,8 +85,6 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
               : false;
           this.loadLicense();
         }
-        this.loadModules();
-        this.loadAllLicenses();
       });
   }
 
@@ -156,7 +155,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
           console.log('License data loaded:', data);
           this.licenseHeader = { ...data.header };
           this.selectedParentName = data.header.parentDomainName || null;
-
+          this.onParentSelected();
           // Map the modules to ensure we have the correct module names
           this.licenseModules = (data.modules || []).map((module: any) => {
             // Find the full module details from availableModules
@@ -252,7 +251,6 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     const licenseData = {
       adminId: adminId,
       id: this.licenseId ? this.licenseId : null,
-      oldData: null,
       newData: JSON.stringify({
         ...baseLicenseData.header,
         modules: baseLicenseData.modules,
@@ -291,7 +289,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       id: newId,
       module: "",
       numberOfUsers: 1,
-      startDate: this.formatDate(new Date()),
+      startDate: this.formatDate(new Date(Date.now())),
       endDate: this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)), // 30 days from now
     };
     this.licenseModules.push(newModule);
@@ -413,11 +411,12 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
 
   onParentSelected() {
     // If NULL selected → clear both parent and serial
-    // if (!this.selectedParentName || this.selectedParentName === 'NULL') {
-    //   this.licenseHeader.parentDomainId = null;
-    //   this.licenseHeader.serialNumber = null;
-    //   return;
-    // }
+    console.log('object');
+    if (!this.selectedParentName || this.selectedParentName === 'NULL') {
+      this.licenseHeader.parentDomainId = null;
+      // this.licenseHeader.serialNumber = null;
+      return;
+    }
 
     const match = this.availableLicenses.find(
       l => l.domain.toLowerCase() === this.selectedParentName.toLowerCase()

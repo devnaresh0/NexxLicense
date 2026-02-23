@@ -253,6 +253,33 @@ input[type="file"] {
   color: red;
   font-weight: 600;
 }
+.date-cell {
+  position: relative;
+}
+
+.date-hidden-text {
+  position: relative;
+  color: transparent;
+  background: white;
+}
+
+.date-hidden-text::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.date-hidden-text::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.formatted-date {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  /* transform: translateY(-50%); */
+  pointer-events: none;
+  font-size: 14px; 
+}
 
 /* ===== Responsive (mobile stacked layout) ===== */
 @media (max-width: 900px) {

@@ -15,7 +15,7 @@ export class BuildListComponent implements OnInit {
 
   // pagination vars
   currentPage = 1;
-  pageSize = 11;
+  pageSize = 20;
 
   constructor(private buildService: BuildService, private router: Router, private logoutService: LogoutService) { }
 
