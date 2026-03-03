@@ -491,6 +491,7 @@ table {
   /* clean, no double borders */
   width: 100%;
 }
+
 /* show the date input in dd-mmm-yyyy format */
 .date-cell {
   position: relative;
@@ -498,16 +499,21 @@ table {
 
 .date-hidden-text {
   position: relative;
-  color: transparent;        /* hide text only */
+  color: transparent;
+  /* hide text only */
   background: transparent;
 }
 
 .date-hidden-text::-webkit-datetime-edit {
-  color: transparent;        /* Chrome/Safari */
+  visibility: hidden;
+  pointer-events: none;
+  color: transparent;
+  /* Chrome/Safari */
 }
 
 .date-hidden-text::-webkit-calendar-picker-indicator {
-  opacity: 1;                /* keep icon visible */
+  opacity: 1;
+  /* keep icon visible */
   cursor: pointer;
 }
 

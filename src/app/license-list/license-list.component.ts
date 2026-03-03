@@ -40,8 +40,8 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   totalPages: number = 1;
   sortOrder: 'asc' = 'asc';
   sortBy: string = 'id';
-  //showDownloadButton: boolean = false; // Added download button visibility property
-  // showConfirmation: boolean = false; // Controls confirmation dialog visibility
+  showDownloadButton: boolean = false; // Added download button visibility property
+  showConfirmation: boolean = false; // Controls confirmation dialog visibility
 
   constructor(
     private router: Router,

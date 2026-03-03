@@ -64,12 +64,12 @@ export class LicenseService {
     );
   }
 
- // Get all licenses
+  // Get all licenses
   getParentDomains(): Observable<License[]> {
     return this.http.get<any[]>(`${apiUrl}/licenses/parent-domains`).pipe(
       catchError(this.handleError<License[]>('getParentDomains', []))
     );
-  } 
+  }
 
   getLicensesWithVersion() {
     return this.http.get<any[]>(`${apiUrl}/licenses/version`).pipe(
@@ -197,6 +197,9 @@ export class LicenseService {
           errors.push(`Invalid date format in row ${index + 1}`);
         } else if (startDate > endDate) {
           errors.push(`Start date cannot be after end date in row ${index + 1}`);
+        }
+        else if (endDate < new Date()) {
+          errors.push(`Module ${index + 1} has end date lesser than the current date`);
         }
       }
     });
