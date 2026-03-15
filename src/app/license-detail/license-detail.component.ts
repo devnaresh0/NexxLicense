@@ -305,6 +305,11 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  onDateInputClick(event: FocusEvent) {
+    const input = event.target as HTMLInputElement;
+    (input as any).showPicker(); // Opens date picker
+  }
+
   onModuleChange(moduleId: number, field: string, value: any) {
     const moduleIndex = this.licenseModules.findIndex(m => m.id === moduleId);
     if (moduleIndex > -1) {

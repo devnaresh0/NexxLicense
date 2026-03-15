@@ -50,6 +50,8 @@ export class BuildUploadComponent implements OnInit {
   downloadingCsv = false;
   // parse errors per build row (empty string = no error)
   parseErrors: string[] = [];
+  // hashing status per build row (true = hashing in progress)
+  hashingStatus: boolean[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -65,8 +67,9 @@ export class BuildUploadComponent implements OnInit {
       builds: this.fb.array([this.buildGroup()])
     });
 
-    // initialize parse errors for the initial build row
+    // initialize parse errors and hashing status for the initial build row
     this.parseErrors = [''];
+    this.hashingStatus = [false];
 
     this.fetchLicenses();
   }
@@ -92,12 +95,14 @@ export class BuildUploadComponent implements OnInit {
   addBuild() {
     this.builds.push(this.buildGroup());
     this.parseErrors.push('');
+    this.hashingStatus.push(false); // Initialize hashing status
   }
 
   // remove file block
   removeBuild(i: number) {
     this.builds.removeAt(i);
     this.parseErrors.splice(i, 1);
+    this.hashingStatus.splice(i, 1); // Remove hashing status
   }
 
   // file change
@@ -127,13 +132,34 @@ export class BuildUploadComponent implements OnInit {
       this.errorService.showError(`Could not detect type/version from filename: ${file.name}`, 'error');
     }
 
+    // Set hashing status to true
+    this.hashingStatus[index] = true;
+
     // hash async but do not block UI
     this.hashFile(file).then(hash => {
+      this.hashingStatus[index] = false; // Hashing complete
+      
+      // Check for zero-byte file
+      if (file.size === 0) {
+        this.parseErrors[index] = 'Zero-byte files are not allowed';
+        this.errorService.showError('Zero-byte files are not allowed', 'error');
+        return;
+      }
+      
+      // Check for empty file hash (0-byte file hash)
+      const emptyFileHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+      if (hash === emptyFileHash) {
+        this.parseErrors[index] = 'Empty files are not allowed';
+        this.errorService.showError('Empty files are not allowed', 'error');
+        return;
+      }
+      
       group.patchValue({
         file: file,
         file_hash: hash
       });
     }).catch(err => {
+      this.hashingStatus[index] = false; // Reset on error
       this.errorService.showError('Failed to hash file', 'error');
     });
   }
@@ -206,7 +232,12 @@ export class BuildUploadComponent implements OnInit {
       this.errorService.showError('Please fix filename parsing errors before submitting', 'error');
       return;
     }
-    // Ensure hashes exist
+    // Ensure hashes exist and no hashing is in progress
+    if (this.isHashingInProgress()) {
+      this.errorService.showError('Please wait for file hashing to finish', 'error');
+      return;
+    }
+
     for (var i = 0; i < this.builds.length; i++) {
       if (!this.builds.at(i).value.file_hash) {
         this.errorService.showError('Please wait for file hashing to finish', 'error');
@@ -306,6 +337,11 @@ export class BuildUploadComponent implements OnInit {
 
   navigateTo(url: string) {
     this.router.navigate([url]);
+  }
+
+  // Check if any hashing is in progress
+  isHashingInProgress(): boolean {
+    return this.hashingStatus.some(status => status);
   }
 
   async onLogout() {

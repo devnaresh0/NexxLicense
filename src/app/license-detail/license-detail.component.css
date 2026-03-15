@@ -1,5 +1,5 @@
 .license-detail-container {
-  padding: 10px;
+  padding: 3px;
   background-color: #f5f5f5;
   /* min-height: 100%; */
   /* height: auto; */
@@ -9,20 +9,22 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .title-section h2 {
-  margin: 0;
+  margin: 0 10px 0 0;
   font-size: 18px;
   color: black;
   font-weight: 500;
+  display: inline-block;
 }
 
 .subtitle {
   margin: 5px 0 0 0;
   color: #666;
-  font-size: 14px;
+  font-size: 12px;
+  display: inline-block;  /* Keep inline-block */
 }
 
 .header-actions {
@@ -200,7 +202,7 @@
 }
 
 .form-input {
-  padding: 3px;
+  /* padding: 1px; */
   border: 1px solid #ddd;
   border-radius: 2px;
   font-size: 12px;
@@ -227,15 +229,16 @@
 
 /* Date input specific styles */
 input[type="date"] {
-  padding: 3px;
+  /* padding: 3px; */
   border: 1px solid #ddd;
   border-radius: 2px;
   font-size: 12px;
   width: 100%;
   box-sizing: border-box;
-  height: 30px;
+  height: auto;
   background-color: white;
   cursor: pointer;
+  padding: 2px;
 }
 
 input[type="date"]:focus {
@@ -351,7 +354,7 @@ input[type="date"]::-webkit-datetime-edit-text {
 }
 
 .details-table .table-row td {
-  padding: 5px 0px 15px 0px;
+  padding: 2px 0px 2px 0px;
   color: black;
   font-size: 13px;
 }
@@ -389,14 +392,13 @@ input[type="date"]::-webkit-datetime-edit-text {
 
 .action-buttons {
   display: flex;
-  gap: 8px;
-
+  gap: 3px;
 }
 
 .btn-add,
 .btn-remove {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -406,6 +408,7 @@ input[type="date"]::-webkit-datetime-edit-text {
   justify-content: center;
   font-size: 15px;
   transition: background-color 0.3s ease;
+  margin-left: 5px;
 }
 
 .btn-add {
@@ -440,6 +443,45 @@ input[type="date"]::-webkit-datetime-edit-text {
   color: #6c757d;
   font-style: italic;
   padding: 20px !important;
+}
+
+table {
+  border-collapse: collapse;
+  /* clean, no double borders */
+  width: 100%;
+}
+
+/* show the date input in dd-mmm-yyyy format */
+.date-cell {
+  position: relative;
+}
+
+.date-hidden-text {
+  position: relative;
+  color: transparent;
+  /* hide text only */
+  background: transparent;
+}
+
+.date-hidden-text::-webkit-datetime-edit {
+  visibility: hidden;
+  pointer-events: none;
+  color: transparent;
+  /* Chrome/Safari */
+}
+
+.date-hidden-text::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  /* keep icon visible */
+  cursor: pointer;
+}
+
+.formatted-date {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 /* Responsive Design */
@@ -484,45 +526,6 @@ input[type="date"]::-webkit-datetime-edit-text {
     font-size: 12px;
     padding: 4px 8px;
   }
-}
-
-table {
-  border-collapse: collapse;
-  /* clean, no double borders */
-  width: 100%;
-}
-
-/* show the date input in dd-mmm-yyyy format */
-.date-cell {
-  position: relative;
-}
-
-.date-hidden-text {
-  position: relative;
-  color: transparent;
-  /* hide text only */
-  background: transparent;
-}
-
-.date-hidden-text::-webkit-datetime-edit {
-  visibility: hidden;
-  pointer-events: none;
-  color: transparent;
-  /* Chrome/Safari */
-}
-
-.date-hidden-text::-webkit-calendar-picker-indicator {
-  opacity: 1;
-  /* keep icon visible */
-  cursor: pointer;
-}
-
-.formatted-date {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-70%);
-  pointer-events: none;
 }
 
 @media (max-width: 800px) {

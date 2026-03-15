@@ -163,6 +163,7 @@
             <td class="date-cell">
               <input
                 type="date"
+                (focus)="onDateInputClick($event)"
                 [value]="module.startDate | date : 'yyyy-MM-dd'"
                 (input)="
                   onDateChange(module.id, 'startDate', $event.target.value)
@@ -178,6 +179,7 @@
             <td class="date-cell">
               <input
                 type="date"
+                (focus)="onDateInputClick($event)"
                 [min]="module.startDate | date : 'yyyy-MM-dd'"
                 [value]="module.endDate | date : 'yyyy-MM-dd'"
                 (input)="

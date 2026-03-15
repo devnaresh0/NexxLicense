@@ -199,7 +199,7 @@ export class LicenseService {
           errors.push(`Start date cannot be after end date in row ${index + 1}`);
         }
         else if (endDate < new Date()) {
-          errors.push(`Module ${index + 1} has end date lesser than the current date`);
+          errors.push(`Module ${index + 1} has end date lesser than the current date \n`);
         }
       }
     });

@@ -123,7 +123,7 @@ h2 {
   background-color: #17a2b8;
   color: #fff;
   padding: 4px 6px;        /* smaller */
-  font-size: 11.5px;       /* tighter but readable */
+  font-size: 12px;       /* tighter but readable */
   font-weight: 600;
   line-height: 1.1;        /* reduces header height */
   border: 1px solid #138496;
@@ -132,10 +132,9 @@ h2 {
 /* Cells */
 .session-table td {
   border: 1px solid #e6e6e6;
-  padding: 4px 6px;
+  padding: 3.5px;
   color: #222;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: 12.5px;
 }
 
 /* Zebra (lighter) */

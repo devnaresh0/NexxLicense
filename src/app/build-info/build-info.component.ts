@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BuildInfoService } from '../services/build-info.service';
 import { apiUrl } from 'src/environments/global';
+import { LogoutService } from '../services/logout.service';
 import { ErrorService } from '../services/error.service';
 
 @Component({
@@ -21,8 +22,8 @@ export class BuildInfoComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private buildInfoService: BuildInfoService,
-    private errorService: ErrorService
-
+    private errorService: ErrorService,
+    private logoutService: LogoutService,
   ) { }
 
   ngOnInit() {
@@ -177,5 +178,14 @@ export class BuildInfoComponent implements OnInit {
     a.href = `${apiUrl}/admin/build/info/${this.route.snapshot.paramMap.get('id')}/csv`;
     a.download = 'build.csv';
     a.click();
+  }
+   async onLogout() {
+    const confirmed = await this.logoutService.showConfirmation();
+    if (confirmed) {
+      console.log('logut click');
+      sessionStorage.removeItem('adminId');
+      sessionStorage.removeItem('username');
+      this.router.navigate(['/login']);
+    }
   }
 }

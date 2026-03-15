@@ -18,33 +18,33 @@
       <button class="btn-new" (click)="createNewLicense()">New</button>
     </div>
   </div>
-
-  <div class="filter-tabs">
-    <button
-      class="tab"
-      [class.active]="selectedFilter === 'All'"
-      (click)="onFilterChange('All')"
-    >
-      All
-    </button>
-    <button
-      class="tab"
-      [class.active]="selectedFilter === 'Active'"
-      (click)="onFilterChange('Active')"
-    >
-      Active
-    </button>
-    <button
-      class="tab"
-      [class.active]="selectedFilter === 'Inactive'"
-      (click)="onFilterChange('Inactive')"
-    >
-      Inactive
-    </button>
-  </div>
-
   <div class="search-section">
     <div class="search-controls">
+      <div class="filter-group">
+        <div class="filter-tabs">
+          <button
+            class="tab"
+            [class.active]="selectedFilter === 'All'"
+            (click)="onFilterChange('All')"
+          >
+            All
+          </button>
+          <button
+            class="tab"
+            [class.active]="selectedFilter === 'Active'"
+            (click)="onFilterChange('Active')"
+          >
+            Active
+          </button>
+          <button
+            class="tab"
+            [class.active]="selectedFilter === 'Inactive'"
+            (click)="onFilterChange('Inactive')"
+          >
+            Inactive
+          </button>
+        </div>
+      </div>
       <div class="search-group">
         <label>Search For License</label>
         <div class="search-input-group">

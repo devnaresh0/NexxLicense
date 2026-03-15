@@ -36,7 +36,7 @@ export class LicenseListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   selectedFilter: string = 'All';
   currentPage: number = 1;
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 15;
   totalPages: number = 1;
   sortOrder: 'asc' = 'asc';
   sortBy: string = 'id';
