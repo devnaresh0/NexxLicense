@@ -140,8 +140,8 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
   }
 
   loadLicense() {
-    // First ensure modules are loaded
-    this.licenseService.getModules()
+    // First ensure modules are loaded with licenseId
+    this.licenseService.getModules(this.licenseId)
       .pipe(
         takeUntil(this.destroy$),
         switchMap((modules: ModuleResponse[]) => {
@@ -172,6 +172,14 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
               startDate: module.startDate || this.formatDate(new Date()),
               endDate: module.endDate || this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
             };
+          }).sort((a, b) => {
+            // First sort by module name alphabetically
+            const nameComparison = a.module.localeCompare(b.module);
+            if (nameComparison !== 0) {
+              return nameComparison;
+            }
+            // If names are the same, sort by start date
+            return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
           });
 
           this.originalLicenseData = JSON.parse(JSON.stringify(data));
@@ -292,7 +300,7 @@ export class LicenseDetailComponent implements OnInit, OnDestroy {
       startDate: this.formatDate(new Date(Date.now())),
       endDate: this.formatDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)), // 30 days from now
     };
-    this.licenseModules.push(newModule);
+    this.licenseModules.unshift(newModule);
     this.cdr.markForCheck();
   }
 

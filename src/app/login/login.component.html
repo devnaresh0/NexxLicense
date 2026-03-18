@@ -5,11 +5,6 @@
       <h1 class="brand">NEXX</h1>
     </div>
 
-    <!-- Back Button (only on step 2) -->
-    <button class="back-button" *ngIf="isStep2" (click)="goBack()">
-      <i class="arrow-left">←</i>
-    </button>
-
     <!-- Title -->
     <h2 class="title">Sign in to Continue</h2>
 
@@ -18,13 +13,8 @@
       <b class="icon">👥</b>
     </div>
 
-    <!-- Step 1: Username -->
-    <form
-      [formGroup]="loginForm"
-      (ngSubmit)="onNext()"
-      *ngIf="isStep1"
-      class="form-step"
-    >
+    <!-- Single Form with both fields -->
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form-step">
       <div class="input-group">
         <input
           #usernameInput
@@ -33,34 +23,20 @@
           placeholder="Enter Username"
           formControlName="username"
           [class.error]="showUsernameError"
-          (keydown.enter)="$event.preventDefault(); onNext()"
         />
       </div>
-
-      <button type="submit" class="btn-primary">Next</button>
-    </form>
-
-    <!-- Step 2: Password -->
-    <form
-      [formGroup]="loginForm"
-      (ngSubmit)="onLogin()"
-      *ngIf="isStep2"
-      class="form-step"
-    >
-      <div class="welcome-message">Enter Password for {{ username }}</div>
 
       <div class="input-group">
         <input
           #passwordInput
-          type="password"
+          [type]="hidePassword ? 'password' : 'text'"
           class="form-input"
           placeholder="Enter Password"
           formControlName="password"
-          (keydown.enter)="$event.preventDefault(); onLogin()"
         />
-        <div class="input-icon">
-          <b class="lock-icon">🔒</b>
-        </div>
+        <button type="button" class="input-icon-btn" (click)="togglePasswordVisibility()">
+          <b class="lock-icon">{{ hidePassword ? '🔒' : '👁️' }}</b>
+        </button>
       </div>
 
       <button type="submit" class="btn-primary">Sign In</button>

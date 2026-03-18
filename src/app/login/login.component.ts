@@ -11,15 +11,14 @@ import { apiUrl } from 'src/environments/global';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
+export class LoginComponent implements OnInit, AfterViewInit {
   @ViewChild('passwordInput') passwordInput: ElementRef;
   @ViewChild('usernameInput') usernameInput: ElementRef;
-  private previousStep: number = 1;
   loginForm: FormGroup;
-  currentStep: number = 1;
   username: string = '';
   showUsernameError: boolean = false;
   currentVersion: string;
+  hidePassword: boolean = true;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -72,26 +71,20 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
     });
   }
 
-  onNext(): void {
-    const usernameControl = this.loginForm.get('username');
-
-    if (usernameControl && usernameControl.valid && usernameControl.value.trim() !== '') {
-      this.username = usernameControl.value;
-      this.previousStep = this.currentStep;
-      this.currentStep = 2;
-      this.showUsernameError = false;
-      console.log('Moving to step 2, username:', this.username); // Debug log
-    } else {
-      this.errorService.showError('Please enter a valid username', 'error');
-      this.showUsernameError = true;
-      console.log('Username validation failed:', usernameControl ? usernameControl.errors : 'No control'); // Debug log
-    }
+  togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
   }
 
+
   onLogin(): void {
+    const usernameControl = this.loginForm.get('username');
     const passwordControl = this.loginForm.get('password');
 
-    if (passwordControl && passwordControl.valid) {
+    if (usernameControl && passwordControl &&
+      usernameControl.valid && usernameControl.value.trim() !== '' &&
+      passwordControl.valid && passwordControl.value.trim() !== '') {
+
+      this.username = usernameControl.value;
 
       this.authService.login(this.username, passwordControl.value).subscribe({
         next: (res) => {
@@ -112,43 +105,15 @@ export class LoginComponent implements OnInit, AfterViewChecked, AfterViewInit {
         }
       });
     } else {
-      this.errorService.showError('Please enter a valid password', 'error');
+      if (!usernameControl || !usernameControl.valid || usernameControl.value.trim() === '') {
+        this.errorService.showError('Please enter a valid username', 'error');
+        this.showUsernameError = true;
+      } else {
+        this.errorService.showError('Please enter a valid password', 'error');
+      }
     }
   }
 
-  ngAfterViewChecked(): void {
-    // Handle focus when moving to step 2 (password)
-    if (this.currentStep === 2 && this.previousStep === 1) {
-      setTimeout(() => {
-        if (this.passwordInput && this.passwordInput.nativeElement) {
-          this.passwordInput.nativeElement.focus();
-        }
-      });
-      this.previousStep = 2;
-    }
-    // Handle focus when moving back to step 1 (username)
-    else if (this.currentStep === 1 && this.previousStep === 2) {
-      setTimeout(() => {
-        if (this.usernameInput && this.usernameInput.nativeElement) {
-          this.usernameInput.nativeElement.focus();
-        }
-      });
-      this.previousStep = 1;
-    }
-  }
-
-  goBack(): void {
-    this.previousStep = this.currentStep;
-    this.currentStep = 1;
-  }
-
-  get isStep1(): boolean {
-    return this.currentStep === 1;
-  }
-
-  get isStep2(): boolean {
-    return this.currentStep === 2;
-  }
 
   // private markFileAsExecuted(): void {
   //   const request = {

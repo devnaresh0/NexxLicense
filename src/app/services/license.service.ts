@@ -77,9 +77,11 @@ export class LicenseService {
     );
   }
 
-  getModules(): Observable<ModuleResponse[]> {
-    return this.http.get<ModuleResponse[]>(`${apiUrl}/modules`)
+  getModules(licenseId?: number): Observable<ModuleResponse[]> {
+    const params = licenseId ? `?licenseId=${licenseId}` : '';
+    return this.http.get<ModuleResponse[]>(`${apiUrl}/modules${params}`)
       .pipe(
+        map(modules => modules.sort((a, b) => a.moduleName.localeCompare(b.moduleName))),
         catchError(this.handleError<ModuleResponse[]>('getModules', []))
       );
   }

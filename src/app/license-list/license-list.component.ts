@@ -31,6 +31,8 @@ export class LicenseListComponent implements OnInit, OnDestroy {
 
   licenses: License[] = [];
   filteredLicenses: License[] = [];
+  parentLicenses: License[] = [];
+  childLicenses: License[] = [];
 
   // State properties with default values
   searchTerm: string = '';
@@ -114,30 +116,65 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     this.updateState();
   }
 
-  // Filter the license based on status and search term
+  // Filter license based on status and search term
   private applyFilters() {
     if (!this.licenses || this.licenses.length === 0) return;
 
-    let filtered = [...this.licenses];
+    // Separate parents and children
+    this.parentLicenses = this.licenses.filter(license => license.parentDomainId === null);
+    this.childLicenses = this.licenses.filter(license => license.parentDomainId !== null);
+
+    let filteredParents = [...this.parentLicenses];
+    let filteredChildren = [...this.childLicenses];
+
     // Apply status filter
     if (this.selectedFilter !== 'All') {
-      filtered = filtered.filter(license =>
-        license.active === (this.selectedFilter === 'Active')
-      );
+      const isActive = this.selectedFilter === 'Active';
+      filteredParents = filteredParents.filter(license => license.active === isActive);
+      filteredChildren = filteredChildren.filter(license => license.active === isActive);
     }
 
-    // Apply search filter
+    // Apply search filter - if parent matches, include its children too
     if (this.searchTerm) {
-      filtered = filtered.filter(license =>
-        license.domain.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        license.customerName.toLowerCase().includes(this.searchTerm.toLowerCase())
+      const searchLower = this.searchTerm.toLowerCase();
+
+      // Find parents that match search (domain OR customer)
+      const matchingParents = filteredParents.filter(license =>
+        license.domain.toLowerCase().includes(searchLower) ||
+        license.customerName.toLowerCase().includes(searchLower)
       );
+
+      // Find children that directly match search (domain OR customer)
+      const matchingChildren = filteredChildren.filter(license =>
+        license.domain.toLowerCase().includes(searchLower) ||
+        license.customerName.toLowerCase().includes(searchLower)
+      );
+
+      // Get IDs of matching parents
+      const matchingParentIds = matchingParents.map(p => p.id);
+
+      // Include children of matching parents ONLY if they don't already match directly
+      const childrenOfMatchingParents = filteredChildren.filter(child =>
+        matchingParentIds.includes(child.parentDomainId!) &&
+        !matchingChildren.some(matchingChild => matchingChild.id === child.id)
+      );
+
+      // Combine results: matching parents + matching children + children of matching parents
+      filteredParents = matchingParents;
+      filteredChildren = [...matchingChildren, ...childrenOfMatchingParents];
     }
+
+    // Combine and sort
+    let combined = [...filteredParents, ...filteredChildren];
 
     // Apply sorting with current sort order
-    filtered = this.sortLicenses(filtered, this.sortBy, this.sortOrder);
+    if (this.searchTerm) {
+      combined = this.sortBySearchRelevance(combined, this.searchTerm);
+    } else {
+      combined = this.sortLicenses(combined, this.sortBy, this.sortOrder);
+    }
 
-    this.filteredLicenses = filtered;
+    this.filteredLicenses = combined;
     this.calculateTotalPages();
 
     // Ensure current page is within bounds
@@ -146,6 +183,35 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     } else if (this.currentPage < 1 && this.totalPages > 0) {
       this.currentPage = 1;
     }
+  }
+
+  private sortBySearchRelevance(licenses: License[], term: string): License[] {
+    const search = term.toLowerCase();
+
+    return [...licenses].sort((a, b) => {
+      const aDomain = a.domain.toLowerCase();
+      const bDomain = b.domain.toLowerCase();
+      const aCustomer = a.customerName.toLowerCase();
+      const bCustomer = b.customerName.toLowerCase();
+
+      const aStarts =
+        aDomain.startsWith(search) || aCustomer.startsWith(search);
+      const bStarts =
+        bDomain.startsWith(search) || bCustomer.startsWith(search);
+
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+
+      const aIncludes =
+        aDomain.includes(search) || aCustomer.includes(search);
+      const bIncludes =
+        bDomain.includes(search) || bCustomer.includes(search);
+
+      if (aIncludes && !bIncludes) return -1;
+      if (!aIncludes && bIncludes) return 1;
+
+      return aDomain.localeCompare(bDomain);
+    });
   }
 
   //Calculate total pages for Pagination
@@ -158,6 +224,15 @@ export class LicenseListComponent implements OnInit, OnDestroy {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     return this.filteredLicenses.slice(startIndex, endIndex);
+  }
+
+  // Simple helper methods
+  isParent(license: License): boolean {
+    return license.parentDomainId === null;
+  }
+
+  isChild(license: License): boolean {
+    return license.parentDomainId !== null;
   }
 
   //Sort licenses based on selected field
@@ -175,9 +250,9 @@ export class LicenseListComponent implements OnInit, OnDestroy {
 
   //Sort licenses based on selected field
   private sortLicenses(licenses: License[], sortBy: string, direction: 'asc'): License[] {
-    if (sortBy === 'id') {
-      return [...licenses].sort((a, b) => a.id - b.id);  // Sort by ID numerically
-    }
+    // if (sortBy === 'id') {
+    //   return [...licenses].sort((a, b) => a.id - b.id);  // Sort by ID numerically
+    // }
 
     if (sortBy === 'parentChild') {
       return this.sortByParentChild(licenses);

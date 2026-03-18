@@ -6,6 +6,7 @@
       <p class="subtitle">Allows to Issue/View License</p>
     </div>
     <div class="header-action">
+      <button class="btn-logout" (click)="onLogout()">Logout</button>
       <button class="btn-new" (click)="navigateTo('/intro')">Home</button>
       <button
         *ngIf="showDownloadButton"
@@ -14,7 +15,6 @@
       >
         Restart
       </button>
-      <button class="btn-logout" (click)="onLogout()">Logout</button>
       <button class="btn-new" (click)="createNewLicense()">New</button>
     </div>
   </div>
@@ -65,7 +65,6 @@
           [ngModel]="sortBy"
           (ngModelChange)="onSortChange($event)"
         >
-          <option value="id">ID</option>
           <option value="domain">Domain</option>
           <option value="customerName">Customer</option>
           <option value="parentChild">Parent Child</option>
@@ -90,6 +89,7 @@
         <tr
           *ngFor="let license of getPaginatedLicenses(); let i = index"
           class="table-row"
+          [style.background-color]="isChild(license) ? '#e9ecef' : 'transparent'"
         >
           <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
           <td>{{ license.domain }}</td>
