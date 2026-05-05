@@ -1,3 +1,7 @@
+table {
+  table-layout: auto;
+}
+
 .license-detail-container {
   padding: 3px;
   background-color: #f5f5f5;
@@ -24,7 +28,8 @@
   margin: 5px 0 0 0;
   color: #666;
   font-size: 12px;
-  display: inline-block;  /* Keep inline-block */
+  display: inline-block;
+  /* Keep inline-block */
 }
 
 .header-actions {
@@ -482,6 +487,19 @@ table {
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+th:nth-child(3),
+td:nth-child(3) {
+  width: 60px;
+  min-width: 50px;
+  text-align: center;
 }
 
 /* Responsive Design */
